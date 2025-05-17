@@ -13,6 +13,13 @@ function mockContext({ authentication = 'accessToken', host = 'https://gitlab.ex
     },
     async getCredentials(name) {
       calls.credentials = name;
+      if (name === 'gitlabApi') {
+        return { accessToken: 'mockAccessToken' };
+      }
+      if (name === 'gitlabOAuth2Api') {
+        return { clientId: 'mockClientId', clientSecret: 'mockClientSecret', accessToken: 'mockOAuth2Token' };
+      }
+      throw new Error('Unexpected credentials name: ' + name);
     },
     helpers: {
       async requestWithAuthentication(name, options) {
