@@ -26,6 +26,8 @@ The GitLab Extended node supports the following operations:
 
 Authentication can be configured using either a personal access token or OAuth2. Create the appropriate GitLab credentials in n8n and select them in the node.
 
+Use the <code>API URL</code> field to specify your GitLab instance's API base address, for example <code>https://gitlab.your-company.com/api/v4</code>.
+
 ## Compatibility
 
 This package requires n8n version 1.0.0 or later and is tested on Node.js 20.
