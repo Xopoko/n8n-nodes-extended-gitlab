@@ -312,8 +312,8 @@ export class GitlabExtended implements INodeType {
             let body: IDataObject = {};
             let qs: IDataObject = {};
             let returnAll = false;
-            const owner = (this.getNodeParameter('owner', i) as string).replace(/\//g, '%2F');
-            const repo = this.getNodeParameter('repository', i) as string;
+            const owner = encodeURIComponent(this.getNodeParameter('owner', i) as string);
+            const repo = encodeURIComponent(this.getNodeParameter('repository', i) as string);
             const base = `/projects/${owner}%2F${repo}`;
 
             if (resource === 'branch') {
