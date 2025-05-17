@@ -1,19 +1,20 @@
 {
-  "name": "n8n-nodes-extended-template",
+  "name": "n8n-nodes-extended-gitlab",
   "version": "0.1.2",
-  "description": "Template for extended n8n custom nodes including an example node.",
+  "description": "Extended GitLab node for n8n.",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n-community-node-package",
+    "gitlab"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/your-org/n8n-nodes-extended-template",
+  "homepage": "https://github.com/xopoko/n8n-nodes-extended-gitlab",
   "author": {
     "name": "Xopoko",
     "email": "cyprus.horoko@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/n8n-nodes-extended-template.git"
+    "url": "https://github.com/xopoko/n8n-nodes-extended-gitlab.git"
   },
   "engines": {
     "node": ">=20.15"
@@ -35,7 +36,6 @@
     "n8nNodesApiVersion": 1,
     "credentials": [],
     "nodes": [
-      "dist/nodes/Example/Example.node.js",
       "dist/nodes/GitlabExtended/GitlabExtended.node.js"
     ]
   },
