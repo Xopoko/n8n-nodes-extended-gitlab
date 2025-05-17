@@ -27,7 +27,7 @@
     "lint": "eslint \"nodes/**/*.{ts,tsx}\" package.json",
     "lintfix": "eslint --ext .ts nodes credentials package.json --fix",
     "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes package.json",
-    "test": "node --test"
+    "test": "npm run build && node --test"
   },
   "files": [
     "dist"
