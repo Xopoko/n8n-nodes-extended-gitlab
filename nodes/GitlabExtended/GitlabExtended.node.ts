@@ -445,17 +445,20 @@ export class GitlabExtended implements INodeType {
                 } else if (operation === 'createNote') {
                     requestMethod = 'POST';
                     body.body = this.getNodeParameter('noteBody', i);
+                    const iid = this.getNodeParameter('mergeRequestIid', i) as number;
                     endpoint = `${base}/merge_requests/${iid}/notes`;
                 } else if (operation === 'postDiscussionNote') {
                     requestMethod = 'POST';
                     const discussionId = this.getNodeParameter('discussionId', i);
                     body.body = this.getNodeParameter('noteBody', i);
+                    const iid = this.getNodeParameter('mergeRequestIid', i) as number;
                     endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes`;
                 } else if (operation === 'updateNote') {
                     requestMethod = 'PUT';
                     const discussionId = this.getNodeParameter('discussionId', i);
                     const noteId = this.getNodeParameter('noteId', i);
                     body.body = this.getNodeParameter('noteBody', i);
+                    const iid = this.getNodeParameter('mergeRequestIid', i) as number;
                     endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
                 }
             } else if (resource === 'raw') {
