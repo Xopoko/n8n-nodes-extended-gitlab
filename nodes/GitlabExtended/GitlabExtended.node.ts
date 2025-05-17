@@ -53,6 +53,7 @@ export class GitlabExtended implements INodeType {
                     { name: 'Branch', value: 'branch' },
                     { name: 'File', value: 'file' },
                     { name: 'Issue', value: 'issue' },
+                    { name: 'Merge Request', value: 'mergeRequest' },
                     { name: 'Pipeline', value: 'pipeline' },
                     { name: 'Raw API', value: 'raw' },
                 ],
@@ -113,6 +114,19 @@ export class GitlabExtended implements INodeType {
                 name: 'operation',
                 type: 'options',
                 noDataExpression: true,
+                displayOptions: { show: { resource: ['mergeRequest'] } },
+                options: [
+                    { name: 'Create', value: 'create', action: 'Create a merge request' },
+                    { name: 'Get', value: 'get', action: 'Get a merge request' },
+                    { name: 'Get Many', value: 'getAll', action: 'List merge requests' },
+                ],
+                default: 'create',
+            },
+            {
+                displayName: 'Operation',
+                name: 'operation',
+                type: 'options',
+                noDataExpression: true,
                 displayOptions: { show: { resource: ['raw'] } },
                 options: [
                     { name: 'Request', value: 'request', action: 'Make an API request' },
@@ -151,7 +165,7 @@ export class GitlabExtended implements INodeType {
                 type: 'boolean',
                 displayOptions: {
                     show: {
-                        resource: ['branch', 'pipeline', 'file'],
+                        resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
                         operation: ['getAll', 'list'],
                     },
                 },
@@ -164,7 +178,7 @@ export class GitlabExtended implements INodeType {
                 type: 'number',
                 displayOptions: {
                     show: {
-                        resource: ['branch', 'pipeline', 'file'],
+                        resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
                         operation: ['getAll', 'list'],
                         returnAll: [false],
                     },
@@ -180,6 +194,22 @@ export class GitlabExtended implements INodeType {
                 name: 'pipelineRef',
                 type: 'string',
                 displayOptions: { show: { resource: ['pipeline'], operation: ['create'] } },
+                default: 'main',
+            },
+            {
+                displayName: 'Source Branch',
+                name: 'sourceBranch',
+                type: 'string',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['create'] } },
+                default: '',
+            },
+            {
+                displayName: 'Target Branch',
+                name: 'targetBranch',
+                type: 'string',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['create'] } },
                 default: 'main',
             },
             {
@@ -204,14 +234,14 @@ export class GitlabExtended implements INodeType {
                 name: 'title',
                 type: 'string',
                 required: true,
-                displayOptions: { show: { resource: ['issue'], operation: ['create'] } },
+                displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create'] } },
                 default: '',
             },
             {
                 displayName: 'Description',
                 name: 'description',
                 type: 'string',
-                displayOptions: { show: { resource: ['issue'], operation: ['create'] } },
+                displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create'] } },
                 default: '',
             },
             {
@@ -220,6 +250,14 @@ export class GitlabExtended implements INodeType {
                 type: 'number',
                 required: true,
                 displayOptions: { show: { resource: ['issue'], operation: ['get'] } },
+                default: 1,
+            },
+            {
+                displayName: 'Merge Request IID',
+                name: 'mergeRequestIid',
+                type: 'number',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['get'] } },
                 default: 1,
             },
             {
@@ -344,6 +382,27 @@ export class GitlabExtended implements INodeType {
                     const id = this.getNodeParameter('issueNumber', i);
                     endpoint = `${base}/issues/${id}`;
                     overwrite.push('issue:get');
+                }
+            } else if (resource === 'mergeRequest') {
+                if (operation === 'create') {
+                    requestMethod = 'POST';
+                    body.source_branch = this.getNodeParameter('sourceBranch', i);
+                    body.target_branch = this.getNodeParameter('targetBranch', i);
+                    body.title = this.getNodeParameter('title', i);
+                    body.description = this.getNodeParameter('description', i);
+                    endpoint = `${base}/merge_requests`;
+                    overwrite.push('mergeRequest:create');
+                } else if (operation === 'get') {
+                    requestMethod = 'GET';
+                    const iid = this.getNodeParameter('mergeRequestIid', i);
+                    endpoint = `${base}/merge_requests/${iid}`;
+                    overwrite.push('mergeRequest:get');
+                } else if (operation === 'getAll') {
+                    requestMethod = 'GET';
+                    returnAll = this.getNodeParameter('returnAll', i);
+                    if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                    endpoint = `${base}/merge_requests`;
+                    overwrite.push('mergeRequest:getAll');
                 }
             } else if (resource === 'raw') {
                 if (operation === 'request') {
