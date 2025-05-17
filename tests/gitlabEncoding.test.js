@@ -11,8 +11,8 @@ function computeBase(ownerValue, repoValue) {
       throw new Error('Unexpected parameter ' + name);
     },
   };
-  const owner = encodeURIComponent(ctx.getNodeParameter('owner', 0));
-  const repo = encodeURIComponent(ctx.getNodeParameter('repository', 0));
+  const owner = encodeURIComponent(ctx.getNodeParameter('owner'));
+  const repo = encodeURIComponent(ctx.getNodeParameter('repository'));
   return `/projects/${owner}%2F${repo}`;
 }
 
