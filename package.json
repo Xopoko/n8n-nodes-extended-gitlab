@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-extended-template",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Template for extended n8n custom nodes including an example node.",
   "keywords": [
     "n8n-community-node-package"
