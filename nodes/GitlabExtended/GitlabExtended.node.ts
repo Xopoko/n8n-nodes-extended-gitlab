@@ -45,11 +45,11 @@ export class GitlabExtended implements INodeType {
                 default: 'accessToken',
             },
             {
-                displayName: 'API URL',
-                name: 'apiUrl',
+                displayName: 'Host',
+                name: 'host',
                 type: 'string',
-                default: 'https://gitlab.com/api/v4',
-                description: 'Base URL of your GitLab API including the API path',
+                default: 'https://gitlab.com',
+                description: 'Base URL of your GitLab host. The path "/api/v4" is appended automatically.',
             },
             {
                 displayName: 'Resource',
