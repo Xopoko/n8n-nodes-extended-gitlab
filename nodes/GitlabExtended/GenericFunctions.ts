@@ -37,15 +37,16 @@ export async function gitlabApiRequest(
     }
 
     const authenticationMethod = this.getNodeParameter('authentication', 0);
+    const baseUrl = (this.getNodeParameter('apiUrl', 0) as string).replace(/\/$/, '');
 
     try {
         if (authenticationMethod === 'accessToken') {
-            const credentials = await this.getCredentials('gitlabApi');
-            options.uri = `${(credentials.server as string).replace(/\/$/, '')}/api/v4${endpoint}`;
+            await this.getCredentials('gitlabApi');
+            options.uri = `${baseUrl}${endpoint}`;
             return await this.helpers.requestWithAuthentication.call(this, 'gitlabApi', options);
         } else {
-            const credentials = await this.getCredentials('gitlabOAuth2Api');
-            options.uri = `${(credentials.server as string).replace(/\/$/, '')}/api/v4${endpoint}`;
+            await this.getCredentials('gitlabOAuth2Api');
+            options.uri = `${baseUrl}${endpoint}`;
             return await this.helpers.requestOAuth2.call(this, 'gitlabOAuth2Api', options);
         }
     } catch (error) {
