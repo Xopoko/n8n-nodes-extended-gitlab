@@ -304,8 +304,6 @@ export class GitlabExtended implements INodeType {
         const returnData: INodeExecutionData[] = [];
         const operation = this.getNodeParameter('operation', 0);
         const resource = this.getNodeParameter('resource', 0);
-        const overwrite: string[] = [];
-
         for (let i = 0; i < items.length; i++) {
             let requestMethod: IHttpRequestMethods = 'GET';
             let endpoint = '';
@@ -322,36 +320,30 @@ export class GitlabExtended implements INodeType {
                     body.branch = this.getNodeParameter('branchName', i);
                     body.ref = this.getNodeParameter('ref', i);
                     endpoint = `${base}/repository/branches`;
-                    overwrite.push('branch:create');
                 } else if (operation === 'get') {
                     requestMethod = 'GET';
                     const branch = this.getNodeParameter('branchName', i) as string;
                     endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}`;
-                    overwrite.push('branch:get');
                 } else if (operation === 'getAll') {
                     requestMethod = 'GET';
                     returnAll = this.getNodeParameter('returnAll', i);
                     if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
                     endpoint = `${base}/repository/branches`;
-                    overwrite.push('branch:getAll');
                 }
             } else if (resource === 'pipeline') {
                 if (operation === 'create') {
                     requestMethod = 'POST';
                     body.ref = this.getNodeParameter('pipelineRef', i);
                     endpoint = `${base}/pipeline`;
-                    overwrite.push('pipeline:create');
                 } else if (operation === 'get') {
                     requestMethod = 'GET';
                     const id = this.getNodeParameter('pipelineId', i);
                     endpoint = `${base}/pipelines/${id}`;
-                    overwrite.push('pipeline:get');
                 } else if (operation === 'getAll') {
                     requestMethod = 'GET';
                     returnAll = this.getNodeParameter('returnAll', i);
                     if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
                     endpoint = `${base}/pipelines`;
-                    overwrite.push('pipeline:getAll');
                 }
             } else if (resource === 'file') {
                 if (operation === 'get') {
@@ -359,7 +351,6 @@ export class GitlabExtended implements INodeType {
                     const path = this.getNodeParameter('filePath', i);
                     qs.ref = this.getNodeParameter('fileRef', i);
                     endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
-                    overwrite.push('file:get');
                 } else if (operation === 'list') {
                     requestMethod = 'GET';
                     const path = this.getNodeParameter('filePath', i);
@@ -368,7 +359,6 @@ export class GitlabExtended implements INodeType {
                     if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
                     if (path) qs.path = path;
                     endpoint = `${base}/repository/tree`;
-                    overwrite.push('file:list');
                 }
             } else if (resource === 'issue') {
                 if (operation === 'create') {
@@ -376,12 +366,10 @@ export class GitlabExtended implements INodeType {
                     body.title = this.getNodeParameter('title', i);
                     body.description = this.getNodeParameter('description', i);
                     endpoint = `${base}/issues`;
-                    overwrite.push('issue:create');
                 } else if (operation === 'get') {
                     requestMethod = 'GET';
                     const id = this.getNodeParameter('issueNumber', i);
                     endpoint = `${base}/issues/${id}`;
-                    overwrite.push('issue:get');
                 }
             } else if (resource === 'mergeRequest') {
                 if (operation === 'create') {
@@ -391,18 +379,15 @@ export class GitlabExtended implements INodeType {
                     body.title = this.getNodeParameter('title', i);
                     body.description = this.getNodeParameter('description', i);
                     endpoint = `${base}/merge_requests`;
-                    overwrite.push('mergeRequest:create');
                 } else if (operation === 'get') {
                     requestMethod = 'GET';
                     const iid = this.getNodeParameter('mergeRequestIid', i);
                     endpoint = `${base}/merge_requests/${iid}`;
-                    overwrite.push('mergeRequest:get');
                 } else if (operation === 'getAll') {
                     requestMethod = 'GET';
                     returnAll = this.getNodeParameter('returnAll', i);
                     if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
                     endpoint = `${base}/merge_requests`;
-                    overwrite.push('mergeRequest:getAll');
                 }
             } else if (resource === 'raw') {
                 if (operation === 'request') {
@@ -410,7 +395,6 @@ export class GitlabExtended implements INodeType {
                     endpoint = this.getNodeParameter('rawEndpoint', i) as string;
                     body = this.getNodeParameter('bodyContent', i, {}) as IDataObject;
                     qs = this.getNodeParameter('queryParameters', i, {}) as IDataObject;
-                    overwrite.push('raw:request');
                 }
             } else {
                 throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`, { itemIndex: i });
