@@ -124,8 +124,11 @@ export class GitlabExtended implements INodeType {
                 displayOptions: { show: { resource: ['mergeRequest'] } },
                 options: [
                     { name: 'Create', value: 'create', action: 'Create a merge request' },
+                    { name: 'Create Note', value: 'createNote', action: 'Create a note' },
                     { name: 'Get', value: 'get', action: 'Get a merge request' },
                     { name: 'Get Many', value: 'getAll', action: 'List merge requests' },
+                    { name: 'Post Discussion Note', value: 'postDiscussionNote', action: 'Post to discussion' },
+                    { name: 'Update Note', value: 'updateNote', action: 'Update a note' },
                 ],
                 default: 'create',
             },
@@ -264,7 +267,51 @@ export class GitlabExtended implements INodeType {
                 name: 'mergeRequestIid',
                 type: 'number',
                 required: true,
-                displayOptions: { show: { resource: ['mergeRequest'], operation: ['get'] } },
+                displayOptions: {
+                    show: {
+                        resource: ['mergeRequest'],
+                        operation: ['get', 'createNote', 'postDiscussionNote', 'updateNote'],
+                    },
+                },
+                default: 1,
+            },
+            {
+                displayName: 'Note Body',
+                name: 'noteBody',
+                type: 'string',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['mergeRequest'],
+                        operation: ['createNote', 'postDiscussionNote', 'updateNote'],
+                    },
+                },
+                default: '',
+            },
+            {
+                displayName: 'Discussion ID',
+                name: 'discussionId',
+                type: 'string',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['mergeRequest'],
+                        operation: ['postDiscussionNote', 'updateNote'],
+                    },
+                },
+                default: '',
+            },
+            {
+                displayName: 'Note ID',
+                name: 'noteId',
+                type: 'number',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['mergeRequest'],
+                        operation: ['updateNote'],
+                    },
+                },
                 default: 1,
             },
             {
@@ -395,6 +442,24 @@ export class GitlabExtended implements INodeType {
                     returnAll = this.getNodeParameter('returnAll', i);
                     if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
                     endpoint = `${base}/merge_requests`;
+                } else if (operation === 'createNote') {
+                    requestMethod = 'POST';
+                    const iid = this.getNodeParameter('mergeRequestIid', i);
+                    body.body = this.getNodeParameter('noteBody', i);
+                    endpoint = `${base}/merge_requests/${iid}/notes`;
+                } else if (operation === 'postDiscussionNote') {
+                    requestMethod = 'POST';
+                    const iid = this.getNodeParameter('mergeRequestIid', i);
+                    const discussionId = this.getNodeParameter('discussionId', i);
+                    body.body = this.getNodeParameter('noteBody', i);
+                    endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes`;
+                } else if (operation === 'updateNote') {
+                    requestMethod = 'PUT';
+                    const iid = this.getNodeParameter('mergeRequestIid', i);
+                    const discussionId = this.getNodeParameter('discussionId', i);
+                    const noteId = this.getNodeParameter('noteId', i);
+                    body.body = this.getNodeParameter('noteBody', i);
+                    endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
                 }
             } else if (resource === 'raw') {
                 if (operation === 'request') {
