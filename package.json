@@ -35,7 +35,8 @@
     "n8nNodesApiVersion": 1,
     "credentials": [],
     "nodes": [
-      "dist/nodes/Example/Example.node.js"
+      "dist/nodes/Example/Example.node.js",
+      "dist/nodes/GitlabExtended/GitlabExtended.node.js"
     ]
   },
   "devDependencies": {
