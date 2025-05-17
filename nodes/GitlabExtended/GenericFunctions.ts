@@ -37,7 +37,8 @@ export async function gitlabApiRequest(
     }
 
     const authenticationMethod = this.getNodeParameter('authentication', 0);
-    const baseUrl = (this.getNodeParameter('apiUrl', 0) as string).replace(/\/$/, '');
+    const host = (this.getNodeParameter('host', 0) as string).replace(/\/$/, '');
+    const baseUrl = `${host}/api/v4`;
 
     try {
         if (authenticationMethod === 'accessToken') {
