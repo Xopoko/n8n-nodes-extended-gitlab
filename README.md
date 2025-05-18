@@ -38,13 +38,22 @@ To add labels to a merge request, use the `manageLabels` operation with the foll
 
 Example:
 
-```json
+````json
 {
   "operation": "manageLabels",
   "mergeRequestId": 123,
   "labelAction": "add",
   "labels": "bug,urgent"
 }
+
+### Example: Get Discussion by ID
+
+To fetch a specific merge request discussion, use the `getMergeRequestDiscussion` helper:
+
+```ts
+const discussion = await getMergeRequestDiscussion.call(ctx, 1234, '123abc');
+````
+
 ## Credentials
 
 Authentication is handled exclusively via the <code>Gitlab Extended API</code> credentials. Create these credentials in n8n to store your GitLab server, access token and default project details in one place.
