@@ -45,6 +45,7 @@ Example:
   "labelAction": "add",
   "labels": "bug,urgent"
 }
+
 ## Credentials
 
 Authentication is handled exclusively via the <code>Gitlab Extended API</code> credentials. Create these credentials in n8n to store your GitLab server, access token and default project details in one place.
