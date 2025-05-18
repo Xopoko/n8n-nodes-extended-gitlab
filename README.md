@@ -18,12 +18,14 @@ The GitLab Extended node supports the following operations:
 - Pipelines: create, get, and list
 - Files: get and list
 - Issues: create and get
-- Merge Requests: 
+- Merge Requests:
   - Create
   - Manage labels: Add or remove labels on a merge request. Use the `labelAction` parameter to specify the action (`add` or `remove`) and provide the list of labels to modify.
   - Manage notes and discussions
   - Get
   - List
+  - Get discussion by ID
+  - List discussions
 - Raw API requests
 
 ### Example: Managing Labels on a Merge Request
