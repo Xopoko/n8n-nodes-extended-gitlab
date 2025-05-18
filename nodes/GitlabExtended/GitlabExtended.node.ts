@@ -340,9 +340,9 @@ export class GitlabExtended implements INodeType {
             let qs: IDataObject = {};
             let returnAll = false;
             const credential = await this.getCredentials('gitlabExtendedApi');
-            const owner = encodeURIComponent(credential.projectOwner as string);
-            const repo = encodeURIComponent(credential.projectName as string);
-            const base = `/projects/${owner}%2F${repo}`;
+            const base = credential.projectId
+                ? `/projects/${credential.projectId}`
+                : `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(credential.projectName as string)}`;
 
             if (resource === 'branch') {
                 if (operation === 'create') {
