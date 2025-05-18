@@ -1,6 +1,9 @@
 import assert from 'node:assert';
 import test from 'node:test';
-function computeBase(ownerValue, repoValue) {
+function computeBase(ownerValue, repoValue, projectId) {
+  if (projectId) {
+    return `/projects/${projectId}`;
+  }
   const owner = encodeURIComponent(ownerValue);
   const repo = encodeURIComponent(repoValue);
   return `/projects/${owner}%2F${repo}`;
@@ -29,4 +32,9 @@ test('encodes slashes in repository', () => {
 test('encodes slashes and spaces in both parts', () => {
   const base = computeBase('group/sub name', 'repo/with space');
   assert.strictEqual(base, '/projects/group%2Fsub%20name%2Frepo%2Fwith%20space');
+});
+
+test('uses project ID when provided', () => {
+  const base = computeBase('ignored', 'ignored', 123);
+  assert.strictEqual(base, '/projects/123');
 });
