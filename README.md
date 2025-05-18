@@ -23,10 +23,9 @@ The GitLab Extended node supports the following operations:
 
 ## Credentials
 
-Authentication can be configured using either a personal access token or OAuth2. Create the appropriate GitLab credentials in n8n and select them in the node.  
-The package also exposes <code>Gitlab Extended API</code> credentials which let you store your GitLab server, access token and default project details in one place.
+Authentication is handled exclusively via the <code>Gitlab Extended API</code> credentials. Create these credentials in n8n to store your GitLab server, access token and default project details in one place.
 
-Use the <code>Host</code> field to specify your GitLab instance's host address, for example <code>https://gitlab.your-company.com</code>. Requests automatically use the <code>/api/v4</code> path.
+The credentials' <code>server</code> field specifies your GitLab instance host (e.g. <code>https://gitlab.your-company.com</code>). Requests automatically use the <code>/api/v4</code> path.
 
 ## Compatibility
 

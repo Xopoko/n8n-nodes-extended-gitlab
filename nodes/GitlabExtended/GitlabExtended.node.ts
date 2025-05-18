@@ -23,34 +23,11 @@ export class GitlabExtended implements INodeType {
         outputs: [NodeConnectionType.Main],
         credentials: [
             {
-                name: 'gitlabApi',
+                name: 'gitlabExtendedApi',
                 required: true,
-                displayOptions: { show: { authentication: ['accessToken'] } },
-            },
-            {
-                name: 'gitlabOAuth2Api',
-                required: true,
-                displayOptions: { show: { authentication: ['oAuth2'] } },
             },
         ],
         properties: [
-            {
-                displayName: 'Authentication',
-                name: 'authentication',
-                type: 'options',
-                options: [
-                    { name: 'Access Token', value: 'accessToken' },
-                    { name: 'OAuth2', value: 'oAuth2' },
-                ],
-                default: 'accessToken',
-            },
-            {
-                displayName: 'Host',
-                name: 'host',
-                type: 'string',
-                default: 'https://gitlab.com',
-                description: 'Base URL of your GitLab host. The path "/api/v4" is appended automatically.',
-            },
             {
                 displayName: 'Resource',
                 name: 'resource',
