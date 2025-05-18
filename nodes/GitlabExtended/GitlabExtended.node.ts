@@ -73,10 +73,10 @@ export class GitlabExtended implements INodeType {
                                displayOptions: { show: { resource: ['pipeline'] } },
                                description: "Select how to manage pipelines, like using 'get' to fetch pipeline details",
                                options: [
+                                       { name: 'Cancel', value: 'cancel', action: 'Cancel a pipeline' },
                                        { name: 'Create', value: 'create', action: 'Create a pipeline' },
                                        { name: 'Get', value: 'get', action: 'Get a pipeline' },
                                        { name: 'Get Many', value: 'getAll', action: 'List pipelines' },
-                                       { name: 'Cancel', value: 'cancel', action: 'Cancel a pipeline' },
                                        { name: 'Retry', value: 'retry', action: 'Retry a pipeline' },
                                ],
                                default: 'create',
