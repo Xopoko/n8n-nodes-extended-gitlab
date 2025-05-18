@@ -308,6 +308,7 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Discussion ID',
 				name: 'discussionId',
 				type: 'string',
+				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
@@ -636,6 +637,12 @@ export class GitlabExtended implements INodeType {
 						endpoint = `${base}/merge_requests/${iid}/discussions`;
 					} else {
 						const discussionId = this.getNodeParameter('discussionId', i);
+						if (!discussionId) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'Discussion ID must be provided when replying to a discussion.',
+							);
+						}
 						endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes`;
 					}
 				} else if (operation === 'updateNote') {
