@@ -160,7 +160,7 @@ export class GitlabExtended implements INodeType {
                                 required: true,
                                 displayOptions: {
                                         show: {
-                                                resource: ['branch', 'pipeline', 'file'],
+                                                resource: ['branch', 'file'],
                                                 operation: ['create', 'get', 'list'],
                                         },
                                 },
