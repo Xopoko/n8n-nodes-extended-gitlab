@@ -27,6 +27,7 @@ one of its operations.
 * `cancel` – Cancel a pipeline
 * `get` – Get a pipeline by ID
 * `getAll` – List pipelines
+* `getJobs` – List jobs for a pipeline
 
 ### File
 * `get` – Retrieve a file

@@ -77,6 +77,7 @@ export class GitlabExtended implements INodeType {
                                        { name: 'Cancel', value: 'cancel', action: 'Cancel a pipeline' },
                                        { name: 'Create', value: 'create', action: 'Create a pipeline' },
                                        { name: 'Get', value: 'get', action: 'Get a pipeline' },
+                                       { name: 'Get Jobs', value: 'getJobs', action: 'List pipeline jobs' },
                                        { name: 'Get Many', value: 'getAll', action: 'List pipelines' },
                                        { name: 'Retry', value: 'retry', action: 'Retry a pipeline' },
                                ],
@@ -172,15 +173,15 @@ export class GitlabExtended implements INodeType {
                                 default: 'main',
                         },
 			{
-				displayName: 'Pipeline ID',
-				name: 'pipelineId',
-                                type: 'number',
-                                required: true,
-                                typeOptions: { minValue: 1 },
+                               displayName: 'Pipeline ID',
+                               name: 'pipelineId',
+                               type: 'number',
+                               required: true,
+                               typeOptions: { minValue: 1 },
                                displayOptions: {
                                        show: {
                                                resource: ['pipeline'],
-                                               operation: ['get', 'cancel', 'retry'],
+                                               operation: ['get', 'cancel', 'retry', 'getJobs'],
                                        },
                                },
                                 description: 'Numeric ID of the pipeline (must be positive)',
@@ -192,10 +193,10 @@ export class GitlabExtended implements INodeType {
 				type: 'boolean',
 				displayOptions: {
 					show: {
-						resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
-                                                operation: ['getAll', 'list', 'getDiscussions'],
-					},
-				},
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
+                                               operation: ['getAll', 'list', 'getDiscussions', 'getJobs'],
+                                       },
+                               },
 				default: false,
 				description: 'Whether to return all results or only up to a given limit',
 			},
@@ -205,11 +206,11 @@ export class GitlabExtended implements INodeType {
 				type: 'number',
 				displayOptions: {
 					show: {
-						resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
-                                                operation: ['getAll', 'list', 'getDiscussions'],
-						returnAll: [false],
-					},
-				},
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
+                                               operation: ['getAll', 'list', 'getDiscussions', 'getJobs'],
+                                               returnAll: [false],
+                                       },
+                               },
 				typeOptions: {
 					minValue: 1,
 				},
@@ -661,6 +662,19 @@ export class GitlabExtended implements INodeType {
                                        returnAll = this.getNodeParameter('returnAll', i);
                                        if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
                                        endpoint = `${base}/pipelines`;
+                               } else if (operation === 'getJobs') {
+                                       requestMethod = 'GET';
+                                       const id = this.getNodeParameter('pipelineId', i) as number;
+                                       if (id <= 0) {
+                                               throw new NodeOperationError(
+                                                       this.getNode(),
+                                                       'pipelineId must be a positive number',
+                                                       { itemIndex: i },
+                                               );
+                                       }
+                                       returnAll = this.getNodeParameter('returnAll', i);
+                                       if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                       endpoint = `${base}/pipelines/${id}/jobs`;
                                } else if (operation === 'cancel' || operation === 'retry') {
                                        requestMethod = 'POST';
                                        const id = this.getNodeParameter('pipelineId', i) as number;
