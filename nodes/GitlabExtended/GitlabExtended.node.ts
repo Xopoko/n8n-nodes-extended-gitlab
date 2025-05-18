@@ -119,8 +119,14 @@ export class GitlabExtended implements INodeType {
 						value: 'postDiscussionNote',
 						action: 'Post to discussion',
 					},
-					{ name: 'Resolve Discussion', value: 'resolveDiscussion', action: 'Resolve a discussion' },
+					{
+						name: 'Resolve Discussion',
+						value: 'resolveDiscussion',
+						action: 'Resolve a discussion',
+					},
 					{ name: 'Update Note', value: 'updateNote', action: 'Update a note' },
+					{ name: 'Add Labels', value: 'addLabels', action: 'Add labels' },
+					{ name: 'Remove Labels', value: 'removeLabels', action: 'Remove labels' },
 				],
 				default: 'create',
 			},
@@ -272,11 +278,33 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-						operation: ['get', 'createNote', 'postDiscussionNote', 'updateNote', 'resolveDiscussion'],
+						operation: [
+							'get',
+							'createNote',
+							'postDiscussionNote',
+							'updateNote',
+							'resolveDiscussion',
+							'addLabels',
+							'removeLabels',
+						],
 					},
 				},
 				description: "The merge request IID, such as '7'",
 				default: 1,
+			},
+			{
+				displayName: 'Labels',
+				name: 'labels',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['addLabels', 'removeLabels'],
+					},
+				},
+				description: 'Comma-separated label names to apply',
+				default: '',
 			},
 			{
 				displayName: 'Note Body',
@@ -692,6 +720,16 @@ export class GitlabExtended implements INodeType {
 					const discussionId = this.getNodeParameter('discussionId', i);
 					body.resolved = this.getNodeParameter('resolved', i);
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+				} else if (operation === 'addLabels') {
+					requestMethod = 'PUT';
+					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+					body.add_labels = this.getNodeParameter('labels', i);
+					endpoint = `${base}/merge_requests/${iid}`;
+				} else if (operation === 'removeLabels') {
+					requestMethod = 'PUT';
+					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+					body.remove_labels = this.getNodeParameter('labels', i);
+					endpoint = `${base}/merge_requests/${iid}`;
 				}
 			} else if (resource === 'raw') {
 				if (operation === 'request') {
