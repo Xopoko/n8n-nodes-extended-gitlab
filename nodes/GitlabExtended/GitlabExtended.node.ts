@@ -32,7 +32,8 @@ export class GitlabExtended implements INodeType {
 			{
 				displayName: 'Resource',
 				name: 'resource',
-				type: 'options',
+                                type: 'options',
+                                required: true,
 				noDataExpression: true,
 				description: "Choose the resource to work with, for example 'file' or 'pipeline'",
 				options: [
@@ -342,15 +343,17 @@ export class GitlabExtended implements INodeType {
 			},
 			{
 				displayName: 'Position Type',
-				name: 'positionType',
-				type: 'options',
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
+                                name: 'positionType',
+                                type: 'options',
+                                required: true,
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['postDiscussionNote'],
+                                               newDiscussion: [true],
+                                               asSuggestion: [true],
+                                       },
+                               },
 				options: [
 					{ name: 'Text', value: 'text' },
 					{ name: 'Image', value: 'image' },
@@ -362,13 +365,14 @@ export class GitlabExtended implements INodeType {
 				name: 'newPath',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['postDiscussionNote'],
+                                               newDiscussion: [true],
+                                               asSuggestion: [true],
+                                       },
+                               },
 				description: 'Path to the new file',
 				default: '',
 			},
@@ -377,13 +381,14 @@ export class GitlabExtended implements INodeType {
 				name: 'oldPath',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['postDiscussionNote'],
+                                               newDiscussion: [true],
+                                               asSuggestion: [true],
+                                       },
+                               },
 				description: 'Path to the old file',
 				default: '',
 			},
@@ -392,42 +397,46 @@ export class GitlabExtended implements INodeType {
 				name: 'newLine',
 				type: 'number',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['postDiscussionNote'],
+                                               newDiscussion: [true],
+                                               asSuggestion: [true],
+                                       },
+                               },
 				description: 'Line number in the new file',
 				default: 1,
 			},
 			{
 				displayName: 'Old Line',
 				name: 'oldLine',
-				type: 'number',
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Line number in the old file',
-				default: 0,
+                               type: 'number',
+                               required: true,
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['postDiscussionNote'],
+                                               newDiscussion: [true],
+                                               asSuggestion: [true],
+                                       },
+                               },
+                               description: 'Line number in the old file',
+                               default: 0,
 			},
 			{
 				displayName: 'Base SHA',
 				name: 'baseSha',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['postDiscussionNote'],
+                                               newDiscussion: [true],
+                                               asSuggestion: [true],
+                                       },
+                               },
 				description: 'Base commit SHA',
 				default: '',
 			},
@@ -436,13 +445,14 @@ export class GitlabExtended implements INodeType {
 				name: 'headSha',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['postDiscussionNote'],
+                                               newDiscussion: [true],
+                                               asSuggestion: [true],
+                                       },
+                               },
 				description: 'Head commit SHA',
 				default: '',
 			},
@@ -451,13 +461,14 @@ export class GitlabExtended implements INodeType {
 				name: 'startSha',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['postDiscussionNote'],
+                                               newDiscussion: [true],
+                                               asSuggestion: [true],
+                                       },
+                               },
 				description: 'Start commit SHA',
 				default: '',
 			},
@@ -604,40 +615,43 @@ export class GitlabExtended implements INodeType {
 				} else if (operation === 'postDiscussionNote') {
 					requestMethod = 'POST';
 					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					const newDiscussion = this.getNodeParameter('newDiscussion', i, false);
-					let note = this.getNodeParameter('noteBody', i) as string;
-					if (this.getNodeParameter('asSuggestion', i, false)) {
-						note = `\`\`\`suggestion:-0+0\n${note}\n\`\`\``;
-						// Wrap the note in a suggestion block so GitLab renders a patch
-					}
-					body.body = note;
-					if (newDiscussion) {
-						const position: IDataObject = {
-							position_type: this.getNodeParameter('positionType', i),
-							new_path: this.getNodeParameter('newPath', i),
-							old_path: this.getNodeParameter('oldPath', i),
-							new_line: this.getNodeParameter('newLine', i),
-							base_sha: this.getNodeParameter('baseSha', i),
-							head_sha: this.getNodeParameter('headSha', i),
-							start_sha: this.getNodeParameter('startSha', i),
-						};
-						const oldLine = this.getNodeParameter('oldLine', i, 0) as number;
-						// Validate that oldLine is non-negative
-						if (oldLine < 0) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'The "oldLine" parameter must be a non-negative number.',
-							);
-						}
-						if (oldLine !== 0) {
-							position.old_line = oldLine;
-						}
-						body.position = position;
-						endpoint = `${base}/merge_requests/${iid}/discussions`;
-					} else {
-						const discussionId = this.getNodeParameter('discussionId', i);
-						endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes`;
-					}
+                                        const newDiscussion = this.getNodeParameter('newDiscussion', i, false);
+                                        const asSuggestion = this.getNodeParameter('asSuggestion', i, false);
+                                        let note = this.getNodeParameter('noteBody', i) as string;
+                                        if (asSuggestion) {
+                                                note = `\`\`\`suggestion:-0+0\n${note}\n\`\`\``;
+                                                // Wrap the note in a suggestion block so GitLab renders a patch
+                                        }
+                                        body.body = note;
+                                        if (newDiscussion || asSuggestion) {
+                                                const position: IDataObject = {
+                                                        position_type: this.getNodeParameter('positionType', i),
+                                                        new_path: this.getNodeParameter('newPath', i),
+                                                        old_path: this.getNodeParameter('oldPath', i),
+                                                        new_line: this.getNodeParameter('newLine', i),
+                                                        base_sha: this.getNodeParameter('baseSha', i),
+                                                        head_sha: this.getNodeParameter('headSha', i),
+                                                        start_sha: this.getNodeParameter('startSha', i),
+                                                };
+                                                const oldLine = this.getNodeParameter('oldLine', i, 0) as number;
+                                                // Validate that oldLine is non-negative
+                                                if (oldLine < 0) {
+                                                        throw new NodeOperationError(
+                                                                this.getNode(),
+                                                                'The "oldLine" parameter must be a non-negative number.',
+                                                        );
+                                                }
+                                                if (oldLine !== 0) {
+                                                        position.old_line = oldLine;
+                                                }
+                                                body.position = position;
+                                        }
+                                        if (newDiscussion) {
+                                                endpoint = `${base}/merge_requests/${iid}/discussions`;
+                                        } else {
+                                                const discussionId = this.getNodeParameter('discussionId', i);
+                                                endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes`;
+                                        }
 				} else if (operation === 'updateNote') {
 					requestMethod = 'PUT';
 					const discussionId = this.getNodeParameter('discussionId', i);
