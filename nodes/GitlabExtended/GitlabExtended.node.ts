@@ -407,117 +407,125 @@ export class GitlabExtended implements INodeType {
 				description: 'Whether to format note as a suggestion',
 				default: false,
 			},
-			{
-				displayName: 'Position Type',
-				name: 'positionType',
-				type: 'options',
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
+                        {
+                                displayName: 'Position Type',
+                                name: 'positionType',
+                                type: 'options',
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
 				options: [
 					{ name: 'Text', value: 'text' },
 					{ name: 'Image', value: 'image' },
 				],
 				default: 'text',
 			},
-			{
-				displayName: 'New Path',
-				name: 'newPath',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
+                        {
+                                displayName: 'New Path',
+                                name: 'newPath',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
 				description: 'Path to the new file',
 				default: '',
 			},
-			{
-				displayName: 'Old Path',
-				name: 'oldPath',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
+                        {
+                                displayName: 'Old Path',
+                                name: 'oldPath',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
 				description: 'Path to the old file',
 				default: '',
 			},
-			{
-				displayName: 'New Line',
-				name: 'newLine',
-				type: 'number',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
+                        {
+                                displayName: 'New Line',
+                                name: 'newLine',
+                                type: 'number',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
 				description: 'Line number in the new file',
 				default: 1,
 			},
-			{
-				displayName: 'Old Line',
-				name: 'oldLine',
-				type: 'number',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
+                        {
+                                displayName: 'Old Line',
+                                name: 'oldLine',
+                                type: 'number',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
 				description: 'Line number in the old file',
 				default: 0,
 			},
-			{
-				displayName: 'Base SHA',
-				name: 'baseSha',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
+                        {
+                                displayName: 'Base SHA',
+                                name: 'baseSha',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
 				description: 'Base commit SHA',
 				default: '',
 			},
-			{
-				displayName: 'Head SHA',
-				name: 'headSha',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
+                        {
+                                displayName: 'Head SHA',
+                                name: 'headSha',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
 				description: 'Head commit SHA',
 				default: '',
 			},
-			{
-				displayName: 'Start SHA',
-				name: 'startSha',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
+                        {
+                                displayName: 'Start SHA',
+                                name: 'startSha',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
 				description: 'Start commit SHA',
 				default: '',
 			},
