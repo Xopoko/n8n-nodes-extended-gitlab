@@ -34,7 +34,9 @@
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": [],
+    "credentials": [
+      "dist/credentials/GitlabExtendedApi.credentials.js"
+    ],
     "nodes": [
       "dist/nodes/GitlabExtended/GitlabExtended.node.js"
     ]
