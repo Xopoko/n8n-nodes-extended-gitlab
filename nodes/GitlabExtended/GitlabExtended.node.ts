@@ -125,17 +125,10 @@ export class GitlabExtended implements INodeType {
 					{ name: 'Get Discussion', value: 'getDiscussion', action: 'Get a discussion' },
 					{ name: 'Get Many', value: 'getAll', action: 'List merge requests' },
 					{ name: 'Get Note', value: 'getNote', action: 'Get a note' },
-					{
-						name: 'Post Discussion Note',
-						value: 'postDiscussionNote',
-						action: 'Post to discussion',
-					},
+					 { name: 'Manage Labels', value: 'manageLabels', action: 'Modify labels' },
+					{ name: 'Post Discussion Note', value: 'postDiscussionNote', action: 'Post to discussion' },
 					{ name: 'Remove Labels', value: 'removeLabels', action: 'Remove labels' },
-					{
-						name: 'Resolve Discussion',
-						value: 'resolveDiscussion',
-						action: 'Resolve a discussion',
-					},
+					{ name: 'Resolve Discussion', value: 'resolveDiscussion', action: 'Resolve a discussion' },
 					{ name: 'Update Discussion', value: 'updateDiscussion', action: 'Update a discussion' },
 					{ name: 'Update Note', value: 'updateNote', action: 'Update a note' },
 				],
@@ -289,21 +282,22 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-						operation: [
-							'addLabels',
-							'createNote',
-							'deleteDiscussion',
-							'deleteNote',
-							'get',
-							'getChanges',
-							'getDiscussion',
-							'getNote',
-							'postDiscussionNote',
-							'removeLabels',
-							'resolveDiscussion',
-							'updateDiscussion',
-							'updateNote',
-						],
+                                               operation: [
+                                                       'addLabels',
+                                                       'createNote',
+                                                       'deleteDiscussion',
+                                                       'deleteNote',
+                                                       'get',
+                                                       'getChanges',
+                                                       'getDiscussion',
+                                                       'getNote',
+                                                       'manageLabels',
+                                                       'postDiscussionNote',
+                                                       'removeLabels',
+                                                       'resolveDiscussion',
+                                                       'updateDiscussion',
+                                                       'updateNote',
+                                               ],
 					},
 				},
 				description: "The merge request IID, such as '7'",
@@ -315,16 +309,32 @@ export class GitlabExtended implements INodeType {
 				type: 'string',
 				required: true,
 				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['addLabels', 'removeLabels'],
-					},
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['addLabels', 'removeLabels', 'manageLabels'],
+                                       },
 				},
-				description: 'Comma-separated label names to apply',
-				default: '',
-			},
-			{
-				displayName: 'Note Body',
+                               description: 'Comma-separated label names to apply',
+                               default: '',
+                       },
+                       {
+                               displayName: 'Action',
+                               name: 'labelAction',
+                               type: 'options',
+                               displayOptions: {
+                                       show: {
+                                               resource: ['mergeRequest'],
+                                               operation: ['manageLabels'],
+                                       },
+                               },
+                               options: [
+                                       { name: 'Add', value: 'add' },
+                                       { name: 'Remove', value: 'remove' },
+                               ],
+                               default: 'add',
+                       },
+                       {
+                               displayName: 'Note Body',
 				name: 'noteBody',
 				type: 'string',
 				required: true,
@@ -782,16 +792,27 @@ export class GitlabExtended implements INodeType {
 					const discussionId = this.getNodeParameter('discussionId', i);
 					body.resolved = this.getNodeParameter('resolved', i);
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
-				} else if (operation === 'addLabels') {
-					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					body.add_labels = this.getNodeParameter('labels', i);
-					endpoint = `${base}/merge_requests/${iid}`;
-				} else if (operation === 'removeLabels') {
-					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					body.remove_labels = this.getNodeParameter('labels', i);
-					endpoint = `${base}/merge_requests/${iid}`;
+                               } else if (operation === 'manageLabels') {
+                                       requestMethod = 'PUT';
+                                       const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                       const action = this.getNodeParameter('labelAction', i) as string;
+                                       const labels = this.getNodeParameter('labels', i);
+                                       if (action === 'add') {
+                                               body.add_labels = labels;
+                                       } else {
+                                               body.remove_labels = labels;
+                                       }
+                                       endpoint = `${base}/merge_requests/${iid}`;
+                               } else if (operation === 'addLabels') {
+                                       requestMethod = 'PUT';
+                                       const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                       body.add_labels = this.getNodeParameter('labels', i);
+                                       endpoint = `${base}/merge_requests/${iid}`;
+                               } else if (operation === 'removeLabels') {
+                                       requestMethod = 'PUT';
+                                       const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                       body.remove_labels = this.getNodeParameter('labels', i);
+                                       endpoint = `${base}/merge_requests/${iid}`;
 				}
 			} else if (resource === 'raw') {
 				if (operation === 'request') {

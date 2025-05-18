@@ -18,9 +18,31 @@ The GitLab Extended node supports the following operations:
 - Pipelines: create, get, and list
 - Files: get and list
 - Issues: create and get
-- Merge Requests: create, manage notes and discussions, manage labels, get, and list
+- Merge Requests: 
+  - Create
+  - Manage labels: Add or remove labels on a merge request. Use the `labelAction` parameter to specify the action (`add` or `remove`) and provide the list of labels to modify.
+  - Manage notes and discussions
+  - Get
+  - List
 - Raw API requests
 
+### Example: Managing Labels on a Merge Request
+
+To add labels to a merge request, use the `manageLabels` operation with the following parameters:
+
+- `mergeRequestId`: The ID of the merge request.
+- `labelAction`: Set to `add` to add labels or `remove` to remove labels.
+- `labels`: A comma-separated list of labels to add or remove.
+
+Example:
+
+```json
+{
+  "operation": "manageLabels",
+  "mergeRequestId": 123,
+  "labelAction": "add",
+  "labels": "bug,urgent"
+}
 ## Credentials
 
 Authentication is handled exclusively via the <code>Gitlab Extended API</code> credentials. Create these credentials in n8n to store your GitLab server, access token and default project details in one place.
