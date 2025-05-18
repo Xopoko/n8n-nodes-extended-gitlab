@@ -637,6 +637,9 @@ export class GitlabExtended implements INodeType {
 						endpoint = `${base}/merge_requests/${iid}/discussions`;
 					} else {
 						const discussionId = this.getNodeParameter('discussionId', i);
+						// The discussionId parameter is marked as required in the UI configuration.
+						// This check is a defensive measure to handle cases where the parameter might
+						// still be missing due to API calls bypassing the UI or misconfiguration.
 						if (!discussionId) {
 							throw new NodeOperationError(
 								this.getNode(),
