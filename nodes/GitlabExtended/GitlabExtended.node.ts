@@ -360,6 +360,14 @@ export class GitlabExtended implements INodeType {
                 default: 1,
             },
             {
+                displayName: 'Old Line',
+                name: 'oldLine',
+                type: 'number',
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                description: 'Line number in the old file',
+                default: 0,
+            },
+            {
                 displayName: 'Base SHA',
                 name: 'baseSha',
                 type: 'string',
@@ -539,7 +547,7 @@ export class GitlabExtended implements INodeType {
                         // Wrap the note in a suggestion block so GitLab renders a patch
                     }
                     body.body = note;
-                    body.position = {
+                    const position: IDataObject = {
                         position_type: this.getNodeParameter('positionType', i),
                         new_path: this.getNodeParameter('newPath', i),
                         old_path: this.getNodeParameter('oldPath', i),
@@ -547,7 +555,17 @@ export class GitlabExtended implements INodeType {
                         base_sha: this.getNodeParameter('baseSha', i),
                         head_sha: this.getNodeParameter('headSha', i),
                         start_sha: this.getNodeParameter('startSha', i),
-                    } as IDataObject;
+                    };
+                    const oldLine = this.getNodeParameter('oldLine', i, 0) as number;
+                    // Validate that oldLine is non-negative
+                    if (oldLine < 0) {
+                        throw new NodeOperationError(this.getNode(), 'The "oldLine" parameter must be a non-negative number.');
+                    }
+                    // Use 0 as a sentinel value to indicate the absence of an old line number
+                    if (oldLine !== 0) {
+                        position.old_line = oldLine;
+                    }
+                    body.position = position;
                     endpoint = `${base}/merge_requests/${iid}/discussions`;
                 } else if (operation === 'updateNote') {
                     requestMethod = 'PUT';
