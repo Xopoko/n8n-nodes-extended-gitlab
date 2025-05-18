@@ -120,8 +120,6 @@ export class GitlabExtended implements INodeType {
                 ],
                 default: 'request',
             },
-            { displayName: 'Project Owner', name: 'owner', type: 'string', required: true, default: '' },
-            { displayName: 'Project Name', name: 'repository', type: 'string', required: true, default: '' },
             {
                 displayName: 'Branch Name',
                 name: 'branchName',
@@ -341,8 +339,9 @@ export class GitlabExtended implements INodeType {
             let body: IDataObject = {};
             let qs: IDataObject = {};
             let returnAll = false;
-            const owner = encodeURIComponent(this.getNodeParameter('owner', i) as string);
-            const repo = encodeURIComponent(this.getNodeParameter('repository', i) as string);
+            const credential = await this.getCredentials('gitlabExtendedApi');
+            const owner = encodeURIComponent(credential.projectOwner as string);
+            const repo = encodeURIComponent(credential.projectName as string);
             const base = `/projects/${owner}%2F${repo}`;
 
             if (resource === 'branch') {

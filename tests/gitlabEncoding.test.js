@@ -1,18 +1,8 @@
 import assert from 'node:assert';
 import test from 'node:test';
-import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
-
 function computeBase(ownerValue, repoValue) {
-  const node = new GitlabExtended();
-  const ctx = {
-    getNodeParameter(name) {
-      if (name === 'owner') return ownerValue;
-      if (name === 'repository') return repoValue;
-      throw new Error('Unexpected parameter ' + name);
-    },
-  };
-  const owner = encodeURIComponent(ctx.getNodeParameter('owner'));
-  const repo = encodeURIComponent(ctx.getNodeParameter('repository'));
+  const owner = encodeURIComponent(ownerValue);
+  const repo = encodeURIComponent(repoValue);
   return `/projects/${owner}%2F${repo}`;
 }
 
