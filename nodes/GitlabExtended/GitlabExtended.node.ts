@@ -557,6 +557,11 @@ export class GitlabExtended implements INodeType {
                         start_sha: this.getNodeParameter('startSha', i),
                     };
                     const oldLine = this.getNodeParameter('oldLine', i, 0) as number;
+                    // Validate that oldLine is non-negative
+                    if (oldLine < 0) {
+                        throw new NodeOperationError(this.getNode(), 'The "oldLine" parameter must be a non-negative number.');
+                    }
+                    // Use 0 as a sentinel value to indicate the absence of an old line number
                     if (oldLine !== 0) {
                         position.old_line = oldLine;
                     }
