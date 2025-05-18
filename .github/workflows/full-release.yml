@@ -36,6 +36,10 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          if [[ "$RELEASE_TYPE" != "patch" && "$RELEASE_TYPE" != "minor" && "$RELEASE_TYPE" != "major" ]]; then
+            echo "Error: Invalid RELEASE_TYPE '$RELEASE_TYPE'. Allowed values are 'patch', 'minor', 'major'." >&2
+            exit 1
+          fi
           new_version=$(npm version "$RELEASE_TYPE" -m "chore(release): %s [skip ci]")
           echo "version=$new_version" >> "$GITHUB_OUTPUT"
           git push --follow-tags
