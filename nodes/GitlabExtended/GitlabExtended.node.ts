@@ -122,7 +122,8 @@ export class GitlabExtended implements INodeType {
 					{ name: 'Delete Note', value: 'deleteNote', action: 'Delete a note' },
 					{ name: 'Get', value: 'get', action: 'Get a merge request' },
 					{ name: 'Get Changes', value: 'getChanges', action: 'Get merge request changes' },
-					{ name: 'Get Discussion', value: 'getDiscussion', action: 'Get a discussion' },
+                                        { name: 'Get Discussion', value: 'getDiscussion', action: 'Get a discussion by ID' },
+                                        { name: 'Get Discussions', value: 'getDiscussions', action: 'List discussions' },
 					{ name: 'Get Many', value: 'getAll', action: 'List merge requests' },
 					{ name: 'Get Note', value: 'getNote', action: 'Get a note' },
 					 { name: 'Manage Labels', value: 'manageLabels', action: 'Modify labels' },
@@ -180,7 +181,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
-						operation: ['getAll', 'list'],
+                                                operation: ['getAll', 'list', 'getDiscussions'],
 					},
 				},
 				default: false,
@@ -193,7 +194,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
-						operation: ['getAll', 'list'],
+                                                operation: ['getAll', 'list', 'getDiscussions'],
 						returnAll: [false],
 					},
 				},
@@ -290,6 +291,7 @@ export class GitlabExtended implements INodeType {
                                                        'get',
                                                        'getChanges',
                                                        'getDiscussion',
+                                                       'getDiscussions',
                                                        'getNote',
                                                        'manageLabels',
                                                        'postDiscussionNote',
@@ -379,7 +381,7 @@ export class GitlabExtended implements INodeType {
 						newDiscussion: [false],
 					},
 				},
-				description: "Discussion ID to reply to, e.g. '123abc'",
+                                description: "Discussion ID to reply to or fetch, e.g. '123abc'",
 				default: '',
 			},
 			{
@@ -760,11 +762,17 @@ export class GitlabExtended implements INodeType {
 					requestMethod = 'GET';
 					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
 					endpoint = `${base}/merge_requests/${iid}/changes`;
-				} else if (operation === 'getDiscussion') {
-					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					const discussionId = this.getNodeParameter('discussionId', i);
-					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+                                } else if (operation === 'getDiscussions') {
+                                        requestMethod = 'GET';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        returnAll = this.getNodeParameter('returnAll', i);
+                                        if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                        endpoint = `${base}/merge_requests/${iid}/discussions`;
+                                } else if (operation === 'getDiscussion') {
+                                        requestMethod = 'GET';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        const discussionId = this.getNodeParameter('discussionId', i);
+                                        endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
 				} else if (operation === 'updateDiscussion') {
 					requestMethod = 'PUT';
 					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
