@@ -415,7 +415,7 @@ export class GitlabExtended implements INodeType {
                                         show: {
                                                 resource: ['mergeRequest'],
                                                 operation: ['postDiscussionNote'],
-                                                asSuggestion: [true],
+                                                ...asSuggestionCondition,
                                         },
                                 },
 				options: [
