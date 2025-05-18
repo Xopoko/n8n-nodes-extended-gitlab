@@ -3,7 +3,11 @@ name: Full Release
 on:
   workflow_dispatch:
     branches: [main]
-
+    inputs:
+      release_type:
+        description: 'The type of version bump (patch, minor, major)'
+        required: false
+        default: 'patch'
 permissions:
   contents: write
   packages: write
