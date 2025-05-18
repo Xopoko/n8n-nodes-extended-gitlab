@@ -735,7 +735,7 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
 				} else if (operation === 'getChanges') {
 					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i);
+					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
 					endpoint = `${base}/merge_requests/${iid}/changes`;
 				} else if (operation === 'getDiscussion') {
 					requestMethod = 'GET';
