@@ -22,10 +22,10 @@ one of its operations.
 
 ### Pipeline
 * `create` – Trigger a pipeline
+* `retry` – Retry a pipeline
+* `cancel` – Cancel a pipeline
 * `get` – Get a pipeline by ID
 * `getAll` – List pipelines
-* `cancel` – Cancel a pipeline
-* `retry` – Retry a pipeline
 
 ### File
 * `get` – Retrieve a file
