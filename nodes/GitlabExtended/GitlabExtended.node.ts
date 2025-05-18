@@ -337,131 +337,129 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Post as Suggestion',
 				name: 'asSuggestion',
 				type: 'boolean',
-				displayOptions: { show: { resource: ['mergeRequest'], operation: ['postDiscussionNote'] } },
-				description: 'Whether to format note as a suggestion',
-				default: false,
-			},
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                description: 'Whether to format note as a suggestion',
+                                default: false,
+                        },
 			{
 				displayName: 'Position Type',
 				name: 'positionType',
 				type: 'options',
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				options: [
-					{ name: 'Text', value: 'text' },
-					{ name: 'Image', value: 'image' },
-				],
-				default: 'text',
-			},
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                options: [
+                                        { name: 'Text', value: 'text' },
+                                        { name: 'Image', value: 'image' },
+                                ],
+                                default: 'text',
+                        },
 			{
 				displayName: 'New Path',
 				name: 'newPath',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Path to the new file',
-				default: '',
-			},
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                description: 'Path to the new file',
+                                default: '',
+                        },
 			{
 				displayName: 'Old Path',
 				name: 'oldPath',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Path to the old file',
-				default: '',
-			},
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                description: 'Path to the old file',
+                                default: '',
+                        },
 			{
 				displayName: 'New Line',
 				name: 'newLine',
 				type: 'number',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Line number in the new file',
-				default: 1,
-			},
-			{
-				displayName: 'Old Line',
-				name: 'oldLine',
-				type: 'number',
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Line number in the old file',
-				default: 0,
-			},
-			{
-				displayName: 'Base SHA',
-				name: 'baseSha',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Base commit SHA',
-				default: '',
-			},
-			{
-				displayName: 'Head SHA',
-				name: 'headSha',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Head commit SHA',
-				default: '',
-			},
-			{
-				displayName: 'Start SHA',
-				name: 'startSha',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Start commit SHA',
-				default: '',
-			},
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                description: 'Line number in the new file',
+                                default: 1,
+                        },
+                        {
+                                displayName: 'Old Line',
+                                name: 'oldLine',
+                                type: 'number',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                description: 'Line number in the old file',
+                                default: 0,
+                        },
+                        {
+                                displayName: 'Base SHA',
+                                name: 'baseSha',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                description: 'Base commit SHA',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Head SHA',
+                                name: 'headSha',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                description: 'Head commit SHA',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Start SHA',
+                                name: 'startSha',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                        },
+                                },
+                                description: 'Start commit SHA',
+                                default: '',
+                        },
 			{
 				displayName: 'HTTP Method',
 				name: 'httpMethod',
@@ -611,31 +609,50 @@ export class GitlabExtended implements INodeType {
 						note = `\`\`\`suggestion:-0+0\n${note}\n\`\`\``;
 						// Wrap the note in a suggestion block so GitLab renders a patch
 					}
-					body.body = note;
-					if (newDiscussion) {
-						const position: IDataObject = {
-							position_type: this.getNodeParameter('positionType', i),
-							new_path: this.getNodeParameter('newPath', i),
-							old_path: this.getNodeParameter('oldPath', i),
-							new_line: this.getNodeParameter('newLine', i),
-							base_sha: this.getNodeParameter('baseSha', i),
-							head_sha: this.getNodeParameter('headSha', i),
-							start_sha: this.getNodeParameter('startSha', i),
-						};
-						const oldLine = this.getNodeParameter('oldLine', i, 0) as number;
-						// Validate that oldLine is non-negative
-						if (oldLine < 0) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'The "oldLine" parameter must be a non-negative number.',
-							);
-						}
-						if (oldLine !== 0) {
-							position.old_line = oldLine;
-						}
-						body.position = position;
-						endpoint = `${base}/merge_requests/${iid}/discussions`;
-					} else {
+                                        body.body = note;
+
+                                        const positionType = this.getNodeParameter('positionType', i, undefined);
+                                        const newPath = this.getNodeParameter('newPath', i, undefined);
+                                        const oldPath = this.getNodeParameter('oldPath', i, undefined);
+                                        const newLine = this.getNodeParameter('newLine', i, undefined);
+                                        const baseSha = this.getNodeParameter('baseSha', i, undefined);
+                                        const headSha = this.getNodeParameter('headSha', i, undefined);
+                                        const startSha = this.getNodeParameter('startSha', i, undefined);
+
+                                        if (
+                                                positionType !== undefined &&
+                                                newPath !== undefined &&
+                                                oldPath !== undefined &&
+                                                newLine !== undefined &&
+                                                baseSha !== undefined &&
+                                                headSha !== undefined &&
+                                                startSha !== undefined
+                                        ) {
+                                                const position: IDataObject = {
+                                                        position_type: positionType as string,
+                                                        new_path: newPath as string,
+                                                        old_path: oldPath as string,
+                                                        new_line: newLine as number,
+                                                        base_sha: baseSha as string,
+                                                        head_sha: headSha as string,
+                                                        start_sha: startSha as string,
+                                                };
+                                                const oldLine = this.getNodeParameter('oldLine', i, 0) as number;
+                                                if (oldLine < 0) {
+                                                        throw new NodeOperationError(
+                                                                this.getNode(),
+                                                                'The "oldLine" parameter must be a non-negative number.',
+                                                        );
+                                                }
+                                                if (oldLine !== 0) {
+                                                        position.old_line = oldLine;
+                                                }
+                                                body.position = position;
+                                        }
+
+                                        if (newDiscussion) {
+                                                endpoint = `${base}/merge_requests/${iid}/discussions`;
+                                        } else {
 						const discussionId = this.getNodeParameter('discussionId', i);
 						// The discussionId parameter is marked as required in the UI configuration.
 						// This check is a defensive measure to handle cases where the parameter might
