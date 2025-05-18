@@ -110,23 +110,15 @@ export class GitlabExtended implements INodeType {
 				description:
 					"Choose an action on merge requests, such as 'create' to start a merge request",
 				options: [
+					{ name: 'Add Labels', value: 'addLabels', action: 'Add labels' },
 					{ name: 'Create', value: 'create', action: 'Create a merge request' },
 					{ name: 'Create Note', value: 'createNote', action: 'Create a note' },
 					{ name: 'Get', value: 'get', action: 'Get a merge request' },
 					{ name: 'Get Many', value: 'getAll', action: 'List merge requests' },
-					{
-						name: 'Post Discussion Note',
-						value: 'postDiscussionNote',
-						action: 'Post to discussion',
-					},
-					{
-						name: 'Resolve Discussion',
-						value: 'resolveDiscussion',
-						action: 'Resolve a discussion',
-					},
-					{ name: 'Update Note', value: 'updateNote', action: 'Update a note' },
-					{ name: 'Add Labels', value: 'addLabels', action: 'Add labels' },
+					 { name: 'Post Discussion Note', value: 'postDiscussionNote', action: 'Post to discussion' },
 					{ name: 'Remove Labels', value: 'removeLabels', action: 'Remove labels' },
+					{ name: 'Resolve Discussion', value: 'resolveDiscussion', action: 'Resolve a discussion' },
+					{ name: 'Update Note', value: 'updateNote', action: 'Update a note' },
 				],
 				default: 'create',
 			},
