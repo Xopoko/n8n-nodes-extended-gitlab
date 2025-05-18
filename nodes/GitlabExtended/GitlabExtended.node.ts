@@ -34,6 +34,7 @@ export class GitlabExtended implements INodeType {
                 name: 'resource',
                 type: 'options',
                 noDataExpression: true,
+                description: "Choose the resource to work with, for example 'file' or 'pipeline'",
                 options: [
                     { name: 'Branch', value: 'branch' },
                     { name: 'File', value: 'file' },
@@ -50,6 +51,7 @@ export class GitlabExtended implements INodeType {
                 type: 'options',
                 noDataExpression: true,
                 displayOptions: { show: { resource: ['branch'] } },
+                description: "Select how to manage branches; for example choose 'create' to add a new branch",
                 options: [
                     { name: 'Create', value: 'create', action: 'Create a branch' },
                     { name: 'Get', value: 'get', action: 'Get a branch' },
@@ -63,6 +65,7 @@ export class GitlabExtended implements INodeType {
                 type: 'options',
                 noDataExpression: true,
                 displayOptions: { show: { resource: ['pipeline'] } },
+                description: "Select how to manage pipelines, like using 'get' to fetch pipeline details",
                 options: [
                     { name: 'Create', value: 'create', action: 'Create a pipeline' },
                     { name: 'Get', value: 'get', action: 'Get a pipeline' },
@@ -76,6 +79,7 @@ export class GitlabExtended implements INodeType {
                 type: 'options',
                 noDataExpression: true,
                 displayOptions: { show: { resource: ['file'] } },
+                description: "Select how to work with files, such as choosing 'list' to view repository files",
                 options: [
                     { name: 'Get', value: 'get', action: 'Get a file' },
                     { name: 'List', value: 'list', action: 'List files' },
@@ -88,6 +92,7 @@ export class GitlabExtended implements INodeType {
                 type: 'options',
                 noDataExpression: true,
                 displayOptions: { show: { resource: ['issue'] } },
+                description: "Select how to handle issues, for example choose 'create' to open a new issue",
                 options: [
                     { name: 'Create', value: 'create', action: 'Create an issue' },
                     { name: 'Get', value: 'get', action: 'Get an issue' },
@@ -100,6 +105,7 @@ export class GitlabExtended implements INodeType {
                 type: 'options',
                 noDataExpression: true,
                 displayOptions: { show: { resource: ['mergeRequest'] } },
+                description: "Choose an action on merge requests, such as 'create' to start a merge request",
                 options: [
                     { name: 'Create', value: 'create', action: 'Create a merge request' },
                     { name: 'Create Note', value: 'createNote', action: 'Create a note' },
@@ -116,6 +122,7 @@ export class GitlabExtended implements INodeType {
                 type: 'options',
                 noDataExpression: true,
                 displayOptions: { show: { resource: ['raw'] } },
+                description: "Select the raw GitLab API action, for example choose 'request' to call an endpoint",
                 options: [
                     { name: 'Request', value: 'request', action: 'Make an API request' },
                 ],
@@ -127,6 +134,7 @@ export class GitlabExtended implements INodeType {
                 type: 'string',
                 required: true,
                 displayOptions: { show: { resource: ['branch'], operation: ['create', 'get'] } },
+                description: "Branch name, for example 'feature/login'",
                 default: '',
             },
             {
@@ -135,6 +143,7 @@ export class GitlabExtended implements INodeType {
                 type: 'string',
                 required: true,
                 displayOptions: { show: { resource: ['branch'], operation: ['create'] } },
+                description: "Existing branch or commit to create the new branch from, e.g. 'main' or a commit SHA",
                 default: 'main',
             },
             {
@@ -143,6 +152,7 @@ export class GitlabExtended implements INodeType {
                 type: 'number',
                 required: true,
                 displayOptions: { show: { resource: ['pipeline'], operation: ['get'] } },
+                description: "Numeric ID of the pipeline, for example '42'",
                 default: 1,
             },
             {
@@ -180,6 +190,7 @@ export class GitlabExtended implements INodeType {
                 name: 'pipelineRef',
                 type: 'string',
                 displayOptions: { show: { resource: ['pipeline'], operation: ['create'] } },
+                description: "Branch or tag that triggers the pipeline, such as 'main'",
                 default: 'main',
             },
             {
@@ -188,6 +199,7 @@ export class GitlabExtended implements INodeType {
                 type: 'string',
                 required: true,
                 displayOptions: { show: { resource: ['mergeRequest'], operation: ['create'] } },
+                description: "Source branch name, e.g. 'feature/api'",
                 default: '',
             },
             {
@@ -196,6 +208,7 @@ export class GitlabExtended implements INodeType {
                 type: 'string',
                 required: true,
                 displayOptions: { show: { resource: ['mergeRequest'], operation: ['create'] } },
+                description: "Target branch name, e.g. 'main'",
                 default: 'main',
             },
             {
@@ -206,6 +219,7 @@ export class GitlabExtended implements INodeType {
                 displayOptions: {
                     show: { resource: ['file'], operation: ['get', 'list'] },
                 },
+                description: "Path to the file, for example 'src/index.ts'",
                 default: '',
             },
             {
@@ -213,6 +227,7 @@ export class GitlabExtended implements INodeType {
                 name: 'fileRef',
                 type: 'string',
                 displayOptions: { show: { resource: ['file'], operation: ['get', 'list'] } },
+                description: "Reference such as a branch or commit SHA, e.g. 'main'",
                 default: 'main',
             },
             {
@@ -221,6 +236,7 @@ export class GitlabExtended implements INodeType {
                 type: 'string',
                 required: true,
                 displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create'] } },
+                description: "Title text, for instance 'Fix login bug'",
                 default: '',
             },
             {
@@ -228,6 +244,7 @@ export class GitlabExtended implements INodeType {
                 name: 'description',
                 type: 'string',
                 displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create'] } },
+                description: "Detailed description, like 'Steps to reproduce the bug'",
                 default: '',
             },
             {
@@ -236,6 +253,7 @@ export class GitlabExtended implements INodeType {
                 type: 'number',
                 required: true,
                 displayOptions: { show: { resource: ['issue'], operation: ['get'] } },
+                description: "Issue number to fetch, for example '101'",
                 default: 1,
             },
             {
@@ -249,6 +267,7 @@ export class GitlabExtended implements INodeType {
                         operation: ['get', 'createNote', 'postDiscussionNote', 'updateNote'],
                     },
                 },
+                description: "The merge request IID, such as '7'",
                 default: 1,
             },
             {
@@ -262,6 +281,7 @@ export class GitlabExtended implements INodeType {
                         operation: ['createNote', 'postDiscussionNote', 'updateNote'],
                     },
                 },
+                description: "Note text, e.g. 'Looks good to me'",
                 default: '',
             },
             {
@@ -275,6 +295,7 @@ export class GitlabExtended implements INodeType {
                         operation: ['postDiscussionNote', 'updateNote'],
                     },
                 },
+                description: "Discussion ID to reply to, e.g. '123abc'",
                 default: '',
             },
             {
@@ -288,6 +309,7 @@ export class GitlabExtended implements INodeType {
                         operation: ['updateNote'],
                     },
                 },
+                description: "Existing note ID to update, for example '50'",
                 default: 1,
             },
             {
@@ -295,6 +317,7 @@ export class GitlabExtended implements INodeType {
                 name: 'httpMethod',
                 type: 'options',
                 displayOptions: { show: { resource: ['raw'], operation: ['request'] } },
+                description: "HTTP method to use, for example 'POST'",
                 options: [
                     { name: 'DELETE', value: 'DELETE' },
                     { name: 'GET', value: 'GET' },
@@ -309,6 +332,7 @@ export class GitlabExtended implements INodeType {
                 name: 'rawEndpoint',
                 type: 'string',
                 displayOptions: { show: { resource: ['raw'], operation: ['request'] } },
+                description: "Endpoint path like '/projects/1/issues'",
                 default: '/',
                 required: true,
             },
@@ -317,6 +341,7 @@ export class GitlabExtended implements INodeType {
                 name: 'bodyContent',
                 type: 'json',
                 displayOptions: { show: { resource: ['raw'], operation: ['request'], httpMethod: ['POST','PUT','PATCH'] } },
+                description: "Request body payload, for example '{\"title\":\"New Issue\"}'",
                 default: '',
             },
             {
@@ -324,6 +349,7 @@ export class GitlabExtended implements INodeType {
                 name: 'queryParameters',
                 type: 'json',
                 displayOptions: { show: { resource: ['raw'], operation: ['request'] } },
+                description: "Query parameters as JSON, e.g. '{\"state\":\"opened\"}'",
                 default: '',
             },
         ],
