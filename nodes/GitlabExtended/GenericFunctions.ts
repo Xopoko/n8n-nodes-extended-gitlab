@@ -6,7 +6,7 @@ import type {
 	IHttpRequestMethods,
 	IRequestOptions,
 } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
 /**
  * Make an API request to Gitlab
@@ -36,9 +36,15 @@ export async function gitlabApiRequest(
 		delete options.qs;
 	}
 
-	const credential = await this.getCredentials('gitlabExtendedApi');
-	const host = (credential.server as string).replace(/\/$/, '');
-	const baseUrl = `${host}/api/v4`;
+        const credential = await this.getCredentials('gitlabExtendedApi');
+        const host = (credential.server as string).replace(/\/$/, '');
+        if (!host) {
+                throw new NodeOperationError(this.getNode(), 'GitLab server URL is missing in credentials');
+        }
+        if (!credential.accessToken) {
+                throw new NodeOperationError(this.getNode(), 'Access token is missing in GitLab credentials');
+        }
+        const baseUrl = `${host}/api/v4`;
 
 	try {
 		options.uri = `${baseUrl}${endpoint}`;
