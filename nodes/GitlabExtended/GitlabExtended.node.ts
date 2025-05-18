@@ -66,18 +66,20 @@ export class GitlabExtended implements INodeType {
 				default: 'create',
 			},
 			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: { show: { resource: ['pipeline'] } },
-				description: "Select how to manage pipelines, like using 'get' to fetch pipeline details",
-				options: [
-					{ name: 'Create', value: 'create', action: 'Create a pipeline' },
-					{ name: 'Get', value: 'get', action: 'Get a pipeline' },
-					{ name: 'Get Many', value: 'getAll', action: 'List pipelines' },
-				],
-				default: 'create',
+                               displayName: 'Operation',
+                               name: 'operation',
+                               type: 'options',
+                               noDataExpression: true,
+                               displayOptions: { show: { resource: ['pipeline'] } },
+                               description: "Select how to manage pipelines, like using 'get' to fetch pipeline details",
+                               options: [
+                                       { name: 'Cancel', value: 'cancel', action: 'Cancel a pipeline' },
+                                       { name: 'Create', value: 'create', action: 'Create a pipeline' },
+                                       { name: 'Get', value: 'get', action: 'Get a pipeline' },
+                                       { name: 'Get Many', value: 'getAll', action: 'List pipelines' },
+                                       { name: 'Retry', value: 'retry', action: 'Retry a pipeline' },
+                               ],
+                               default: 'create',
 			},
 			{
 				displayName: 'Operation',
@@ -174,7 +176,12 @@ export class GitlabExtended implements INodeType {
                                 type: 'number',
                                 required: true,
                                 typeOptions: { minValue: 1 },
-                                displayOptions: { show: { resource: ['pipeline'], operation: ['get'] } },
+                               displayOptions: {
+                                       show: {
+                                               resource: ['pipeline'],
+                                               operation: ['get', 'cancel', 'retry'],
+                                       },
+                               },
                                 description: 'Numeric ID of the pipeline (must be positive)',
                                 default: 1,
 			},
@@ -644,12 +651,23 @@ export class GitlabExtended implements INodeType {
                                                 );
                                         }
                                         endpoint = `${base}/pipelines/${id}`;
-				} else if (operation === 'getAll') {
-					requestMethod = 'GET';
-					returnAll = this.getNodeParameter('returnAll', i);
-					if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
-					endpoint = `${base}/pipelines`;
-				}
+                               } else if (operation === 'getAll') {
+                                       requestMethod = 'GET';
+                                       returnAll = this.getNodeParameter('returnAll', i);
+                                       if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                       endpoint = `${base}/pipelines`;
+                               } else if (operation === 'cancel' || operation === 'retry') {
+                                       requestMethod = 'POST';
+                                       const id = this.getNodeParameter('pipelineId', i) as number;
+                                       if (id <= 0) {
+                                               throw new NodeOperationError(
+                                                       this.getNode(),
+                                                       'pipelineId must be a positive number',
+                                                       { itemIndex: i },
+                                               );
+                                       }
+                                       endpoint = `${base}/pipelines/${id}/${operation}`;
+                               }
 			} else if (resource === 'file') {
 				if (operation === 'get') {
 					requestMethod = 'GET';
