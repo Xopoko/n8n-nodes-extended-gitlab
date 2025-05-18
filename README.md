@@ -18,7 +18,7 @@ The GitLab Extended node supports the following operations:
 - Pipelines: create, get, and list
 - Files: get and list
 - Issues: create and get
-- Merge Requests: create, get, and list
+- Merge Requests: create, manage notes and discussions, get, and list
 - Raw API requests
 
 ## Credentials
