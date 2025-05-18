@@ -108,6 +108,7 @@ export class GitlabExtended implements INodeType {
                 description: "Choose an action on merge requests, such as 'create' to start a merge request",
                 options: [
                     { name: 'Create', value: 'create', action: 'Create a merge request' },
+                    { name: 'Create Discussion', value: 'createDiscussion', action: 'Create a discussion' },
                     { name: 'Create Note', value: 'createNote', action: 'Create a note' },
                     { name: 'Get', value: 'get', action: 'Get a merge request' },
                     { name: 'Get Many', value: 'getAll', action: 'List merge requests' },
@@ -264,7 +265,7 @@ export class GitlabExtended implements INodeType {
                 displayOptions: {
                     show: {
                         resource: ['mergeRequest'],
-                        operation: ['get', 'createNote', 'postDiscussionNote', 'updateNote'],
+                        operation: ['get', 'createNote', 'postDiscussionNote', 'updateNote', 'createDiscussion'],
                     },
                 },
                 description: "The merge request IID, such as '7'",
@@ -278,7 +279,7 @@ export class GitlabExtended implements INodeType {
                 displayOptions: {
                     show: {
                         resource: ['mergeRequest'],
-                        operation: ['createNote', 'postDiscussionNote', 'updateNote'],
+                        operation: ['createNote', 'postDiscussionNote', 'updateNote', 'createDiscussion'],
                     },
                 },
                 description: "Note text, e.g. 'Looks good to me'",
@@ -311,6 +312,79 @@ export class GitlabExtended implements INodeType {
                 },
                 description: "Existing note ID to update, for example '50'",
                 default: 1,
+            },
+            {
+                displayName: 'Post as Suggestion',
+                name: 'asSuggestion',
+                type: 'boolean',
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                description: 'Whether to format note as a suggestion',
+                default: false,
+            },
+            {
+                displayName: 'Position Type',
+                name: 'positionType',
+                type: 'options',
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                options: [
+                    { name: 'Text', value: 'text' },
+                    { name: 'Image', value: 'image' },
+                ],
+                default: 'text',
+            },
+            {
+                displayName: 'New Path',
+                name: 'newPath',
+                type: 'string',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                description: 'Path to the new file',
+                default: '',
+            },
+            {
+                displayName: 'Old Path',
+                name: 'oldPath',
+                type: 'string',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                description: 'Path to the old file',
+                default: '',
+            },
+            {
+                displayName: 'New Line',
+                name: 'newLine',
+                type: 'number',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                description: 'Line number in the new file',
+                default: 1,
+            },
+            {
+                displayName: 'Base SHA',
+                name: 'baseSha',
+                type: 'string',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                description: 'Base commit SHA',
+                default: '',
+            },
+            {
+                displayName: 'Head SHA',
+                name: 'headSha',
+                type: 'string',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                description: 'Head commit SHA',
+                default: '',
+            },
+            {
+                displayName: 'Start SHA',
+                name: 'startSha',
+                type: 'string',
+                required: true,
+                displayOptions: { show: { resource: ['mergeRequest'], operation: ['createDiscussion'] } },
+                description: 'Start commit SHA',
+                default: '',
             },
             {
                 displayName: 'HTTP Method',
@@ -456,6 +530,24 @@ export class GitlabExtended implements INodeType {
                     body.body = this.getNodeParameter('noteBody', i);
                     const iid = this.getNodeParameter('mergeRequestIid', i) as number;
                     endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes`;
+                } else if (operation === 'createDiscussion') {
+                    requestMethod = 'POST';
+                    const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                    let note = this.getNodeParameter('noteBody', i) as string;
+                    if (this.getNodeParameter('asSuggestion', i, false)) {
+                        note = `\`\`\`suggestion:-0+0\n${note}\n\`\`\``;
+                    }
+                    body.body = note;
+                    body.position = {
+                        position_type: this.getNodeParameter('positionType', i),
+                        new_path: this.getNodeParameter('newPath', i),
+                        old_path: this.getNodeParameter('oldPath', i),
+                        new_line: this.getNodeParameter('newLine', i),
+                        base_sha: this.getNodeParameter('baseSha', i),
+                        head_sha: this.getNodeParameter('headSha', i),
+                        start_sha: this.getNodeParameter('startSha', i),
+                    } as IDataObject;
+                    endpoint = `${base}/merge_requests/${iid}/discussions`;
                 } else if (operation === 'updateNote') {
                     requestMethod = 'PUT';
                     const discussionId = this.getNodeParameter('discussionId', i);
