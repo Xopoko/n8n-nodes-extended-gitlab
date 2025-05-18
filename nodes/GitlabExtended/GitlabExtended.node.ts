@@ -113,11 +113,25 @@ export class GitlabExtended implements INodeType {
 					{ name: 'Add Labels', value: 'addLabels', action: 'Add labels' },
 					{ name: 'Create', value: 'create', action: 'Create a merge request' },
 					{ name: 'Create Note', value: 'createNote', action: 'Create a note' },
+					{ name: 'Delete Discussion', value: 'deleteDiscussion', action: 'Delete a discussion' },
+					{ name: 'Delete Note', value: 'deleteNote', action: 'Delete a note' },
 					{ name: 'Get', value: 'get', action: 'Get a merge request' },
+					{ name: 'Get Changes', value: 'getChanges', action: 'Get merge request changes' },
+					{ name: 'Get Discussion', value: 'getDiscussion', action: 'Get a discussion' },
 					{ name: 'Get Many', value: 'getAll', action: 'List merge requests' },
-					 { name: 'Post Discussion Note', value: 'postDiscussionNote', action: 'Post to discussion' },
+					{ name: 'Get Note', value: 'getNote', action: 'Get a note' },
+					{
+						name: 'Post Discussion Note',
+						value: 'postDiscussionNote',
+						action: 'Post to discussion',
+					},
 					{ name: 'Remove Labels', value: 'removeLabels', action: 'Remove labels' },
-					{ name: 'Resolve Discussion', value: 'resolveDiscussion', action: 'Resolve a discussion' },
+					{
+						name: 'Resolve Discussion',
+						value: 'resolveDiscussion',
+						action: 'Resolve a discussion',
+					},
+					{ name: 'Update Discussion', value: 'updateDiscussion', action: 'Update a discussion' },
 					{ name: 'Update Note', value: 'updateNote', action: 'Update a note' },
 				],
 				default: 'create',
@@ -271,13 +285,19 @@ export class GitlabExtended implements INodeType {
 					show: {
 						resource: ['mergeRequest'],
 						operation: [
-							'get',
-							'createNote',
-							'postDiscussionNote',
-							'updateNote',
-							'resolveDiscussion',
 							'addLabels',
+							'createNote',
+							'deleteDiscussion',
+							'deleteNote',
+							'get',
+							'getChanges',
+							'getDiscussion',
+							'getNote',
+							'postDiscussionNote',
 							'removeLabels',
+							'resolveDiscussion',
+							'updateDiscussion',
+							'updateNote',
 						],
 					},
 				},
@@ -333,7 +353,14 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote', 'updateNote', 'resolveDiscussion'],
+						operation: [
+							'deleteDiscussion',
+							'getDiscussion',
+							'postDiscussionNote',
+							'resolveDiscussion',
+							'updateDiscussion',
+							'updateNote',
+						],
 						newDiscussion: [false],
 					},
 				},
@@ -347,7 +374,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-						operation: ['resolveDiscussion'],
+						operation: ['resolveDiscussion', 'updateDiscussion'],
 					},
 				},
 				description: 'Whether the discussion should be resolved',
@@ -361,7 +388,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-						operation: ['updateNote'],
+						operation: ['deleteNote', 'getNote', 'updateNote'],
 					},
 				},
 				description: "Existing note ID to update, for example '50'",
@@ -706,6 +733,36 @@ export class GitlabExtended implements INodeType {
 					body.body = this.getNodeParameter('noteBody', i);
 					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
+				} else if (operation === 'getChanges') {
+					requestMethod = 'GET';
+					const iid = this.getNodeParameter('mergeRequestIid', i);
+					endpoint = `${base}/merge_requests/${iid}/changes`;
+				} else if (operation === 'getDiscussion') {
+					requestMethod = 'GET';
+					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+					const discussionId = this.getNodeParameter('discussionId', i);
+					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+				} else if (operation === 'updateDiscussion') {
+					requestMethod = 'PUT';
+					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+					const discussionId = this.getNodeParameter('discussionId', i);
+					body.resolved = this.getNodeParameter('resolved', i);
+					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+				} else if (operation === 'deleteDiscussion') {
+					requestMethod = 'DELETE';
+					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+					const discussionId = this.getNodeParameter('discussionId', i);
+					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+				} else if (operation === 'getNote') {
+					requestMethod = 'GET';
+					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+					const noteId = this.getNodeParameter('noteId', i);
+					endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
+				} else if (operation === 'deleteNote') {
+					requestMethod = 'DELETE';
+					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+					const noteId = this.getNodeParameter('noteId', i);
+					endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
 				} else if (operation === 'resolveDiscussion') {
 					requestMethod = 'PUT';
 					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
