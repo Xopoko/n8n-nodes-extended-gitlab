@@ -58,13 +58,14 @@ export class GitlabExtended implements INodeType {
 				displayOptions: { show: { resource: ['branch'] } },
 				description:
 					"Select how to manage branches; for example choose 'create' to add a new branch",
-				options: [
-					{ name: 'Create', value: 'create', action: 'Create a branch' },
-					{ name: 'Get', value: 'get', action: 'Get a branch' },
-					{ name: 'Get Many', value: 'getAll', action: 'List branches' },
-				],
-				default: 'create',
-			},
+                                options: [
+                                        { name: 'Create', value: 'create', action: 'Create a branch' },
+                                        { name: 'Get', value: 'get', action: 'Get a branch' },
+                                        { name: 'Get Many', value: 'getAll', action: 'List branches' },
+                                        { name: 'Delete', value: 'delete', action: 'Delete a branch' },
+                                ],
+                                default: 'create',
+                        },
 			{
                                displayName: 'Operation',
                                name: 'operation',
@@ -151,7 +152,7 @@ export class GitlabExtended implements INodeType {
                                 name: 'branch',
                                 type: 'string',
                                 required: true,
-                                displayOptions: { show: { resource: ['branch'], operation: ['create', 'get'] } },
+                                displayOptions: { show: { resource: ['branch'], operation: ['create', 'get', 'delete'] } },
                                 description: "Branch name, for example 'feature/login'",
 				default: '',
 			},
@@ -629,12 +630,16 @@ export class GitlabExtended implements INodeType {
 					requestMethod = 'GET';
                                         const branch = this.getNodeParameter('branch', i) as string;
 					endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}`;
-				} else if (operation === 'getAll') {
-					requestMethod = 'GET';
-					returnAll = this.getNodeParameter('returnAll', i);
-					if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
-					endpoint = `${base}/repository/branches`;
-				}
+                                } else if (operation === 'getAll') {
+                                        requestMethod = 'GET';
+                                        returnAll = this.getNodeParameter('returnAll', i);
+                                        if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                        endpoint = `${base}/repository/branches`;
+                                } else if (operation === 'delete') {
+                                        requestMethod = 'DELETE';
+                                        const branch = this.getNodeParameter('branch', i) as string;
+                                        endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}`;
+                                }
 			} else if (resource === 'pipeline') {
                                 if (operation === 'create') {
                                         requestMethod = 'POST';

@@ -19,6 +19,7 @@ one of its operations.
 * `create` – Create a branch
 * `get` – Get a branch
 * `getAll` – List branches
+* `delete` – Delete a branch
 
 ### Pipeline
 * `create` – Trigger a pipeline

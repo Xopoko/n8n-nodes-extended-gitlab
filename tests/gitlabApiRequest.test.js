@@ -52,11 +52,27 @@ test('builds URL correctly when server lacks trailing slash', async () => {
 });
 
 test('getMergeRequestDiscussion builds correct endpoint', async () => {
-	const ctx = mockContext({ projectId: 1 });
-	const result = await getMergeRequestDiscussion.call(ctx, 1234, '123abc');
-	assert.strictEqual(
-		ctx.calls.options.uri,
-		'https://gitlab.example.com/api/v4/projects/1/merge_requests/1234/discussions/123abc',
-	);
-	assert.deepStrictEqual(result, { ok: true });
+        const ctx = mockContext({ projectId: 1 });
+        const result = await getMergeRequestDiscussion.call(ctx, 1234, '123abc');
+        assert.strictEqual(
+                ctx.calls.options.uri,
+                'https://gitlab.example.com/api/v4/projects/1/merge_requests/1234/discussions/123abc',
+        );
+        assert.deepStrictEqual(result, { ok: true });
+});
+
+test('gitlabApiRequest supports DELETE method', async () => {
+        const ctx = mockContext();
+        await gitlabApiRequest.call(
+                ctx,
+                'DELETE',
+                '/projects/1/repository/branches/foo',
+                {},
+                undefined,
+        );
+        assert.strictEqual(ctx.calls.options.method, 'DELETE');
+        assert.strictEqual(
+                ctx.calls.options.uri,
+                'https://gitlab.example.com/api/v4/projects/1/repository/branches/foo',
+        );
 });
