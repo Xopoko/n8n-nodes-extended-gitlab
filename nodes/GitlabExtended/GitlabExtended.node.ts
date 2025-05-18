@@ -19,6 +19,7 @@ export class GitlabExtended implements INodeType {
         version: 1,
         description: 'Extended GitLab node',
         defaults: { name: 'GitLab Extended' },
+        usableAsTool: true,
         inputs: [NodeConnectionType.Main],
         outputs: [NodeConnectionType.Main],
         credentials: [
