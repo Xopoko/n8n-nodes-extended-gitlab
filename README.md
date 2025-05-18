@@ -81,21 +81,21 @@ required for your chosen operation.
 | --- | --- |
 | `branch` | Name of a branch |
 | `ref` | Source branch or commit |
-| `pipelineId` | Numeric pipeline ID |
+| `pipelineId` | Numeric pipeline ID (positive) |
 | `pipelineRef` | Branch or tag for pipelines |
 | `path` | File or directory path |
 | `fileRef` | Branch, tag or commit for file operations |
 | `title` | Title for issues and merge requests |
 | `description` | Description text |
-| `issueIid` | Issue IID |
-| `mergeRequestIid` | Merge request IID |
+| `issueIid` | Issue IID (positive) |
+| `mergeRequestIid` | Merge request IID (positive) |
 | `labels` | Comma-separated label list |
 | `labelAction` | `add` or `remove` |
 | `body` | Body of a note |
 | `startDiscussion` | Start a new discussion |
 | `discussionId` | Discussion ID |
 | `resolved` | Whether a discussion is resolved |
-| `noteId` | ID of a note |
+| `noteId` | ID of a note (positive) |
 | `asSuggestion` | Format note as suggestion |
 | `positionType` | `text` or `image` suggestion |
 | `newPath`/`oldPath` | File paths for suggestions |

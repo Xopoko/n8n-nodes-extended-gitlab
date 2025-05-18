@@ -171,11 +171,12 @@ export class GitlabExtended implements INodeType {
 			{
 				displayName: 'Pipeline ID',
 				name: 'pipelineId',
-				type: 'number',
-				required: true,
-				displayOptions: { show: { resource: ['pipeline'], operation: ['get'] } },
-				description: "Numeric ID of the pipeline, for example '42'",
-				default: 1,
+                                type: 'number',
+                                required: true,
+                                typeOptions: { minValue: 1 },
+                                displayOptions: { show: { resource: ['pipeline'], operation: ['get'] } },
+                                description: 'Numeric ID of the pipeline (must be positive)',
+                                default: 1,
 			},
 			{
 				displayName: 'Return All',
@@ -272,20 +273,22 @@ export class GitlabExtended implements INodeType {
 			{
                                 displayName: 'Issue IID',
                                 name: 'issueIid',
-				type: 'number',
-				required: true,
-				displayOptions: { show: { resource: ['issue'], operation: ['get'] } },
-				description: "Issue number to fetch, for example '101'",
-				default: 1,
+                                type: 'number',
+                                required: true,
+                                typeOptions: { minValue: 1 },
+                                displayOptions: { show: { resource: ['issue'], operation: ['get'] } },
+                                description: 'Issue number to fetch (must be positive)',
+                                default: 1,
 			},
 			{
 				displayName: 'Merge Request IID',
 				name: 'mergeRequestIid',
-				type: 'number',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
+                                type: 'number',
+                                required: true,
+                                typeOptions: { minValue: 1 },
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
                                                operation: [
                                                        'createNote',
                                                        'deleteDiscussion',
@@ -303,8 +306,8 @@ export class GitlabExtended implements INodeType {
                                                ],
 					},
 				},
-				description: "The merge request IID, such as '7'",
-				default: 1,
+                                description: 'The merge request IID (must be positive)',
+                                default: 1,
 			},
 			{
 				displayName: 'Labels',
@@ -401,16 +404,17 @@ export class GitlabExtended implements INodeType {
 			{
 				displayName: 'Note ID',
 				name: 'noteId',
-				type: 'number',
-				required: true,
-				displayOptions: {
+                                type: 'number',
+                                required: true,
+                                typeOptions: { minValue: 1 },
+                                displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['deleteNote', 'getNote', 'updateNote'],
 					},
 				},
-				description: "Existing note ID to update, for example '50'",
-				default: 1,
+                                description: 'Existing note ID (must be positive)',
+                                default: 1,
 			},
 			{
 				displayName: 'Post as Suggestion',
@@ -631,8 +635,15 @@ export class GitlabExtended implements INodeType {
                                         endpoint = `${base}/pipeline`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('pipelineId', i);
-					endpoint = `${base}/pipelines/${id}`;
+                                        const id = this.getNodeParameter('pipelineId', i) as number;
+                                        if (id <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'pipelineId must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        endpoint = `${base}/pipelines/${id}`;
 				} else if (operation === 'getAll') {
 					requestMethod = 'GET';
 					returnAll = this.getNodeParameter('returnAll', i);
@@ -662,8 +673,15 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/issues`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-                                        const id = this.getNodeParameter('issueIid', i);
-					endpoint = `${base}/issues/${id}`;
+                                        const id = this.getNodeParameter('issueIid', i) as number;
+                                        if (id <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'issueIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        endpoint = `${base}/issues/${id}`;
 				}
 			} else if (resource === 'mergeRequest') {
 				if (operation === 'create') {
@@ -675,8 +693,15 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/merge_requests`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i);
-					endpoint = `${base}/merge_requests/${iid}`;
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        endpoint = `${base}/merge_requests/${iid}`;
 				} else if (operation === 'getAll') {
 					requestMethod = 'GET';
 					returnAll = this.getNodeParameter('returnAll', i);
@@ -685,11 +710,25 @@ export class GitlabExtended implements INodeType {
 				} else if (operation === 'createNote') {
 					requestMethod = 'POST';
                                         body.body = this.getNodeParameter('body', i);
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					endpoint = `${base}/merge_requests/${iid}/notes`;
-				} else if (operation === 'postDiscussionNote') {
-					requestMethod = 'POST';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        endpoint = `${base}/merge_requests/${iid}/notes`;
+                                } else if (operation === 'postDiscussionNote') {
+                                        requestMethod = 'POST';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
                                     const newDiscussion = this.getNodeParameter('startDiscussion', i, false);
                                         let note = this.getNodeParameter('body', i) as string;
 					if (this.getNodeParameter('asSuggestion', i, false)) {
@@ -755,55 +794,146 @@ export class GitlabExtended implements INodeType {
 				} else if (operation === 'updateNote') {
 					requestMethod = 'PUT';
 					const discussionId = this.getNodeParameter('discussionId', i);
-					const noteId = this.getNodeParameter('noteId', i);
+                                        const noteId = this.getNodeParameter('noteId', i) as number;
+                                        if (noteId <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'noteId must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
                                         body.body = this.getNodeParameter('body', i);
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
-				} else if (operation === 'getChanges') {
-					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					endpoint = `${base}/merge_requests/${iid}/changes`;
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
+                                } else if (operation === 'getChanges') {
+                                        requestMethod = 'GET';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        endpoint = `${base}/merge_requests/${iid}/changes`;
                                 } else if (operation === 'getDiscussions') {
                                         requestMethod = 'GET';
                                         const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
                                         returnAll = this.getNodeParameter('returnAll', i);
                                         if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
                                         endpoint = `${base}/merge_requests/${iid}/discussions`;
                                 } else if (operation === 'getDiscussion') {
                                         requestMethod = 'GET';
                                         const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
                                         const discussionId = this.getNodeParameter('discussionId', i);
                                         endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
-				} else if (operation === 'updateDiscussion') {
-					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					const discussionId = this.getNodeParameter('discussionId', i);
-					body.resolved = this.getNodeParameter('resolved', i);
-					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
-				} else if (operation === 'deleteDiscussion') {
-					requestMethod = 'DELETE';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					const discussionId = this.getNodeParameter('discussionId', i);
-					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
-				} else if (operation === 'getNote') {
-					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					const noteId = this.getNodeParameter('noteId', i);
-					endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
-				} else if (operation === 'deleteNote') {
-					requestMethod = 'DELETE';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					const noteId = this.getNodeParameter('noteId', i);
-					endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
-				} else if (operation === 'resolveDiscussion') {
-					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					const discussionId = this.getNodeParameter('discussionId', i);
-					body.resolved = this.getNodeParameter('resolved', i);
-					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+                                } else if (operation === 'updateDiscussion') {
+                                        requestMethod = 'PUT';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        const discussionId = this.getNodeParameter('discussionId', i);
+                                        body.resolved = this.getNodeParameter('resolved', i);
+                                        endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+                                } else if (operation === 'deleteDiscussion') {
+                                        requestMethod = 'DELETE';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        const discussionId = this.getNodeParameter('discussionId', i);
+                                        endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+                                } else if (operation === 'getNote') {
+                                        requestMethod = 'GET';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        const noteId = this.getNodeParameter('noteId', i) as number;
+                                        if (noteId <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'noteId must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
+                                } else if (operation === 'deleteNote') {
+                                        requestMethod = 'DELETE';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        const noteId = this.getNodeParameter('noteId', i) as number;
+                                        if (noteId <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'noteId must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
+                                } else if (operation === 'resolveDiscussion') {
+                                        requestMethod = 'PUT';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        if (iid <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'mergeRequestIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        const discussionId = this.getNodeParameter('discussionId', i);
+                                        body.resolved = this.getNodeParameter('resolved', i);
+                                        endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
                                } else if (operation === 'labels') {
                                        requestMethod = 'PUT';
                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                       if (iid <= 0) {
+                                               throw new NodeOperationError(
+                                                       this.getNode(),
+                                                       'mergeRequestIid must be a positive number',
+                                                       { itemIndex: i },
+                                               );
+                                       }
                                        const action = this.getNodeParameter('labelAction', i) as string;
                                        const labels = this.getNodeParameter('labels', i);
                                        if (action === 'add') {
