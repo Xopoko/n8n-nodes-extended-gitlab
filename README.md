@@ -12,39 +12,103 @@ npm install n8n-nodes-extended-gitlab
 
 ## Operations
 
-The GitLab Extended node supports the following operations:
+Operations are grouped by resource. Select the desired `resource` and then pick
+one of its operations.
 
-- Branches: create, get, and list
-- Pipelines: create, get, and list
-- Files: get and list
-- Issues: create and get
-- Merge Requests:
-  - Create
-  - Manage labels: Add or remove labels on a merge request. Use the `labelAction` parameter to specify the action (`add` or `remove`) and provide the list of labels to modify.
-  - Manage notes and discussions
-  - Get
-  - List
-  - Get discussion by ID
-  - List discussions
-- Raw API requests
+### Branch
+* `create` – Create a branch
+* `get` – Get a branch
+* `getAll` – List branches
+
+### Pipeline
+* `create` – Trigger a pipeline
+* `get` – Get a pipeline by ID
+* `getAll` – List pipelines
+
+### File
+* `get` – Retrieve a file
+* `list` – List repository files
+
+### Issue
+* `create` – Create an issue
+* `get` – Get an issue by number
+
+### Merge request
+* `create` – Create a merge request
+* `get` – Get a merge request
+* `getAll` – List merge requests
+* `createNote` – Add a note
+* `postDiscussionNote` – Reply or start a discussion
+* `updateNote` – Update a note
+* `deleteNote` – Delete a note
+* `getNote` – Get a note
+* `getChanges` – Get merge request changes
+* `getDiscussions` – List discussions
+* `getDiscussion` – Get a discussion
+* `updateDiscussion` – Update a discussion
+* `deleteDiscussion` – Delete a discussion
+* `resolveDiscussion` – Resolve or unresolve a discussion
+* `labels` – Add or remove labels based on `labelAction`
+
+### Raw API
+* `request` – Call any GitLab endpoint
 
 ### Example: Managing Labels on a Merge Request
 
-To add labels to a merge request, use the `manageLabels` operation with the following parameters:
+To add labels to a merge request, use the `labels` operation with the following parameters:
 
-- `mergeRequestId`: The ID of the merge request.
-- `labelAction`: Set to `add` to add labels or `remove` to remove labels.
-- `labels`: A comma-separated list of labels to add or remove.
+- `mergeRequestIid`: The IID of the merge request.
+- `labelAction`: Set to `add` or `remove`.
+- `labels`: Comma-separated label names.
 
 Example:
 
 ```json
 {
-  "operation": "manageLabels",
-  "mergeRequestId": 123,
+  "operation": "labels",
+  "mergeRequestIid": 123,
   "labelAction": "add",
   "labels": "bug,urgent"
 }
+```
+
+## Parameters
+
+Below is a concise list of parameter names used by the node. Provide only those
+required for your chosen operation.
+
+| Name | Description |
+| --- | --- |
+| `branch` | Name of a branch |
+| `ref` | Source branch or commit |
+| `pipelineId` | Numeric pipeline ID |
+| `pipelineRef` | Branch or tag for pipelines |
+| `path` | File or directory path |
+| `fileRef` | Branch, tag or commit for file operations |
+| `title` | Title for issues and merge requests |
+| `description` | Description text |
+| `issueIid` | Issue IID |
+| `mergeRequestIid` | Merge request IID |
+| `labels` | Comma-separated label list |
+| `labelAction` | `add` or `remove` |
+| `body` | Body of a note |
+| `startDiscussion` | Start a new discussion |
+| `discussionId` | Discussion ID |
+| `resolved` | Whether a discussion is resolved |
+| `noteId` | ID of a note |
+| `asSuggestion` | Format note as suggestion |
+| `positionType` | `text` or `image` suggestion |
+| `newPath`/`oldPath` | File paths for suggestions |
+| `newLine`/`oldLine` | Line numbers for suggestions |
+| `baseSha` | Base commit SHA |
+| `headSha` | Head commit SHA |
+| `startSha` | Start commit SHA |
+| `httpMethod` | Method for raw requests |
+| `endpoint` | Endpoint path |
+| `content` | JSON body payload |
+| `queryParameters` | JSON query parameters |
+| `returnAll` | Return every result when listing |
+| `limit` | Maximum number of results |
 
 ## Credentials
 
