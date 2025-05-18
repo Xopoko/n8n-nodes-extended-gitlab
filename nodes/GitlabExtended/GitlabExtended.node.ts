@@ -114,25 +114,23 @@ export class GitlabExtended implements INodeType {
 				displayOptions: { show: { resource: ['mergeRequest'] } },
 				description:
 					"Choose an action on merge requests, such as 'create' to start a merge request",
-				options: [
-					{ name: 'Add Labels', value: 'addLabels', action: 'Add labels' },
-					{ name: 'Create', value: 'create', action: 'Create a merge request' },
-					{ name: 'Create Note', value: 'createNote', action: 'Create a note' },
-					{ name: 'Delete Discussion', value: 'deleteDiscussion', action: 'Delete a discussion' },
-					{ name: 'Delete Note', value: 'deleteNote', action: 'Delete a note' },
-					{ name: 'Get', value: 'get', action: 'Get a merge request' },
-					{ name: 'Get Changes', value: 'getChanges', action: 'Get merge request changes' },
+                                options: [
+                                        { name: 'Create', value: 'create', action: 'Create a merge request' },
+                                        { name: 'Create Note', value: 'createNote', action: 'Create a note' },
+                                        { name: 'Delete Discussion', value: 'deleteDiscussion', action: 'Delete a discussion' },
+                                        { name: 'Delete Note', value: 'deleteNote', action: 'Delete a note' },
+                                        { name: 'Get', value: 'get', action: 'Get a merge request' },
+                                        { name: 'Get Changes', value: 'getChanges', action: 'Get merge request changes' },
                                         { name: 'Get Discussion', value: 'getDiscussion', action: 'Get a discussion by ID' },
                                         { name: 'Get Discussions', value: 'getDiscussions', action: 'List discussions' },
-					{ name: 'Get Many', value: 'getAll', action: 'List merge requests' },
-					{ name: 'Get Note', value: 'getNote', action: 'Get a note' },
-					 { name: 'Manage Labels', value: 'manageLabels', action: 'Modify labels' },
-					{ name: 'Post Discussion Note', value: 'postDiscussionNote', action: 'Post to discussion' },
-					{ name: 'Remove Labels', value: 'removeLabels', action: 'Remove labels' },
-					{ name: 'Resolve Discussion', value: 'resolveDiscussion', action: 'Resolve a discussion' },
-					{ name: 'Update Discussion', value: 'updateDiscussion', action: 'Update a discussion' },
-					{ name: 'Update Note', value: 'updateNote', action: 'Update a note' },
-				],
+                                        { name: 'Get Many', value: 'getAll', action: 'List merge requests' },
+                                        { name: 'Get Note', value: 'getNote', action: 'Get a note' },
+                                        { name: 'Labels', value: 'labels', action: 'Add or remove labels' },
+                                        { name: 'Post Discussion Note', value: 'postDiscussionNote', action: 'Post to discussion' },
+                                        { name: 'Resolve Discussion', value: 'resolveDiscussion', action: 'Resolve a discussion' },
+                                        { name: 'Update Discussion', value: 'updateDiscussion', action: 'Update a discussion' },
+                                        { name: 'Update Note', value: 'updateNote', action: 'Update a note' },
+                                ],
 				default: 'create',
 			},
 			{
@@ -147,24 +145,29 @@ export class GitlabExtended implements INodeType {
 				default: 'request',
 			},
 			{
-				displayName: 'Branch Name',
-				name: 'branchName',
-				type: 'string',
-				required: true,
-				displayOptions: { show: { resource: ['branch'], operation: ['create', 'get'] } },
-				description: "Branch name, for example 'feature/login'",
+                                displayName: 'Branch',
+                                name: 'branch',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['branch'], operation: ['create', 'get'] } },
+                                description: "Branch name, for example 'feature/login'",
 				default: '',
 			},
 			{
-				displayName: 'Ref',
-				name: 'ref',
-				type: 'string',
-				required: true,
-				displayOptions: { show: { resource: ['branch'], operation: ['create'] } },
-				description:
-					"Existing branch or commit to create the new branch from, e.g. 'main' or a commit SHA",
-				default: 'main',
-			},
+                                displayName: 'Ref',
+                                name: 'ref',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['branch', 'pipeline', 'file'],
+                                                operation: ['create', 'get', 'list'],
+                                        },
+                                },
+                                description:
+                                        "Existing branch or commit to create the new branch from, e.g. 'main' or a commit SHA",
+                                default: 'main',
+                        },
 			{
 				displayName: 'Pipeline ID',
 				name: 'pipelineId',
@@ -204,17 +207,17 @@ export class GitlabExtended implements INodeType {
 				default: 50,
 				description: 'Max number of results to return',
 			},
+                        {
+                                displayName: 'Ref',
+                                name: 'pipelineRef',
+                                type: 'string',
+                                displayOptions: { show: { resource: ['pipeline'], operation: ['create'] } },
+                                description: "Branch or tag that triggers the pipeline, such as 'main'",
+                                default: 'main',
+                        },
 			{
-				displayName: 'Ref',
-				name: 'pipelineRef',
-				type: 'string',
-				displayOptions: { show: { resource: ['pipeline'], operation: ['create'] } },
-				description: "Branch or tag that triggers the pipeline, such as 'main'",
-				default: 'main',
-			},
-			{
-				displayName: 'Source Branch',
-				name: 'sourceBranch',
+                                displayName: 'Source Branch',
+                                name: 'source',
 				type: 'string',
 				required: true,
 				displayOptions: { show: { resource: ['mergeRequest'], operation: ['create'] } },
@@ -222,8 +225,8 @@ export class GitlabExtended implements INodeType {
 				default: '',
 			},
 			{
-				displayName: 'Target Branch',
-				name: 'targetBranch',
+                                displayName: 'Target Branch',
+                                name: 'target',
 				type: 'string',
 				required: true,
 				displayOptions: { show: { resource: ['mergeRequest'], operation: ['create'] } },
@@ -231,14 +234,14 @@ export class GitlabExtended implements INodeType {
 				default: 'main',
 			},
 			{
-				displayName: 'File Path',
-				name: 'filePath',
+                                displayName: 'Path',
+                                name: 'path',
 				type: 'string',
 				required: true,
 				displayOptions: {
 					show: { resource: ['file'], operation: ['get', 'list'] },
 				},
-				description: "Path to the file, for example 'src/index.ts'",
+                                description: "Path to the file, for example 'src/index.ts'",
 				default: '',
 			},
 			{
@@ -267,8 +270,8 @@ export class GitlabExtended implements INodeType {
 				default: '',
 			},
 			{
-				displayName: 'Issue Number',
-				name: 'issueNumber',
+                                displayName: 'Issue IID',
+                                name: 'issueIid',
 				type: 'number',
 				required: true,
 				displayOptions: { show: { resource: ['issue'], operation: ['get'] } },
@@ -284,7 +287,6 @@ export class GitlabExtended implements INodeType {
 					show: {
 						resource: ['mergeRequest'],
                                                operation: [
-                                                       'addLabels',
                                                        'createNote',
                                                        'deleteDiscussion',
                                                        'deleteNote',
@@ -293,9 +295,8 @@ export class GitlabExtended implements INodeType {
                                                        'getDiscussion',
                                                        'getDiscussions',
                                                        'getNote',
-                                                       'manageLabels',
+                                                       'labels',
                                                        'postDiscussionNote',
-                                                       'removeLabels',
                                                        'resolveDiscussion',
                                                        'updateDiscussion',
                                                        'updateNote',
@@ -313,7 +314,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
                                        show: {
                                                resource: ['mergeRequest'],
-                                               operation: ['addLabels', 'removeLabels', 'manageLabels'],
+                                               operation: ['labels'],
                                        },
 				},
                                description: 'Comma-separated label names to apply',
@@ -326,7 +327,7 @@ export class GitlabExtended implements INodeType {
                                displayOptions: {
                                        show: {
                                                resource: ['mergeRequest'],
-                                               operation: ['manageLabels'],
+                                               operation: ['labels'],
                                        },
                                },
                                options: [
@@ -336,8 +337,8 @@ export class GitlabExtended implements INodeType {
                                default: 'add',
                        },
                        {
-                               displayName: 'Note Body',
-				name: 'noteBody',
+                               displayName: 'Body',
+                                name: 'body',
 				type: 'string',
 				required: true,
 				displayOptions: {
@@ -350,13 +351,13 @@ export class GitlabExtended implements INodeType {
 				default: '',
 			},
 			{
-				displayName: 'Create New Discussion',
-				name: 'newDiscussion',
+                                displayName: 'Start New Discussion',
+                                name: 'startDiscussion',
 				type: 'boolean',
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
+                                                operation: ['postDiscussionNote'],
 					},
 				},
 				description: 'Whether to start a new discussion instead of replying to an existing one',
@@ -378,7 +379,7 @@ export class GitlabExtended implements INodeType {
 							'updateDiscussion',
 							'updateNote',
 						],
-						newDiscussion: [false],
+                                            startDiscussion: [false],
 					},
 				},
                                 description: "Discussion ID to reply to or fetch, e.g. '123abc'",
@@ -562,8 +563,8 @@ export class GitlabExtended implements INodeType {
 				default: 'GET',
 			},
 			{
-				displayName: 'Endpoint',
-				name: 'rawEndpoint',
+                                displayName: 'Endpoint',
+                                name: 'endpoint',
 				type: 'string',
 				displayOptions: { show: { resource: ['raw'], operation: ['request'] } },
 				description: "Endpoint path like '/projects/1/issues'",
@@ -571,8 +572,8 @@ export class GitlabExtended implements INodeType {
 				required: true,
 			},
 			{
-				displayName: 'Body Parameters',
-				name: 'bodyContent',
+                                displayName: 'Content',
+                                name: 'content',
 				type: 'json',
 				displayOptions: {
 					show: { resource: ['raw'], operation: ['request'], httpMethod: ['POST', 'PUT', 'PATCH'] },
@@ -610,12 +611,12 @@ export class GitlabExtended implements INodeType {
 			if (resource === 'branch') {
 				if (operation === 'create') {
 					requestMethod = 'POST';
-					body.branch = this.getNodeParameter('branchName', i);
+                                        body.branch = this.getNodeParameter('branch', i);
 					body.ref = this.getNodeParameter('ref', i);
 					endpoint = `${base}/repository/branches`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-					const branch = this.getNodeParameter('branchName', i) as string;
+                                        const branch = this.getNodeParameter('branch', i) as string;
 					endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}`;
 				} else if (operation === 'getAll') {
 					requestMethod = 'GET';
@@ -624,10 +625,10 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/repository/branches`;
 				}
 			} else if (resource === 'pipeline') {
-				if (operation === 'create') {
-					requestMethod = 'POST';
-					body.ref = this.getNodeParameter('pipelineRef', i);
-					endpoint = `${base}/pipeline`;
+                                if (operation === 'create') {
+                                        requestMethod = 'POST';
+                                        body.ref = this.getNodeParameter('pipelineRef', i);
+                                        endpoint = `${base}/pipeline`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
 					const id = this.getNodeParameter('pipelineId', i);
@@ -641,13 +642,13 @@ export class GitlabExtended implements INodeType {
 			} else if (resource === 'file') {
 				if (operation === 'get') {
 					requestMethod = 'GET';
-					const path = this.getNodeParameter('filePath', i);
-					qs.ref = this.getNodeParameter('fileRef', i);
+                                        const path = this.getNodeParameter('path', i);
+                                        qs.ref = this.getNodeParameter('fileRef', i);
 					endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
 				} else if (operation === 'list') {
 					requestMethod = 'GET';
-					const path = this.getNodeParameter('filePath', i);
-					qs.ref = this.getNodeParameter('fileRef', i);
+                                        const path = this.getNodeParameter('path', i);
+                                        qs.ref = this.getNodeParameter('fileRef', i);
 					returnAll = this.getNodeParameter('returnAll', i);
 					if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
 					if (path) qs.path = path;
@@ -661,14 +662,14 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/issues`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('issueNumber', i);
+                                        const id = this.getNodeParameter('issueIid', i);
 					endpoint = `${base}/issues/${id}`;
 				}
 			} else if (resource === 'mergeRequest') {
 				if (operation === 'create') {
 					requestMethod = 'POST';
-					body.source_branch = this.getNodeParameter('sourceBranch', i);
-					body.target_branch = this.getNodeParameter('targetBranch', i);
+                                        body.source_branch = this.getNodeParameter('source', i);
+                                        body.target_branch = this.getNodeParameter('target', i);
 					body.title = this.getNodeParameter('title', i);
 					body.description = this.getNodeParameter('description', i);
 					endpoint = `${base}/merge_requests`;
@@ -683,14 +684,14 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/merge_requests`;
 				} else if (operation === 'createNote') {
 					requestMethod = 'POST';
-					body.body = this.getNodeParameter('noteBody', i);
+                                        body.body = this.getNodeParameter('body', i);
 					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
 					endpoint = `${base}/merge_requests/${iid}/notes`;
 				} else if (operation === 'postDiscussionNote') {
 					requestMethod = 'POST';
 					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					const newDiscussion = this.getNodeParameter('newDiscussion', i, false);
-					let note = this.getNodeParameter('noteBody', i) as string;
+                                    const newDiscussion = this.getNodeParameter('startDiscussion', i, false);
+                                        let note = this.getNodeParameter('body', i) as string;
 					if (this.getNodeParameter('asSuggestion', i, false)) {
 						note = `\`\`\`suggestion:-0+0\n${note}\n\`\`\``;
 						// Wrap the note in a suggestion block so GitLab renders a patch
@@ -755,7 +756,7 @@ export class GitlabExtended implements INodeType {
 					requestMethod = 'PUT';
 					const discussionId = this.getNodeParameter('discussionId', i);
 					const noteId = this.getNodeParameter('noteId', i);
-					body.body = this.getNodeParameter('noteBody', i);
+                                        body.body = this.getNodeParameter('body', i);
 					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
 				} else if (operation === 'getChanges') {
@@ -800,7 +801,7 @@ export class GitlabExtended implements INodeType {
 					const discussionId = this.getNodeParameter('discussionId', i);
 					body.resolved = this.getNodeParameter('resolved', i);
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
-                               } else if (operation === 'manageLabels') {
+                               } else if (operation === 'labels') {
                                        requestMethod = 'PUT';
                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
                                        const action = this.getNodeParameter('labelAction', i) as string;
@@ -811,22 +812,12 @@ export class GitlabExtended implements INodeType {
                                                body.remove_labels = labels;
                                        }
                                        endpoint = `${base}/merge_requests/${iid}`;
-                               } else if (operation === 'addLabels') {
-                                       requestMethod = 'PUT';
-                                       const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-                                       body.add_labels = this.getNodeParameter('labels', i);
-                                       endpoint = `${base}/merge_requests/${iid}`;
-                               } else if (operation === 'removeLabels') {
-                                       requestMethod = 'PUT';
-                                       const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-                                       body.remove_labels = this.getNodeParameter('labels', i);
-                                       endpoint = `${base}/merge_requests/${iid}`;
-				}
+                               }
 			} else if (resource === 'raw') {
 				if (operation === 'request') {
 					requestMethod = this.getNodeParameter('httpMethod', i) as IHttpRequestMethods;
-					endpoint = this.getNodeParameter('rawEndpoint', i) as string;
-					body = this.getNodeParameter('bodyContent', i, {}) as IDataObject;
+                                        endpoint = this.getNodeParameter('endpoint', i) as string;
+                                        body = this.getNodeParameter('content', i, {}) as IDataObject;
 					qs = this.getNodeParameter('queryParameters', i, {}) as IDataObject;
 				}
 			} else {
