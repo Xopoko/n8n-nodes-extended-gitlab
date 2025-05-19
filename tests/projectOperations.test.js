@@ -1,0 +1,72 @@
+import assert from 'node:assert';
+import test from 'node:test';
+import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
+
+function createContext(params) {
+	const calls = {};
+	return {
+		calls,
+		getInputData() {
+			return [{ json: {} }];
+		},
+		getNodeParameter(name) {
+			return params[name];
+		},
+		async getCredentials() {
+			return { server: 'https://gitlab.example.com', accessToken: 't' };
+		},
+		helpers: {
+			async requestWithAuthentication(name, options) {
+				calls.options = options;
+				return {};
+			},
+			constructExecutionMetaData(data) {
+				return data;
+			},
+			returnJsonArray(data) {
+				return [{ json: data }];
+			},
+		},
+		getNode() {
+			return {};
+		},
+	};
+}
+
+test('get builds correct endpoint', async () => {
+	const node = new GitlabExtended();
+	const ctx = createContext({ resource: 'project', operation: 'get', projectId: 8 });
+	await node.execute.call(ctx);
+	assert.strictEqual(ctx.calls.options.method, 'GET');
+	assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/8');
+});
+
+test('getAll builds correct endpoint with limit', async () => {
+	const node = new GitlabExtended();
+	const ctx = createContext({
+		resource: 'project',
+		operation: 'getAll',
+		returnAll: false,
+		limit: 4,
+	});
+	await node.execute.call(ctx);
+	assert.strictEqual(ctx.calls.options.method, 'GET');
+	assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects');
+	assert.strictEqual(ctx.calls.options.qs.per_page, 4);
+});
+
+test('search builds correct endpoint with query', async () => {
+	const node = new GitlabExtended();
+	const ctx = createContext({
+		resource: 'project',
+		operation: 'search',
+		searchTerm: 'test',
+		returnAll: false,
+		limit: 2,
+	});
+	await node.execute.call(ctx);
+	assert.strictEqual(ctx.calls.options.method, 'GET');
+	assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects');
+	assert.strictEqual(ctx.calls.options.qs.per_page, 2);
+	assert.strictEqual(ctx.calls.options.qs.search, 'test');
+});
