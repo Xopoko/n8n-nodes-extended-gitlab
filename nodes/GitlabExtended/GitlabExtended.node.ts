@@ -1335,51 +1335,43 @@ endpoint = '/projects';
                                                 );
                                         }
                                     const newDiscussion = this.getNodeParameter('startDiscussion', i, false);
+                                        const asSuggestion = this.getNodeParameter('asSuggestion', i, false) as boolean;
                                         let note = this.getNodeParameter('body', i) as string;
-					if (this.getNodeParameter('asSuggestion', i, false)) {
-						note = `\`\`\`suggestion:-0+0\n${note}\n\`\`\``;
-						// Wrap the note in a suggestion block so GitLab renders a patch
-					}
-					body.body = note;
+                                        if (asSuggestion) {
+                                                note = `\`\`\`suggestion:-0+0\n${note}\n\`\`\``;
+                                                // Wrap the note in a suggestion block so GitLab renders a patch
+                                        }
+                                        body.body = note;
+                                        if (asSuggestion) {
+                                                const positionType = this.getNodeParameter('positionType', i) as string;
+                                                const newPath = this.getNodeParameter('newPath', i) as string;
+                                                const oldPath = this.getNodeParameter('oldPath', i) as string;
+                                                const newLine = this.getNodeParameter('newLine', i) as number;
+                                                const baseSha = this.getNodeParameter('baseSha', i) as string;
+                                                const headSha = this.getNodeParameter('headSha', i) as string;
+                                                const startSha = this.getNodeParameter('startSha', i) as string;
 
-					const positionType = this.getNodeParameter('positionType', i, undefined);
-					const newPath = this.getNodeParameter('newPath', i, undefined);
-					const oldPath = this.getNodeParameter('oldPath', i, undefined);
-					const newLine = this.getNodeParameter('newLine', i, undefined);
-					const baseSha = this.getNodeParameter('baseSha', i, undefined);
-					const headSha = this.getNodeParameter('headSha', i, undefined);
-					const startSha = this.getNodeParameter('startSha', i, undefined);
-
-					if (
-						positionType !== undefined &&
-						newPath !== undefined &&
-						oldPath !== undefined &&
-						newLine !== undefined &&
-						baseSha !== undefined &&
-						headSha !== undefined &&
-						startSha !== undefined
-					) {
-						const position: IDataObject = {
-							position_type: positionType as string,
-							new_path: newPath as string,
-							old_path: oldPath as string,
-							new_line: newLine as number,
-							base_sha: baseSha as string,
-							head_sha: headSha as string,
-							start_sha: startSha as string,
-						};
-						const oldLine = this.getNodeParameter('oldLine', i, 0) as number;
-						if (oldLine < 0) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'The "oldLine" parameter must be a non-negative number.',
-							);
-						}
-						if (oldLine !== 0) {
-							position.old_line = oldLine;
-						}
-						body.position = position;
-					}
+                                                const position: IDataObject = {
+                                                        position_type: positionType,
+                                                        new_path: newPath,
+                                                        old_path: oldPath,
+                                                        new_line: newLine,
+                                                        base_sha: baseSha,
+                                                        head_sha: headSha,
+                                                        start_sha: startSha,
+                                                };
+                                                const oldLine = this.getNodeParameter('oldLine', i, 0) as number;
+                                                if (oldLine < 0) {
+                                                        throw new NodeOperationError(
+                                                                this.getNode(),
+                                                                'The "oldLine" parameter must be a non-negative number.',
+                                                        );
+                                                }
+                                                if (oldLine !== 0) {
+                                                        position.old_line = oldLine;
+                                                }
+                                                body.position = position;
+                                        }
 
 					if (newDiscussion) {
 						endpoint = `${base}/merge_requests/${iid}/discussions`;
