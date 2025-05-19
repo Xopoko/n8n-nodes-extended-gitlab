@@ -65,8 +65,8 @@ export async function gitlabApiRequestAllItems(
 
 	let responseData;
 
-	query.per_page = 100;
 	query.page = 1;
+	query.per_page = 100;
 
         do {
                 responseData = await gitlabApiRequest.call(this, method, endpoint, body as IDataObject, query, {

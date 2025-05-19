@@ -156,3 +156,14 @@ test('gitlabApiRequestAllItems follows x-next-page header', async () => {
        const data = await gitlabApiRequestAllItems.call(ctx, 'GET', '/foo', {}, {});
        assert.deepStrictEqual(data, [{ page: 1 }, { page: 2 }, { page: 3 }]);
 });
+
+test('gitlabApiRequestAllItems initializes query.page to 1', async () => {
+       const ctx = mockContext();
+       ctx.helpers.requestWithAuthentication = async (name, options) => {
+               ctx.calls.options = options;
+               return { body: [], headers: {} };
+       };
+
+       await gitlabApiRequestAllItems.call(ctx, 'GET', '/foo', {}, {});
+       assert.strictEqual(ctx.calls.options.qs.page, 1);
+});
