@@ -30,6 +30,7 @@ export class GitlabExtended implements INodeType {
 		version: 1,
 		description: 'Extended GitLab node',
 		defaults: { name: 'GitLab Extended' },
+		subtitle: '={{$parameter.resource}} {{$parameter.operation}}',
 		usableAsTool: true,
 		inputs: [NodeConnectionType.Main],
 		outputs: [NodeConnectionType.Main],
