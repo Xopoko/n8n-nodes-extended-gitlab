@@ -48,6 +48,7 @@ export class GitlabExtended implements INodeType {
                                         { name: 'Merge Request', value: 'mergeRequest' },
                                         { name: 'Pipeline', value: 'pipeline' },
                                         { name: 'Raw API', value: 'raw' },
+                                        { name: 'Tag', value: 'tag' },
                                 ],
 				default: 'branch',
 			},
@@ -89,7 +90,22 @@ export class GitlabExtended implements INodeType {
                                        { name: 'Retry', value: 'retry', action: 'Retry a pipeline' },
                                ],
                                default: 'create',
-                        },
+                       },
+                       {
+                               displayName: 'Operation',
+                               name: 'operation',
+                               type: 'options',
+                               noDataExpression: true,
+                               displayOptions: { show: { resource: ['tag'] } },
+                               description: 'Select how to manage tags',
+                               options: [
+                                       { name: 'Create', value: 'create', action: 'Create a tag' },
+                                       { name: 'Get', value: 'get', action: 'Get a tag' },
+                                       { name: 'Get Many', value: 'getAll', action: 'List tags' },
+                                       { name: 'Delete', value: 'delete', action: 'Delete a tag' },
+                               ],
+                               default: 'create',
+                       },
                         {
                                 displayName: 'Operation',
                                 name: 'operation',
@@ -244,7 +260,7 @@ export class GitlabExtended implements INodeType {
                                 required: true,
                                 displayOptions: {
                                         show: {
-                                                resource: ['branch', 'file'],
+                                                resource: ['branch', 'file', 'tag'],
                                                 operation: ['create', 'get', 'list'],
                                         },
                                 },
@@ -273,7 +289,7 @@ export class GitlabExtended implements INodeType {
 				type: 'boolean',
 				displayOptions: {
 					show: {
-                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group'],
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group', 'tag'],
                                                operation: ['getAll', 'list', 'getDiscussions', 'getJobs', 'getMembers'],
                                        },
                                },
@@ -286,7 +302,7 @@ export class GitlabExtended implements INodeType {
 				type: 'number',
 				displayOptions: {
 					show: {
-                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group'],
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group', 'tag'],
                                                operation: ['getAll', 'list', 'getDiscussions', 'getJobs', 'getMembers'],
                                                returnAll: [false],
                                        },
@@ -305,7 +321,29 @@ export class GitlabExtended implements INodeType {
                                 description: "Branch or tag that triggers the pipeline, such as 'main'",
                                 default: 'main',
                         },
-			{
+                        {
+                                displayName: 'Tag Name',
+                                name: 'tagName',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['tag'],
+                                                operation: ['create', 'get', 'delete'],
+                                        },
+                                },
+                                description: 'Name of the tag',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Message',
+                                name: 'message',
+                                type: 'string',
+                                displayOptions: { show: { resource: ['tag'], operation: ['create'] } },
+                                description: 'Optional message for the tag',
+                                default: '',
+                        },
+                        {
                                 displayName: 'Source Branch',
                                 name: 'source',
 				type: 'string',
@@ -937,7 +975,29 @@ export class GitlabExtended implements INodeType {
                                        const ref = this.getNodeParameter('pipelineRef', i) as string;
                                        endpoint = `${base}/pipelines/${id}/jobs/artifacts/${ref}/download`;
                                }
-                        } else if (resource === 'group') {
+                       } else if (resource === 'tag') {
+                               if (operation === 'create') {
+                                       requestMethod = 'POST';
+                                       body.tag_name = this.getNodeParameter('tagName', i);
+                                       body.ref = this.getNodeParameter('ref', i);
+                                       const message = this.getNodeParameter('message', i, '');
+                                       if (message) body.message = message;
+                                       endpoint = `${base}/repository/tags`;
+                               } else if (operation === 'get') {
+                                       requestMethod = 'GET';
+                                       const tag = this.getNodeParameter('tagName', i) as string;
+                                       endpoint = `${base}/repository/tags/${encodeURIComponent(tag)}`;
+                               } else if (operation === 'getAll') {
+                                       requestMethod = 'GET';
+                                       returnAll = this.getNodeParameter('returnAll', i);
+                                       if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                       endpoint = `${base}/repository/tags`;
+                               } else if (operation === 'delete') {
+                                       requestMethod = 'DELETE';
+                                       const tag = this.getNodeParameter('tagName', i) as string;
+                                       endpoint = `${base}/repository/tags/${encodeURIComponent(tag)}`;
+                               }
+                       } else if (resource === 'group') {
                                if (operation === 'create') {
                                        requestMethod = 'POST';
                                        body.name = this.getNodeParameter('groupName', i);

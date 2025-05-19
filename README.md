@@ -35,6 +35,12 @@ one of its operations.
 * `delete` – Delete a pipeline
 * `downloadArtifacts` – Download artifacts from a pipeline
 
+### Tag
+* `create` – Create a tag
+* `get` – Get a tag
+* `getAll` – List tags
+* `delete` – Delete a tag
+
 ### Group
 * `create` – Create a group
 * `get` – Get a group
