@@ -87,3 +87,71 @@ test('rename without newBranch throws', async () => {
   });
   await assert.rejects(() => node.execute.call(ctx), /newBranch must not be empty/);
 });
+
+test('create builds correct endpoint and body', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({
+    resource: 'branch',
+    operation: 'create',
+    branch: 'feature',
+    ref: 'main',
+  });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'POST');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/repository/branches',
+  );
+  assert.deepStrictEqual(ctx.calls.options.body, { branch: 'feature', ref: 'main' });
+});
+
+test('get builds correct endpoint and encodes branch', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'branch', operation: 'get', branch: 'feat/one 2' });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'GET');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/repository/branches/feat%2Fone%202',
+  );
+});
+
+test('getAll builds correct endpoint with limit', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'branch', operation: 'getAll', returnAll: false, limit: 2 });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'GET');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/repository/branches',
+  );
+  assert.strictEqual(ctx.calls.options.qs.per_page, 2);
+});
+
+test('getAll builds correct endpoint when returnAll true', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'branch', operation: 'getAll', returnAll: true });
+  ctx.helpers.requestWithAuthentication = async (name, options) => {
+    ctx.calls.options = JSON.parse(JSON.stringify(options));
+    return { body: [], headers: { 'x-next-page': '' } };
+  };
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'GET');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/repository/branches',
+  );
+  assert.strictEqual(ctx.calls.options.qs.per_page, 100);
+  assert.strictEqual(ctx.calls.options.qs.page, 1);
+});
+
+test('delete builds correct endpoint', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'branch', operation: 'delete', branch: 'obsolete' });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'DELETE');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/repository/branches/obsolete',
+  );
+});
