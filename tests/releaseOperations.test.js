@@ -68,3 +68,42 @@ test('delete builds correct endpoint', async () => {
   assert.strictEqual(ctx.calls.options.method, 'DELETE');
   assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/1/releases/v1.0');
 });
+
+test('create handles optional parameters correctly', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'release', operation: 'create', tagName: 'v1.0', name: '1.0', releaseDescription: 'desc' });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'POST');
+  assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/1/releases');
+  assert.deepStrictEqual(ctx.calls.options.body, { tag_name: 'v1.0', name: '1.0', description: 'desc' });
+});
+
+test('create throws on missing required parameters', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'release', operation: 'create', tagName: '', name: '1.0', releaseDescription: 'desc' });
+  await assert.rejects(() => node.execute.call(ctx), /tagName must not be empty/);
+});
+
+test('create uses default values correctly', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'release', operation: 'create', tagName: 'v1.0', name: '1.0' });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'POST');
+  assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/1/releases');
+  assert.deepStrictEqual(ctx.calls.options.body, { tag_name: 'v1.0', name: '1.0', description: '' });
+});
+
+test('create throws on invalid parameters', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'release', operation: 'create', tagName: 'v1.0', name: '1.0', releaseDescription: 'desc', assets: '{' });
+  await assert.rejects(() => node.execute.call(ctx), /Invalid JSON in 'assets' parameter/);
+});
+
+test('create handles different HTTP methods and response formats', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'release', operation: 'create', tagName: 'v1.0', name: '1.0', releaseDescription: 'desc', assets: '{"links":[]}' });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'POST');
+  assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/1/releases');
+  assert.deepStrictEqual(ctx.calls.options.body, { tag_name: 'v1.0', name: '1.0', description: 'desc', assets: { links: [] } });
+});
