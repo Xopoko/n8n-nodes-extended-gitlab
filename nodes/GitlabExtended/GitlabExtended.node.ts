@@ -921,31 +921,31 @@ displayName: 'Title',
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
-		const operation = this.getNodeParameter('operation', 0);
-		const resource = this.getNodeParameter('resource', 0);
-		for (let i = 0; i < items.length; i++) {
-			let requestMethod: IHttpRequestMethods = 'GET';
-			let endpoint = '';
-			let body: IDataObject = {};
-			let qs: IDataObject = {};
-			let returnAll = false;
-                        const credential = await this.getCredentials('gitlabExtendedApi');
+                const operation = this.getNodeParameter('operation', 0);
+                const resource = this.getNodeParameter('resource', 0);
+                const credential = await this.getCredentials('gitlabExtendedApi');
 
-                        if (!credential.projectId) {
-                                const owner = credential.projectOwner as string;
-                                const name = credential.projectName as string;
-                                if (!owner || !name) {
-                                        throw new NodeOperationError(
-                                                this.getNode(),
-                                                'Credentials must include either projectId or both projectOwner and projectName',
-                                                { itemIndex: i ?? -1 },
-                                        );
-                                }
+                if (!credential.projectId) {
+                        const owner = credential.projectOwner as string;
+                        const name = credential.projectName as string;
+                        if (!owner || !name) {
+                                throw new NodeOperationError(
+                                        this.getNode(),
+                                        'Credentials must include either projectId or both projectOwner and projectName',
+                                );
                         }
+                }
 
-                        const base = credential.projectId
-                                ? `/projects/${credential.projectId}`
-                                : `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(credential.projectName as string)}`;
+                const base = credential.projectId
+                        ? `/projects/${credential.projectId}`
+                        : `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(credential.projectName as string)}`;
+
+                for (let i = 0; i < items.length; i++) {
+                        let requestMethod: IHttpRequestMethods = 'GET';
+                        let endpoint = '';
+                        let body: IDataObject = {};
+                        let qs: IDataObject = {};
+                        let returnAll = false;
 
 			if (resource === 'branch') {
                                 if (operation === 'create') {
