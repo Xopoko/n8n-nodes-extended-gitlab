@@ -372,3 +372,9 @@ test('postDiscussionNote throws on negative oldLine', async () => {
     /The "oldLine" parameter must be a non-negative number./
   );
 });
+
+test('get throws on invalid mergeRequestIid', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'mergeRequest', operation: 'get', mergeRequestIid: 0 });
+  await assert.rejects(() => node.execute.call(ctx), /mergeRequestIid must be a positive number/);
+});

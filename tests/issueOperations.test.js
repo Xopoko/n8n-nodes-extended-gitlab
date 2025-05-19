@@ -85,3 +85,9 @@ test('getAll builds correct endpoint with limit', async () => {
   );
   assert.strictEqual(ctx.calls.options.qs.per_page, 2);
 });
+
+test('get throws on invalid issueIid', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'issue', operation: 'get', issueIid: 0 });
+  await assert.rejects(() => node.execute.call(ctx), /issueIid must be a positive number/);
+});
