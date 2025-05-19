@@ -1,0 +1,59 @@
+import assert from 'node:assert';
+import test from 'node:test';
+import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
+
+function createContext(params) {
+  const calls = {};
+  return {
+    calls,
+    getInputData() {
+      return [{ json: {} }];
+    },
+    getNodeParameter(name) {
+      return params[name];
+    },
+    async getCredentials() {
+      return { server: 'https://gitlab.example.com', accessToken: 't', projectId: 1 };
+    },
+    helpers: {
+      async requestWithAuthentication(name, options) {
+        calls.options = options;
+        return {};
+      },
+      constructExecutionMetaData(data) { return data; },
+      returnJsonArray(data) { return [{ json: data }]; },
+    },
+    getNode() { return {}; },
+  };
+}
+
+test('delete builds correct endpoint', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({
+    resource: 'pipeline',
+    operation: 'delete',
+    pipelineId: 7,
+  });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'DELETE');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/pipelines/7'
+  );
+});
+
+test('downloadArtifacts builds correct endpoint', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({
+    resource: 'pipeline',
+    operation: 'downloadArtifacts',
+    pipelineId: 9,
+    pipelineRef: 'main',
+  });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'GET');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/pipelines/9/jobs/artifacts/main/download'
+  );
+});
