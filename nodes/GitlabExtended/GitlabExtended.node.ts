@@ -243,7 +243,16 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['branch'],
-						operation: ['create', 'get', 'getAll', 'delete', 'rename', 'protect', 'unprotect', 'merge'],
+						operation: [
+							'create',
+							'get',
+							'getAll',
+							'delete',
+							'rename',
+							'protect',
+							'unprotect',
+							'merge',
+						],
 					},
 				},
 				description: "Branch name, for example 'feature/login'",
@@ -684,30 +693,30 @@ export class GitlabExtended implements INodeType {
 				description: 'Whether to start a new discussion instead of replying to an existing one',
 				default: false,
 			},
-                        {
-                                displayName: 'Discussion ID',
-                                name: 'discussionId',
-                                type: 'string',
-                                required: true,
-                                displayOptions: {
-                                        show: {
-                                                resource: ['mergeRequest'],
-                                                operation: [
-                                                        'deleteDiscussion',
-                                                        'getDiscussion',
-                                                        'postDiscussionNote',
-                                                        'resolveDiscussion',
-                                                        'updateDiscussion',
-                                                        'updateNote',
-                                                ],
-                                        },
-                                        hide: {
-                                                startDiscussion: [true],
-                                        },
-                                },
-                                description: "Discussion ID to reply to or fetch, e.g. '123abc'",
-                                default: '',
-                        },
+			{
+				displayName: 'Discussion ID',
+				name: 'discussionId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: [
+							'deleteDiscussion',
+							'getDiscussion',
+							'postDiscussionNote',
+							'resolveDiscussion',
+							'updateDiscussion',
+							'updateNote',
+						],
+					},
+					hide: {
+						startDiscussion: [true],
+					},
+				},
+				description: "Discussion ID to reply to or fetch, e.g. '123abc'",
+				default: '',
+			},
 			{
 				displayName: 'Resolved',
 				name: 'resolved',
@@ -971,11 +980,15 @@ export class GitlabExtended implements INodeType {
 			let qs: IDataObject = {};
 			let returnAll = false;
 
-                       if (resource === 'branch') {
-                                return await handleBranch.call(this, i) as unknown as INodeExecutionData[][];
-                       } else if (resource === 'pipeline') {
-                                return await handlePipeline.call(this, i) as unknown as INodeExecutionData[][];
-                       } else if (resource === 'tag') {
+			if (resource === 'branch') {
+				const executionData = await handleBranch.call(this, i);
+				returnData.push(...executionData);
+				continue;
+			} else if (resource === 'pipeline') {
+				const executionData = await handlePipeline.call(this, i);
+				returnData.push(...executionData);
+				continue;
+			} else if (resource === 'tag') {
 				if (operation === 'create') {
 					requestMethod = 'POST';
 					body.tag_name = this.getNodeParameter('tagName', i);
@@ -1063,28 +1076,28 @@ export class GitlabExtended implements INodeType {
 					endpoint = `/groups`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-                                        const id = this.getNodeParameter('groupId', i) as number;
-                                        requirePositive.call(this, id, 'groupId', i);
-                                        endpoint = `/groups/${id}`;
+					const id = this.getNodeParameter('groupId', i) as number;
+					requirePositive.call(this, id, 'groupId', i);
+					endpoint = `/groups/${id}`;
 				} else if (operation === 'delete') {
 					requestMethod = 'DELETE';
-                                        const id = this.getNodeParameter('groupId', i) as number;
-                                        requirePositive.call(this, id, 'groupId', i);
-                                        endpoint = `/groups/${id}`;
+					const id = this.getNodeParameter('groupId', i) as number;
+					requirePositive.call(this, id, 'groupId', i);
+					endpoint = `/groups/${id}`;
 				} else if (operation === 'getMembers') {
 					requestMethod = 'GET';
-                                        const id = this.getNodeParameter('groupId', i) as number;
-                                        requirePositive.call(this, id, 'groupId', i);
-                                        returnAll = this.getNodeParameter('returnAll', i);
+					const id = this.getNodeParameter('groupId', i) as number;
+					requirePositive.call(this, id, 'groupId', i);
+					returnAll = this.getNodeParameter('returnAll', i);
 					if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
 					endpoint = `/groups/${id}/members`;
 				}
 			} else if (resource === 'project') {
 				if (operation === 'get') {
 					requestMethod = 'GET';
-                                        const id = this.getNodeParameter('projectId', i) as number;
-                                        requirePositive.call(this, id, 'projectId', i);
-                                        endpoint = `/projects/${id}`;
+					const id = this.getNodeParameter('projectId', i) as number;
+					requirePositive.call(this, id, 'projectId', i);
+					endpoint = `/projects/${id}`;
 				} else if (operation === 'getAll' || operation === 'search') {
 					requestMethod = 'GET';
 					returnAll = this.getNodeParameter('returnAll', i);
@@ -1094,9 +1107,11 @@ export class GitlabExtended implements INodeType {
 					}
 					endpoint = '/projects';
 				}
-                       } else if (resource === 'file') {
-                                return await handleFile.call(this, i) as unknown as INodeExecutionData[][];
-                       } else if (resource === 'issue') {
+			} else if (resource === 'file') {
+				const executionData = await handleFile.call(this, i);
+				returnData.push(...executionData);
+				continue;
+			} else if (resource === 'issue') {
 				if (operation === 'create') {
 					requestMethod = 'POST';
 					body.title = this.getNodeParameter('title', i);
@@ -1106,9 +1121,9 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/issues`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-                                        const id = this.getNodeParameter('issueIid', i) as number;
-                                        requirePositive.call(this, id, 'issueIid', i);
-                                        endpoint = `${base}/issues/${id}`;
+					const id = this.getNodeParameter('issueIid', i) as number;
+					requirePositive.call(this, id, 'issueIid', i);
+					endpoint = `${base}/issues/${id}`;
 				} else if (operation === 'getAll') {
 					requestMethod = 'GET';
 					returnAll = this.getNodeParameter('returnAll', i);
@@ -1116,9 +1131,9 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/issues`;
 				} else if (operation === 'update') {
 					requestMethod = 'PUT';
-                                        const id = this.getNodeParameter('issueIid', i) as number;
-                                        requirePositive.call(this, id, 'issueIid', i);
-                                        body.title = this.getNodeParameter('title', i);
+					const id = this.getNodeParameter('issueIid', i) as number;
+					requirePositive.call(this, id, 'issueIid', i);
+					body.title = this.getNodeParameter('title', i);
 					body.description = this.getNodeParameter('description', i);
 					const labels = this.getNodeParameter('issueLabels', i, '');
 					if (labels) body.labels = labels;
@@ -1126,13 +1141,15 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/issues/${id}`;
 				} else if (operation === 'close' || operation === 'reopen') {
 					requestMethod = 'PUT';
-                                        const id = this.getNodeParameter('issueIid', i) as number;
-                                        requirePositive.call(this, id, 'issueIid', i);
-                                        body.state_event = operation === 'close' ? 'close' : 'reopen';
+					const id = this.getNodeParameter('issueIid', i) as number;
+					requirePositive.call(this, id, 'issueIid', i);
+					body.state_event = operation === 'close' ? 'close' : 'reopen';
 					endpoint = `${base}/issues/${id}`;
 				}
-                        } else if (resource === 'mergeRequest') {
-                                return await handleMergeRequest.call(this, i) as unknown as INodeExecutionData[][];
+			} else if (resource === 'mergeRequest') {
+				const executionData = await handleMergeRequest.call(this, i);
+				returnData.push(...executionData);
+				continue;
 			} else if (resource === 'raw') {
 				if (operation === 'request') {
 					requestMethod = this.getNodeParameter('httpMethod', i) as IHttpRequestMethods;
