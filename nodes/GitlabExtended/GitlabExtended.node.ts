@@ -95,10 +95,13 @@ export class GitlabExtended implements INodeType {
 				displayOptions: { show: { resource: ['file'] } },
 				description:
 					"Select how to work with files, such as choosing 'list' to view repository files",
-				options: [
-					{ name: 'Get', value: 'get', action: 'Get a file' },
-					{ name: 'List', value: 'list', action: 'List files' },
-				],
+                                options: [
+                                        { name: 'Create', value: 'create', action: 'Create a file' },
+                                        { name: 'Delete', value: 'delete', action: 'Delete a file' },
+                                        { name: 'Get', value: 'get', action: 'Get a file' },
+                                        { name: 'List', value: 'list', action: 'List files' },
+                                        { name: 'Update', value: 'update', action: 'Update a file' },
+                                ],
 				default: 'get',
 			},
 			{
@@ -299,20 +302,47 @@ export class GitlabExtended implements INodeType {
                                 name: 'path',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: { resource: ['file'], operation: ['get', 'list'] },
-				},
+                                displayOptions: {
+                                        show: { resource: ['file'], operation: ['get', 'list', 'create', 'update', 'delete'] },
+                                },
                                 description: "Path to the file, for example 'src/index.ts'",
 				default: '',
 			},
-			{
-				displayName: 'Reference',
-				name: 'fileRef',
-				type: 'string',
-				displayOptions: { show: { resource: ['file'], operation: ['get', 'list'] } },
-				description: "Reference such as a branch or commit SHA, e.g. 'main'",
-				default: 'main',
-			},
+                        {
+                                displayName: 'Reference',
+                                name: 'fileRef',
+                                type: 'string',
+                                displayOptions: { show: { resource: ['file'], operation: ['get', 'list'] } },
+                                description: "Reference such as a branch or commit SHA, e.g. 'main'",
+                                default: 'main',
+                        },
+                        {
+                                displayName: 'Branch',
+                                name: 'fileBranch',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['file'], operation: ['create', 'update', 'delete'] } },
+                                description: 'Branch to commit to',
+                                default: 'main',
+                        },
+                        {
+                                displayName: 'Commit Message',
+                                name: 'commitMessage',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['file'], operation: ['create', 'update', 'delete'] } },
+                                description: 'Commit message for the change',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Content',
+                                name: 'fileContent',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['file'], operation: ['create', 'update'] } },
+                                description: 'File content',
+                                default: '',
+                        },
 			{
 				displayName: 'Title',
 				name: 'title',
@@ -781,20 +811,33 @@ export class GitlabExtended implements INodeType {
                                        endpoint = `${base}/pipelines/${id}/${operation}`;
                                }
 			} else if (resource === 'file') {
-				if (operation === 'get') {
-					requestMethod = 'GET';
+                                if (operation === 'get') {
+                                        requestMethod = 'GET';
                                         const path = this.getNodeParameter('path', i);
                                         qs.ref = this.getNodeParameter('fileRef', i);
-					endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
-				} else if (operation === 'list') {
-					requestMethod = 'GET';
+                                        endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
+                                } else if (operation === 'list') {
+                                        requestMethod = 'GET';
                                         const path = this.getNodeParameter('path', i);
                                         qs.ref = this.getNodeParameter('fileRef', i);
-					returnAll = this.getNodeParameter('returnAll', i);
-					if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
-					if (path) qs.path = path;
-					endpoint = `${base}/repository/tree`;
-				}
+                                        returnAll = this.getNodeParameter('returnAll', i);
+                                        if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                        if (path) qs.path = path;
+                                        endpoint = `${base}/repository/tree`;
+                                } else if (operation === 'create' || operation === 'update') {
+                                        requestMethod = operation === 'create' ? 'POST' : 'PUT';
+                                        const path = this.getNodeParameter('path', i);
+                                        body.branch = this.getNodeParameter('fileBranch', i);
+                                        body.commit_message = this.getNodeParameter('commitMessage', i);
+                                        body.content = this.getNodeParameter('fileContent', i);
+                                        endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
+                                } else if (operation === 'delete') {
+                                        requestMethod = 'DELETE';
+                                        const path = this.getNodeParameter('path', i);
+                                        body.branch = this.getNodeParameter('fileBranch', i);
+                                        body.commit_message = this.getNodeParameter('commitMessage', i);
+                                        endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
+                                }
 			} else if (resource === 'issue') {
 				if (operation === 'create') {
 					requestMethod = 'POST';

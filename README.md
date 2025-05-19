@@ -34,6 +34,9 @@ one of its operations.
 * `getJobs` – List jobs for a pipeline
 
 ### File
+* `create` – Create a file
+* `update` – Update a file
+* `delete` – Delete a file
 * `get` – Retrieve a file
 * `list` – List repository files
 
