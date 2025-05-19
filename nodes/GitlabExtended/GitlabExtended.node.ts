@@ -80,6 +80,8 @@ export class GitlabExtended implements INodeType {
                                options: [
                                        { name: 'Cancel', value: 'cancel', action: 'Cancel a pipeline' },
                                        { name: 'Create', value: 'create', action: 'Create a pipeline' },
+                                       { name: 'Delete', value: 'delete', action: 'Delete a pipeline' },
+                                       { name: 'Download Artifacts', value: 'downloadArtifacts', action: 'Download artifacts' },
                                        { name: 'Get', value: 'get', action: 'Get a pipeline' },
                                        { name: 'Get Jobs', value: 'getJobs', action: 'List pipeline jobs' },
                                        { name: 'Get Many', value: 'getAll', action: 'List pipelines' },
@@ -235,7 +237,7 @@ export class GitlabExtended implements INodeType {
                                displayOptions: {
                                        show: {
                                                resource: ['pipeline'],
-                                               operation: ['get', 'cancel', 'retry', 'getJobs'],
+                                               operation: ['get', 'cancel', 'retry', 'getJobs', 'delete', 'downloadArtifacts'],
                                        },
                                },
                                 description: 'Numeric ID of the pipeline (must be positive)',
@@ -275,7 +277,7 @@ export class GitlabExtended implements INodeType {
                                 displayName: 'Ref',
                                 name: 'pipelineRef',
                                 type: 'string',
-                                displayOptions: { show: { resource: ['pipeline'], operation: ['create'] } },
+                               displayOptions: { show: { resource: ['pipeline'], operation: ['create', 'downloadArtifacts'] } },
                                 description: "Branch or tag that triggers the pipeline, such as 'main'",
                                 default: 'main',
                         },
@@ -809,6 +811,29 @@ export class GitlabExtended implements INodeType {
                                                );
                                        }
                                        endpoint = `${base}/pipelines/${id}/${operation}`;
+                               } else if (operation === 'delete') {
+                                       requestMethod = 'DELETE';
+                                       const id = this.getNodeParameter('pipelineId', i) as number;
+                                       if (id <= 0) {
+                                               throw new NodeOperationError(
+                                                       this.getNode(),
+                                                       'pipelineId must be a positive number',
+                                                       { itemIndex: i },
+                                               );
+                                       }
+                                       endpoint = `${base}/pipelines/${id}`;
+                               } else if (operation === 'downloadArtifacts') {
+                                       requestMethod = 'GET';
+                                       const id = this.getNodeParameter('pipelineId', i) as number;
+                                       if (id <= 0) {
+                                               throw new NodeOperationError(
+                                                       this.getNode(),
+                                                       'pipelineId must be a positive number',
+                                                       { itemIndex: i },
+                                               );
+                                       }
+                                       const ref = this.getNodeParameter('pipelineRef', i) as string;
+                                       endpoint = `${base}/pipelines/${id}/jobs/artifacts/${ref}/download`;
                                }
 			} else if (resource === 'file') {
                                 if (operation === 'get') {

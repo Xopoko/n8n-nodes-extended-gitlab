@@ -32,6 +32,8 @@ one of its operations.
 * `get` – Get a pipeline by ID
 * `getAll` – List pipelines
 * `getJobs` – List jobs for a pipeline
+* `delete` – Delete a pipeline
+* `downloadArtifacts` – Download artifacts from a pipeline
 
 ### File
 * `create` – Create a file
@@ -97,7 +99,7 @@ required for your chosen operation.
 | `developersCanPush` | Allow developers to push |
 | `developersCanMerge` | Allow developers to merge |
 | `pipelineId` | Numeric pipeline ID (positive) |
-| `pipelineRef` | Branch or tag for pipelines |
+| `pipelineRef` | Branch or tag for pipelines and artifact downloads |
 | `path` | File or directory path |
 | `fileRef` | Branch, tag or commit for file operations |
 | `title` | Title for issues and merge requests |
