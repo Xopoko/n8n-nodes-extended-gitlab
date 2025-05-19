@@ -101,6 +101,8 @@ export async function handleBranch(
 		body.source_branch = branch;
 		body.target_branch = target;
 		endpoint = `${base}/repository/merges`;
+	} else {
+		throw new NodeOperationError(this.getNode(), `The operation "${operation}" is not supported.`, { itemIndex });
 	}
 
 	const response = returnAll
