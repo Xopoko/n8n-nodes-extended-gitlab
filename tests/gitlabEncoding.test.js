@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import test from 'node:test';
-import { buildProjectBase } from '../dist/nodes/GitlabExtended/GenericFunctions.js';
+import { buildProjectBase } from '../src/nodes/GitlabExtended/GenericFunctions.js';
 
 test('encodes spaces in owner and repo', () => {
   const base = buildProjectBase({ projectOwner: 'my group', projectName: 'my repo' });
