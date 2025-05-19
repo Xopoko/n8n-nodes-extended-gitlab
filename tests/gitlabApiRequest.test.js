@@ -1,9 +1,10 @@
 import assert from 'node:assert';
 import test from 'node:test';
 import {
-	gitlabApiRequest,
-	getMergeRequestDiscussion,
+        gitlabApiRequest,
+        getMergeRequestDiscussion,
 } from '../dist/nodes/GitlabExtended/GenericFunctions.js';
+import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
 
 function mockContext({
 	server = 'https://gitlab.example.com/',
@@ -35,6 +36,44 @@ function mockContext({
 			return {};
 		},
 	};
+}
+
+function createNodeContext(params, cred = {}) {
+       const calls = {};
+       return {
+               calls,
+               getInputData() {
+                       return [{ json: {} }];
+               },
+               getNodeParameter(name) {
+                       return params[name];
+               },
+               async getCredentials() {
+                       return {
+                               server: 'https://gitlab.example.com',
+                               accessToken: 't',
+                               projectOwner: 'owner',
+                               projectName: 'repo',
+                               projectId: 1,
+                               ...cred,
+                       };
+               },
+               helpers: {
+                       async requestWithAuthentication(name, options) {
+                               calls.options = options;
+                               return {};
+                       },
+                       constructExecutionMetaData(data) {
+                               return data;
+                       },
+                       returnJsonArray(data) {
+                               return [{ json: data }];
+                       },
+               },
+               getNode() {
+                       return {};
+               },
+       };
 }
 
 test('uses Gitlab Extended credentials and builds correct URL', async () => {
@@ -75,4 +114,29 @@ test('gitlabApiRequest supports DELETE method', async () => {
                 ctx.calls.options.uri,
                 'https://gitlab.example.com/api/v4/projects/1/repository/branches/foo',
         );
+});
+
+test('execute throws when credentials lack project info', async () => {
+       const node = new GitlabExtended();
+       const ctx = createNodeContext(
+               { resource: 'branch', operation: 'get', branch: 'main' },
+               { projectId: 0, projectOwner: '', projectName: '' },
+       );
+       await assert.rejects(
+               () => node.execute.call(ctx),
+               /Credentials must include either projectId or both projectOwner and projectName/,
+       );
+});
+
+test('execute uses owner and name when projectId missing', async () => {
+       const node = new GitlabExtended();
+       const ctx = createNodeContext(
+               { resource: 'branch', operation: 'get', branch: 'main' },
+               { projectId: 0, projectOwner: 'alice', projectName: 'repo' },
+       );
+       await node.execute.call(ctx);
+       assert.strictEqual(
+               ctx.calls.options.uri,
+               'https://gitlab.example.com/api/v4/projects/alice%2Frepo/repository/branches/main',
+       );
 });

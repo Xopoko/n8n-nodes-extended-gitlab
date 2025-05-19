@@ -12,9 +12,9 @@ function createContext(params) {
 		getNodeParameter(name) {
 			return params[name];
 		},
-		async getCredentials() {
-			return { server: 'https://gitlab.example.com', accessToken: 't' };
-		},
+                async getCredentials() {
+                        return { server: 'https://gitlab.example.com', accessToken: 't', projectId: 1 };
+                },
 		helpers: {
 			async requestWithAuthentication(name, options) {
 				calls.options = options;
