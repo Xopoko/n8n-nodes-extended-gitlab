@@ -44,7 +44,11 @@ one of its operations.
 
 ### Issue
 * `create` – Create an issue
+* `update` – Update an issue
+* `close` – Close an issue
+* `reopen` – Reopen an issue
 * `get` – Get an issue by number
+* `getAll` – List issues
 
 ### Merge request
 * `create` – Create a merge request
@@ -105,6 +109,8 @@ required for your chosen operation.
 | `title` | Title for issues and merge requests |
 | `description` | Description text |
 | `issueIid` | Issue IID (positive) |
+| `issueLabels` | Issue labels, comma-separated |
+| `issueState` | Desired issue state (`reopen` or `close`) |
 | `mergeRequestIid` | Merge request IID (positive) |
 | `labels` | Comma-separated label list |
 | `labelAction` | `add` or `remove` |
