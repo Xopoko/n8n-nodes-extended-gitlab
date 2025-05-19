@@ -10,6 +10,7 @@ import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
 import { gitlabApiRequest, gitlabApiRequestAllItems, buildProjectBase } from './GenericFunctions';
 import { handleBranch } from './resources/branch';
+import { branchOperations } from './operations';
 
 // Define asSuggestionCondition
 const asSuggestionCondition = {
@@ -63,16 +64,8 @@ export class GitlabExtended implements INodeType {
 				displayOptions: { show: { resource: ['branch'] } },
 				description:
 					"Select how to manage branches; for example choose 'create' to add a new branch",
-				options: [
-					{ name: 'Create', value: 'create', action: 'Create a branch' },
-					{ name: 'Delete', value: 'delete', action: 'Delete a branch' },
-					{ name: 'Get', value: 'get', action: 'Get a branch' },
-					{ name: 'Get Many', value: 'getAll', action: 'List branches' },
-					{ name: 'Merge', value: 'merge', action: 'Merge a branch' },
-					{ name: 'Protect', value: 'protect', action: 'Protect a branch' },
-					{ name: 'Rename', value: 'rename', action: 'Rename a branch' },
-					{ name: 'Unprotect', value: 'unprotect', action: 'Unprotect a branch' },
-				],
+				options: Object.values(branchOperations),
+				// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-options
 				default: 'create',
 			},
 			{
