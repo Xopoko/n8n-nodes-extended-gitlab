@@ -46,10 +46,11 @@ export class GitlabExtended implements INodeType {
                                         { name: 'Group', value: 'group' },
                                         { name: 'Issue', value: 'issue' },
                                         { name: 'Merge Request', value: 'mergeRequest' },
-                                        { name: 'Pipeline', value: 'pipeline' },
-                                        { name: 'Raw API', value: 'raw' },
-                                        { name: 'Release', value: 'release' },
-                                        { name: 'Tag', value: 'tag' },
+{ name: 'Pipeline', value: 'pipeline' },
+{ name: 'Project', value: 'project' },
+{ name: 'Raw API', value: 'raw' },
+{ name: 'Release', value: 'release' },
+{ name: 'Tag', value: 'tag' },
                                 ],
 				default: 'branch',
 			},
@@ -134,10 +135,24 @@ export class GitlabExtended implements INodeType {
                                         { name: 'Create', value: 'create', action: 'Create a group' },
                                         { name: 'Delete', value: 'delete', action: 'Delete a group' },
                                         { name: 'Get', value: 'get', action: 'Get a group' },
-                                        { name: 'List Members', value: 'getMembers', action: 'List group members' },
-                                ],
-                                default: 'create',
-                        },
+{ name: 'List Members', value: 'getMembers', action: 'List group members' },
+],
+default: 'create',
+},
+{
+displayName: 'Operation',
+name: 'operation',
+type: 'options',
+noDataExpression: true,
+displayOptions: { show: { resource: ['project'] } },
+description: 'Select how to manage projects',
+options: [
+{ name: 'Get', value: 'get', action: 'Get a project' },
+{ name: 'Get Many', value: 'getAll', action: 'List projects' },
+{ name: 'Search', value: 'search', action: 'Search projects' },
+],
+default: 'get',
+},
                         {
                                 displayName: 'Operation',
                                 name: 'operation',
@@ -491,10 +506,29 @@ export class GitlabExtended implements INodeType {
                                 required: true,
                                 displayOptions: { show: { resource: ['group'], operation: ['create'] } },
                                 description: 'URL path of the new group',
-                                default: '',
-                        },
-                        {
-                                displayName: 'Title',
+default: '',
+},
+{
+displayName: 'Project ID',
+name: 'projectId',
+type: 'number',
+required: true,
+typeOptions: { minValue: 1 },
+displayOptions: { show: { resource: ['project'], operation: ['get'] } },
+description: 'Numeric ID of the project',
+default: 1,
+},
+{
+displayName: 'Search Term',
+name: 'searchTerm',
+type: 'string',
+required: true,
+displayOptions: { show: { resource: ['project'], operation: ['search'] } },
+description: 'Term to search for',
+default: '',
+},
+{
+displayName: 'Title',
                                 name: 'title',
                                 type: 'string',
                                 required: true,
@@ -1120,11 +1154,28 @@ export class GitlabExtended implements INodeType {
                                        if (id <= 0) {
                                                throw new NodeOperationError(this.getNode(), 'groupId must be a positive number', { itemIndex: i });
                                        }
-                                       returnAll = this.getNodeParameter('returnAll', i);
-                                       if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
-                                       endpoint = `/groups/${id}/members`;
-                               }
-                        } else if (resource === 'file') {
+returnAll = this.getNodeParameter('returnAll', i);
+if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+endpoint = `/groups/${id}/members`;
+}
+} else if (resource === 'project') {
+if (operation === 'get') {
+requestMethod = 'GET';
+const id = this.getNodeParameter('projectId', i) as number;
+if (id <= 0) {
+throw new NodeOperationError(this.getNode(), 'projectId must be a positive number', { itemIndex: i });
+}
+endpoint = `/projects/${id}`;
+} else if (operation === 'getAll' || operation === 'search') {
+requestMethod = 'GET';
+returnAll = this.getNodeParameter('returnAll', i);
+if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+if (operation === 'search') {
+qs.search = this.getNodeParameter('searchTerm', i);
+}
+endpoint = '/projects';
+}
+} else if (resource === 'file') {
                                 if (operation === 'get') {
                                         requestMethod = 'GET';
                                         const path = this.getNodeParameter('path', i);
