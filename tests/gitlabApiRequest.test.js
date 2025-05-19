@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import test from 'node:test';
 import {
         gitlabApiRequest,
+        gitlabApiRequestAllItems,
         getMergeRequestDiscussion,
 } from '../dist/nodes/GitlabExtended/GenericFunctions.js';
 import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
@@ -139,4 +140,19 @@ test('execute uses owner and name when projectId missing', async () => {
                ctx.calls.options.uri,
                'https://gitlab.example.com/api/v4/projects/alice%2Frepo/repository/branches/main',
        );
+});
+
+test('gitlabApiRequestAllItems follows x-next-page header', async () => {
+       const ctx = mockContext();
+       let current = 1;
+       ctx.helpers.requestWithAuthentication = async (name, options) => {
+               ctx.calls.options = options;
+               const headers = { 'x-next-page': current < 3 ? String(current + 1) : '' };
+               const body = [{ page: current }];
+               current++;
+               return { body, headers };
+       };
+
+       const data = await gitlabApiRequestAllItems.call(ctx, 'GET', '/foo', {}, {});
+       assert.deepStrictEqual(data, [{ page: 1 }, { page: 2 }, { page: 3 }]);
 });

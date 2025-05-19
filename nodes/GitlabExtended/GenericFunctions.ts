@@ -68,14 +68,19 @@ export async function gitlabApiRequestAllItems(
 	query.per_page = 100;
 	query.page = 1;
 
-	do {
-		responseData = await gitlabApiRequest.call(this, method, endpoint, body as IDataObject, query, {
-			resolveWithFullResponse: true,
-		});
-		query.page++;
-		returnData.push.apply(returnData, responseData.body as IDataObject[]);
-	} while (responseData.headers.link?.includes('next'));
-	return returnData;
+        do {
+                responseData = await gitlabApiRequest.call(this, method, endpoint, body as IDataObject, query, {
+                        resolveWithFullResponse: true,
+                });
+                returnData.push.apply(returnData, responseData.body as IDataObject[]);
+                const nextPage = responseData.headers['x-next-page'];
+                if (nextPage) {
+                        query.page = Number(nextPage);
+                } else {
+                        query.page++;
+                }
+        } while (responseData.headers['x-next-page']);
+        return returnData;
 }
 
 /**
