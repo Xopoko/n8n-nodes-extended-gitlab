@@ -113,11 +113,15 @@ export class GitlabExtended implements INodeType {
 				noDataExpression: true,
 				displayOptions: { show: { resource: ['issue'] } },
 				description: "Select how to handle issues, for example choose 'create' to open a new issue",
-				options: [
-					{ name: 'Create', value: 'create', action: 'Create an issue' },
-					{ name: 'Get', value: 'get', action: 'Get an issue' },
-				],
-				default: 'create',
+                                options: [
+                                        { name: 'Close', value: 'close', action: 'Close an issue' },
+                                        { name: 'Create', value: 'create', action: 'Create an issue' },
+                                        { name: 'Get', value: 'get', action: 'Get an issue' },
+                                        { name: 'Get Many', value: 'getAll', action: 'List issues' },
+                                        { name: 'Reopen', value: 'reopen', action: 'Reopen an issue' },
+                                        { name: 'Update', value: 'update', action: 'Update an issue' },
+                                ],
+                                default: 'create',
 			},
 			{
 				displayName: 'Operation',
@@ -249,7 +253,7 @@ export class GitlabExtended implements INodeType {
 				type: 'boolean',
 				displayOptions: {
 					show: {
-                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue'],
                                                operation: ['getAll', 'list', 'getDiscussions', 'getJobs'],
                                        },
                                },
@@ -262,7 +266,7 @@ export class GitlabExtended implements INodeType {
 				type: 'number',
 				displayOptions: {
 					show: {
-                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest'],
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue'],
                                                operation: ['getAll', 'list', 'getDiscussions', 'getJobs'],
                                                returnAll: [false],
                                        },
@@ -350,7 +354,7 @@ export class GitlabExtended implements INodeType {
 				name: 'title',
 				type: 'string',
 				required: true,
-				displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create'] } },
+                                displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create', 'update'] } },
 				description: "Title text, for instance 'Fix login bug'",
 				default: '',
 			},
@@ -358,7 +362,7 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Description',
 				name: 'description',
 				type: 'string',
-				displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create'] } },
+                                displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create', 'update'] } },
 				description: "Detailed description, like 'Steps to reproduce the bug'",
 				default: '',
 			},
@@ -368,13 +372,33 @@ export class GitlabExtended implements INodeType {
                                 type: 'number',
                                 required: true,
                                 typeOptions: { minValue: 1 },
-                                displayOptions: { show: { resource: ['issue'], operation: ['get'] } },
+                                displayOptions: { show: { resource: ['issue'], operation: ['get', 'update', 'close', 'reopen'] } },
                                 description: 'Issue number to fetch (must be positive)',
                                 default: 1,
-			},
-			{
-				displayName: 'Merge Request IID',
-				name: 'mergeRequestIid',
+                        },
+                        {
+                                displayName: 'Labels',
+                                name: 'issueLabels',
+                                type: 'string',
+                                displayOptions: { show: { resource: ['issue'], operation: ['create', 'update'] } },
+                                description: 'Comma-separated label names to apply',
+                                default: '',
+                        },
+                        {
+                                displayName: 'State',
+                                name: 'issueState',
+                                type: 'options',
+                                displayOptions: { show: { resource: ['issue'], operation: ['update'] } },
+                                options: [
+                                        { name: 'Open', value: 'reopen' },
+                                        { name: 'Close', value: 'close' },
+                                ],
+                                description: 'Desired issue state',
+                                default: 'reopen',
+                        },
+                        {
+                                displayName: 'Merge Request IID',
+                                name: 'mergeRequestIid',
                                 type: 'number',
                                 required: true,
                                 typeOptions: { minValue: 1 },
@@ -863,14 +887,16 @@ export class GitlabExtended implements INodeType {
                                         body.commit_message = this.getNodeParameter('commitMessage', i);
                                         endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
                                 }
-			} else if (resource === 'issue') {
-				if (operation === 'create') {
-					requestMethod = 'POST';
-					body.title = this.getNodeParameter('title', i);
-					body.description = this.getNodeParameter('description', i);
-					endpoint = `${base}/issues`;
-				} else if (operation === 'get') {
-					requestMethod = 'GET';
+                        } else if (resource === 'issue') {
+                                if (operation === 'create') {
+                                        requestMethod = 'POST';
+                                        body.title = this.getNodeParameter('title', i);
+                                        body.description = this.getNodeParameter('description', i);
+                                        const labels = this.getNodeParameter('issueLabels', i, '');
+                                        if (labels) body.labels = labels;
+                                        endpoint = `${base}/issues`;
+                                } else if (operation === 'get') {
+                                        requestMethod = 'GET';
                                         const id = this.getNodeParameter('issueIid', i) as number;
                                         if (id <= 0) {
                                                 throw new NodeOperationError(
@@ -880,7 +906,40 @@ export class GitlabExtended implements INodeType {
                                                 );
                                         }
                                         endpoint = `${base}/issues/${id}`;
-				}
+                                } else if (operation === 'getAll') {
+                                        requestMethod = 'GET';
+                                        returnAll = this.getNodeParameter('returnAll', i);
+                                        if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                        endpoint = `${base}/issues`;
+                                } else if (operation === 'update') {
+                                        requestMethod = 'PUT';
+                                        const id = this.getNodeParameter('issueIid', i) as number;
+                                        if (id <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'issueIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        body.title = this.getNodeParameter('title', i);
+                                        body.description = this.getNodeParameter('description', i);
+                                        const labels = this.getNodeParameter('issueLabels', i, '');
+                                        if (labels) body.labels = labels;
+                                        body.state_event = this.getNodeParameter('issueState', i);
+                                        endpoint = `${base}/issues/${id}`;
+                                } else if (operation === 'close' || operation === 'reopen') {
+                                        requestMethod = 'PUT';
+                                        const id = this.getNodeParameter('issueIid', i) as number;
+                                        if (id <= 0) {
+                                                throw new NodeOperationError(
+                                                        this.getNode(),
+                                                        'issueIid must be a positive number',
+                                                        { itemIndex: i },
+                                                );
+                                        }
+                                        body.state_event = operation === 'close' ? 'close' : 'reopen';
+                                        endpoint = `${base}/issues/${id}`;
+                                }
 			} else if (resource === 'mergeRequest') {
 				if (operation === 'create') {
 					requestMethod = 'POST';
