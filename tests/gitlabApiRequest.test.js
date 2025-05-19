@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import test from 'node:test';
 import {
         gitlabApiRequest,
+        gitlabApiRequestAllItems,
         getMergeRequestDiscussion,
 } from '../dist/nodes/GitlabExtended/GenericFunctions.js';
 import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
@@ -129,14 +130,45 @@ test('execute throws when credentials lack project info', async () => {
 });
 
 test('execute uses owner and name when projectId missing', async () => {
-       const node = new GitlabExtended();
-       const ctx = createNodeContext(
-               { resource: 'branch', operation: 'get', branch: 'main' },
-               { projectId: 0, projectOwner: 'alice', projectName: 'repo' },
-       );
-       await node.execute.call(ctx);
-       assert.strictEqual(
-               ctx.calls.options.uri,
-               'https://gitlab.example.com/api/v4/projects/alice%2Frepo/repository/branches/main',
-       );
+        const node = new GitlabExtended();
+        const ctx = createNodeContext(
+                { resource: 'branch', operation: 'get', branch: 'main' },
+                { projectId: 0, projectOwner: 'alice', projectName: 'repo' },
+        );
+        await node.execute.call(ctx);
+        assert.strictEqual(
+                ctx.calls.options.uri,
+                'https://gitlab.example.com/api/v4/projects/alice%2Frepo/repository/branches/main',
+        );
+});
+
+test('gitlabApiRequestAllItems follows x-next-page header', async () => {
+       const responses = [
+               { body: [{ a: 1 }], headers: { 'x-next-page': '2' } },
+               { body: [{ a: 2 }], headers: { 'x-next-page': '' } },
+       ];
+       const calls = [];
+       const ctx = {
+               calls,
+               getNodeParameter() {
+                       throw new Error('Unexpected parameter');
+               },
+               async getCredentials(name) {
+                       if (name !== 'gitlabExtendedApi') throw new Error('Unexpected credentials name');
+                       return { server: 'https://gitlab.example.com', accessToken: 't' };
+               },
+               helpers: {
+                       async requestWithAuthentication(name, options) {
+                               calls.push({ options: JSON.parse(JSON.stringify(options)) });
+                               return responses.shift();
+                       },
+               },
+               getNode() { return {}; },
+       };
+
+       const result = await gitlabApiRequestAllItems.call(ctx, 'GET', '/foo', {}, {});
+       assert.deepStrictEqual(result, [{ a: 1 }, { a: 2 }]);
+       assert.strictEqual(calls.length, 2);
+       assert.strictEqual(calls[0].options.qs.page, 1);
+       assert.strictEqual(calls[1].options.qs.page, 2);
 });
