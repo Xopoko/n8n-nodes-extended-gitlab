@@ -62,3 +62,21 @@ test('delete builds correct endpoint', async () => {
   assert.strictEqual(ctx.calls.options.method, 'DELETE');
   assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/1/releases/v1.0');
 });
+
+test('create throws error for invalid JSON in assets', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'release', operation: 'create', tagName: 'v1.0', name: '1.0', releaseDescription: 'desc', assets: 'invalid json' });
+  await assert.rejects(async () => {
+    await node.execute.call(ctx);
+  }, {
+    message: 'Invalid JSON in "assets" parameter',
+  });
+});
+
+test('update handles deep equality correctly', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'release', operation: 'update', tagName: 'v1.0', name: '1.1', releaseDescription: 'new', assets: '{"links":[]}' });
+  await node.execute.call(ctx);
+  console.log(ctx.calls.options.body);
+  assert.deepStrictEqual(ctx.calls.options.body, { name: '1.1', description: 'new', assets: { links: [] } });
+});
