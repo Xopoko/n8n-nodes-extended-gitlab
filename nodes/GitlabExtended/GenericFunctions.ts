@@ -75,7 +75,15 @@ export async function gitlabApiRequestAllItems(
 		query.page++;
 		returnData.push.apply(returnData, responseData.body as IDataObject[]);
         } while (responseData.headers['x-next-page']);
-	return returnData;
+        return returnData;
+}
+
+export function buildProjectBase(cred: IDataObject): string {
+        return cred.projectId
+                ? `/projects/${cred.projectId}`
+                : `/projects/${encodeURIComponent(cred.projectOwner as string)}%2F${encodeURIComponent(
+                                cred.projectName as string,
+                        )}`;
 }
 
 /**
@@ -87,12 +95,8 @@ export async function getMergeRequestDiscussion(
 	discussionId: string,
 	query: IDataObject = {},
 ): Promise<any> {
-	const credential = await this.getCredentials('gitlabExtendedApi');
-	const base = credential.projectId
-		? `/projects/${credential.projectId}`
-		: `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(
-				credential.projectName as string,
-			)}`;
-	const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${discussionId}`;
-	return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
+        const credential = await this.getCredentials('gitlabExtendedApi');
+        const base = buildProjectBase(credential);
+        const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${discussionId}`;
+        return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
 }

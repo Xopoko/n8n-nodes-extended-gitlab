@@ -8,7 +8,7 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
-import { gitlabApiRequest, gitlabApiRequestAllItems } from './GenericFunctions';
+import { gitlabApiRequest, gitlabApiRequestAllItems, buildProjectBase } from './GenericFunctions';
 
 // Define asSuggestionCondition
 const asSuggestionCondition = {
@@ -936,9 +936,7 @@ displayName: 'Title',
                         }
                 }
 
-                const base = credential.projectId
-                        ? `/projects/${credential.projectId}`
-                        : `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(credential.projectName as string)}`;
+                const base = buildProjectBase(credential);
 
                 for (let i = 0; i < items.length; i++) {
                         let requestMethod: IHttpRequestMethods = 'GET';
