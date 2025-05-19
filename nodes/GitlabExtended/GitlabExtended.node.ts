@@ -60,9 +60,13 @@ export class GitlabExtended implements INodeType {
 					"Select how to manage branches; for example choose 'create' to add a new branch",
                                 options: [
                                         { name: 'Create', value: 'create', action: 'Create a branch' },
+                                        { name: 'Delete', value: 'delete', action: 'Delete a branch' },
                                         { name: 'Get', value: 'get', action: 'Get a branch' },
                                         { name: 'Get Many', value: 'getAll', action: 'List branches' },
-                                        { name: 'Delete', value: 'delete', action: 'Delete a branch' },
+                                        { name: 'Merge', value: 'merge', action: 'Merge a branch' },
+                                        { name: 'Protect', value: 'protect', action: 'Protect a branch' },
+                                        { name: 'Rename', value: 'rename', action: 'Rename a branch' },
+                                        { name: 'Unprotect', value: 'unprotect', action: 'Unprotect a branch' },
                                 ],
                                 default: 'create',
                         },
@@ -148,16 +152,63 @@ export class GitlabExtended implements INodeType {
 				options: [{ name: 'Request', value: 'request', action: 'Make an API request' }],
 				default: 'request',
 			},
-			{
+                        {
                                 displayName: 'Branch',
                                 name: 'branch',
                                 type: 'string',
                                 required: true,
-                                displayOptions: { show: { resource: ['branch'], operation: ['create', 'get', 'delete'] } },
+                                displayOptions: {
+                                        show: {
+                                                resource: ['branch'],
+                                                operation: [
+                                                        'create',
+                                                        'get',
+                                                        'delete',
+                                                        'rename',
+                                                        'protect',
+                                                        'unprotect',
+                                                        'merge',
+                                                ],
+                                        },
+                                },
                                 description: "Branch name, for example 'feature/login'",
-				default: '',
-			},
-			{
+                                default: '',
+                        },
+                        {
+                                displayName: 'New Branch',
+                                name: 'newBranch',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['branch'], operation: ['rename'] } },
+                                description: 'New branch name',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Target Branch',
+                                name: 'targetBranch',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['branch'], operation: ['merge'] } },
+                                description: 'Target branch to merge into',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Developers Can Push',
+                                name: 'developersCanPush',
+                                type: 'boolean',
+                                displayOptions: { show: { resource: ['branch'], operation: ['protect'] } },
+                                description: 'Whether developers can push',
+                                default: false,
+                        },
+                        {
+                                displayName: 'Developers Can Merge',
+                                name: 'developersCanMerge',
+                                type: 'boolean',
+                                displayOptions: { show: { resource: ['branch'], operation: ['protect'] } },
+                                description: 'Whether developers can merge',
+                                default: false,
+                        },
+                        {
                                 displayName: 'Ref',
                                 name: 'ref',
                                 type: 'string',
@@ -622,15 +673,15 @@ export class GitlabExtended implements INodeType {
 				: `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(credential.projectName as string)}`;
 
 			if (resource === 'branch') {
-				if (operation === 'create') {
-					requestMethod = 'POST';
+                                if (operation === 'create') {
+                                        requestMethod = 'POST';
                                         body.branch = this.getNodeParameter('branch', i);
-					body.ref = this.getNodeParameter('ref', i);
-					endpoint = `${base}/repository/branches`;
-				} else if (operation === 'get') {
-					requestMethod = 'GET';
+                                        body.ref = this.getNodeParameter('ref', i);
+                                        endpoint = `${base}/repository/branches`;
+                                } else if (operation === 'get') {
+                                        requestMethod = 'GET';
                                         const branch = this.getNodeParameter('branch', i) as string;
-					endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}`;
+                                        endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}`;
                                 } else if (operation === 'getAll') {
                                         requestMethod = 'GET';
                                         returnAll = this.getNodeParameter('returnAll', i);
@@ -640,6 +691,48 @@ export class GitlabExtended implements INodeType {
                                         requestMethod = 'DELETE';
                                         const branch = this.getNodeParameter('branch', i) as string;
                                         endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}`;
+                                } else if (operation === 'rename') {
+                                        requestMethod = 'PUT';
+                                        const branch = this.getNodeParameter('branch', i) as string;
+                                        const newBranch = this.getNodeParameter('newBranch', i) as string;
+                                        if (!branch) {
+                                                throw new NodeOperationError(this.getNode(), 'branch must not be empty', { itemIndex: i });
+                                        }
+                                        if (!newBranch) {
+                                                throw new NodeOperationError(this.getNode(), 'newBranch must not be empty', { itemIndex: i });
+                                        }
+                                        body.new_branch = newBranch;
+                                        endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}`;
+                                } else if (operation === 'protect') {
+                                        requestMethod = 'POST';
+                                        const branch = this.getNodeParameter('branch', i) as string;
+                                        if (!branch) {
+                                                throw new NodeOperationError(this.getNode(), 'branch must not be empty', { itemIndex: i });
+                                        }
+                                        body.name = branch;
+                                        body.developers_can_push = this.getNodeParameter('developersCanPush', i, false);
+                                        body.developers_can_merge = this.getNodeParameter('developersCanMerge', i, false);
+                                        endpoint = `${base}/protected_branches`;
+                                } else if (operation === 'unprotect') {
+                                        requestMethod = 'DELETE';
+                                        const branch = this.getNodeParameter('branch', i) as string;
+                                        if (!branch) {
+                                                throw new NodeOperationError(this.getNode(), 'branch must not be empty', { itemIndex: i });
+                                        }
+                                        endpoint = `${base}/protected_branches/${encodeURIComponent(branch)}`;
+                                } else if (operation === 'merge') {
+                                        requestMethod = 'POST';
+                                        const branch = this.getNodeParameter('branch', i) as string;
+                                        const target = this.getNodeParameter('targetBranch', i) as string;
+                                        if (!branch) {
+                                                throw new NodeOperationError(this.getNode(), 'branch must not be empty', { itemIndex: i });
+                                        }
+                                        if (!target) {
+                                                throw new NodeOperationError(this.getNode(), 'targetBranch must not be empty', { itemIndex: i });
+                                        }
+                                        body.source_branch = branch;
+                                        body.target_branch = target;
+                                        endpoint = `${base}/repository/merges`;
                                 }
 			} else if (resource === 'pipeline') {
                                 if (operation === 'create') {
