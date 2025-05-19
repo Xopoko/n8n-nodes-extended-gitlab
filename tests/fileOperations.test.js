@@ -93,3 +93,41 @@ test('delete builds correct endpoint and body', async () => {
     commit_message: 'remove file',
   });
 });
+
+test('get builds correct endpoint with ref', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({
+    resource: 'file',
+    operation: 'get',
+    path: 'README.md',
+    fileRef: 'main',
+  });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'GET');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/repository/files/README.md'
+  );
+  assert.strictEqual(ctx.calls.options.qs.ref, 'main');
+});
+
+test('list builds correct endpoint and query', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({
+    resource: 'file',
+    operation: 'list',
+    path: 'src',
+    fileRef: 'dev',
+    returnAll: false,
+    limit: 2,
+  });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'GET');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/repository/tree'
+  );
+  assert.strictEqual(ctx.calls.options.qs.per_page, 2);
+  assert.strictEqual(ctx.calls.options.qs.ref, 'dev');
+  assert.strictEqual(ctx.calls.options.qs.path, 'src');
+});
