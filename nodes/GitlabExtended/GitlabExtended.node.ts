@@ -684,28 +684,30 @@ export class GitlabExtended implements INodeType {
 				description: 'Whether to start a new discussion instead of replying to an existing one',
 				default: false,
 			},
-			{
-				displayName: 'Discussion ID',
-				name: 'discussionId',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: [
-							'deleteDiscussion',
-							'getDiscussion',
-							'postDiscussionNote',
-							'resolveDiscussion',
-							'updateDiscussion',
-							'updateNote',
-						],
-						startDiscussion: [false],
-					},
-				},
-				description: "Discussion ID to reply to or fetch, e.g. '123abc'",
-				default: '',
-			},
+                        {
+                                displayName: 'Discussion ID',
+                                name: 'discussionId',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: [
+                                                        'deleteDiscussion',
+                                                        'getDiscussion',
+                                                        'postDiscussionNote',
+                                                        'resolveDiscussion',
+                                                        'updateDiscussion',
+                                                        'updateNote',
+                                                ],
+                                        },
+                                        hide: {
+                                                startDiscussion: [true],
+                                        },
+                                },
+                                description: "Discussion ID to reply to or fetch, e.g. '123abc'",
+                                default: '',
+                        },
 			{
 				displayName: 'Resolved',
 				name: 'resolved',
