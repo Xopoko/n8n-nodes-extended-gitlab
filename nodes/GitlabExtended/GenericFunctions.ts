@@ -11,6 +11,13 @@ import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 /**
  * Make an API request to Gitlab
  *
+ * @param {IHookFunctions | IExecuteFunctions} this - The context of the function
+ * @param {IHttpRequestMethods} method - The HTTP method to use for the request
+ * @param {string} endpoint - The API endpoint to call
+ * @param {object} body - The request body
+ * @param {IDataObject} [query] - The query parameters
+ * @param {IDataObject} [option] - Additional options for the request
+ * @returns {Promise<any>} The response from the API
  */
 export async function gitlabApiRequest(
 	this: IHookFunctions | IExecuteFunctions,
@@ -54,6 +61,16 @@ export async function gitlabApiRequest(
 	}
 }
 
+/**
+ * Make an API request to Gitlab and retrieve all items
+ *
+ * @param {IHookFunctions | IExecuteFunctions} this - The context of the function
+ * @param {IHttpRequestMethods} method - The HTTP method to use for the request
+ * @param {string} endpoint - The API endpoint to call
+ * @param {object} [body] - The request body
+ * @param {IDataObject} [query] - The query parameters
+ * @returns {Promise<any>} The response from the API
+ */
 export async function gitlabApiRequestAllItems(
 	this: IHookFunctions | IExecuteFunctions,
 	method: IHttpRequestMethods,
@@ -78,6 +95,12 @@ export async function gitlabApiRequestAllItems(
         return returnData;
 }
 
+/**
+ * Build the base URL for a project
+ *
+ * @param {IDataObject} cred - The credentials object
+ * @returns {string} The base URL for the project
+ */
 export function buildProjectBase(cred: IDataObject): string {
         return cred.projectId
                 ? `/projects/${cred.projectId}`
@@ -88,6 +111,12 @@ export function buildProjectBase(cred: IDataObject): string {
 
 /**
  * Get a merge request discussion by ID
+ *
+ * @param {IHookFunctions | IExecuteFunctions} this - The context of the function
+ * @param {number} mergeRequestIid - The IID of the merge request
+ * @param {string} discussionId - The ID of the discussion
+ * @param {IDataObject} [query] - The query parameters
+ * @returns {Promise<any>} The response from the API
  */
 export async function getMergeRequestDiscussion(
 	this: IHookFunctions | IExecuteFunctions,
