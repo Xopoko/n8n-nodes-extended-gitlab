@@ -9,7 +9,7 @@ function createContext(params) {
     getInputData() { return [{ json: {} }]; },
     getNodeParameter(name) { return params[name]; },
     async getCredentials() {
-      return { server: 'https://gitlab.example.com', accessToken: 't' };
+      return { server: 'https://gitlab.example.com', accessToken: 't', projectId: 1 };
     },
     helpers: {
       async requestWithAuthentication(name, options) { calls.name = name; calls.options = options; return {}; },

@@ -929,10 +929,23 @@ displayName: 'Title',
 			let body: IDataObject = {};
 			let qs: IDataObject = {};
 			let returnAll = false;
-			const credential = await this.getCredentials('gitlabExtendedApi');
-			const base = credential.projectId
-				? `/projects/${credential.projectId}`
-				: `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(credential.projectName as string)}`;
+                        const credential = await this.getCredentials('gitlabExtendedApi');
+
+                        if (!credential.projectId) {
+                                const owner = credential.projectOwner as string;
+                                const name = credential.projectName as string;
+                                if (!owner || !name) {
+                                        throw new NodeOperationError(
+                                                this.getNode(),
+                                                'Credentials must include either projectId or both projectOwner and projectName',
+                                                { itemIndex: i ?? -1 },
+                                        );
+                                }
+                        }
+
+                        const base = credential.projectId
+                                ? `/projects/${credential.projectId}`
+                                : `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(credential.projectName as string)}`;
 
 			if (resource === 'branch') {
                                 if (operation === 'create') {
