@@ -132,6 +132,7 @@ export class GitlabExtended implements INodeType {
 				description:
 					"Choose an action on merge requests, such as 'create' to start a merge request",
                                 options: [
+                                        { name: 'Close', value: 'close', action: 'Close a merge request' },
                                         { name: 'Create', value: 'create', action: 'Create a merge request' },
                                         { name: 'Create Note', value: 'createNote', action: 'Create a note' },
                                         { name: 'Delete Discussion', value: 'deleteDiscussion', action: 'Delete a discussion' },
@@ -143,7 +144,10 @@ export class GitlabExtended implements INodeType {
                                         { name: 'Get Many', value: 'getAll', action: 'List merge requests' },
                                         { name: 'Get Note', value: 'getNote', action: 'Get a note' },
                                         { name: 'Labels', value: 'labels', action: 'Add or remove labels' },
+                                        { name: 'Merge', value: 'merge', action: 'Merge a merge request' },
                                         { name: 'Post Discussion Note', value: 'postDiscussionNote', action: 'Post to discussion' },
+                                        { name: 'Rebase', value: 'rebase', action: 'Rebase a merge request' },
+                                        { name: 'Reopen', value: 'reopen', action: 'Reopen a merge request' },
                                         { name: 'Resolve Discussion', value: 'resolveDiscussion', action: 'Resolve a discussion' },
                                         { name: 'Update Discussion', value: 'updateDiscussion', action: 'Update a discussion' },
                                         { name: 'Update Note', value: 'updateNote', action: 'Update a note' },
@@ -652,26 +656,54 @@ export class GitlabExtended implements INodeType {
 				description: 'Head commit SHA',
 				default: '',
 			},
-			{
-				displayName: 'Start SHA',
-				name: 'startSha',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
-					},
-				},
-				description: 'Start commit SHA',
-				default: '',
-			},
-			{
-				displayName: 'HTTP Method',
-				name: 'httpMethod',
-				type: 'options',
-				displayOptions: { show: { resource: ['raw'], operation: ['request'] } },
+                        {
+                                displayName: 'Start SHA',
+                                name: 'startSha',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['mergeRequest'],
+                                                operation: ['postDiscussionNote'],
+                                                asSuggestion: [true],
+                                        },
+                                },
+                                description: 'Start commit SHA',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Merge Commit Message',
+                                name: 'mergeCommitMessage',
+                                type: 'string',
+                                displayOptions: { show: { resource: ['mergeRequest'], operation: ['merge'] } },
+                                description: 'Optional commit message used when merging',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Merge Strategy',
+                                name: 'mergeStrategy',
+                                type: 'options',
+                                displayOptions: { show: { resource: ['mergeRequest'], operation: ['merge'] } },
+                                options: [
+                                        { name: 'Merge', value: 'merge' },
+                                        { name: 'Squash', value: 'squash' },
+                                ],
+                                description: 'How to merge the changes',
+                                default: 'merge',
+                        },
+                        {
+                                displayName: 'Skip CI',
+                                name: 'skipCi',
+                                type: 'boolean',
+                                displayOptions: { show: { resource: ['mergeRequest'], operation: ['rebase'] } },
+                                description: 'Whether to skip CI when rebasing',
+                                default: false,
+                        },
+                        {
+                                displayName: 'HTTP Method',
+                                name: 'httpMethod',
+                                type: 'options',
+                                displayOptions: { show: { resource: ['raw'], operation: ['request'] } },
 				description: "HTTP method to use, for example 'POST'",
 				options: [
 					{ name: 'DELETE', value: 'DELETE' },
@@ -1149,7 +1181,7 @@ export class GitlabExtended implements INodeType {
                                                 );
                                         }
                                         endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
-                                } else if (operation === 'deleteNote') {
+                               } else if (operation === 'deleteNote') {
                                         requestMethod = 'DELETE';
                                         const iid = this.getNodeParameter('mergeRequestIid', i) as number;
                                         if (iid <= 0) {
@@ -1168,7 +1200,7 @@ export class GitlabExtended implements INodeType {
                                                 );
                                         }
                                         endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
-                                } else if (operation === 'resolveDiscussion') {
+                               } else if (operation === 'resolveDiscussion') {
                                         requestMethod = 'PUT';
                                         const iid = this.getNodeParameter('mergeRequestIid', i) as number;
                                         if (iid <= 0) {
@@ -1181,6 +1213,34 @@ export class GitlabExtended implements INodeType {
                                         const discussionId = this.getNodeParameter('discussionId', i);
                                         body.resolved = this.getNodeParameter('resolved', i);
                                         endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
+                               } else if (operation === 'merge') {
+                                       requestMethod = 'PUT';
+                                       const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                       if (iid <= 0) {
+                                               throw new NodeOperationError(this.getNode(), 'mergeRequestIid must be a positive number', { itemIndex: i });
+                                       }
+                                       const message = this.getNodeParameter('mergeCommitMessage', i, '');
+                                       const strategy = this.getNodeParameter('mergeStrategy', i, 'merge') as string;
+                                       if (message) body.merge_commit_message = message;
+                                       if (strategy === 'squash') body.squash = true;
+                                       endpoint = `${base}/merge_requests/${iid}/merge`;
+                               } else if (operation === 'rebase') {
+                                       requestMethod = 'PUT';
+                                       const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                       if (iid <= 0) {
+                                               throw new NodeOperationError(this.getNode(), 'mergeRequestIid must be a positive number', { itemIndex: i });
+                                       }
+                                       const skipCi = this.getNodeParameter('skipCi', i, false);
+                                       if (skipCi) qs.skip_ci = true;
+                                       endpoint = `${base}/merge_requests/${iid}/rebase`;
+                               } else if (operation === 'close' || operation === 'reopen') {
+                                       requestMethod = 'PUT';
+                                       const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                       if (iid <= 0) {
+                                               throw new NodeOperationError(this.getNode(), 'mergeRequestIid must be a positive number', { itemIndex: i });
+                                       }
+                                       body.state_event = operation === 'close' ? 'close' : 'reopen';
+                                       endpoint = `${base}/merge_requests/${iid}`;
                                } else if (operation === 'labels') {
                                        requestMethod = 'PUT';
                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;

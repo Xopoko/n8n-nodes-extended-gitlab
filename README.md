@@ -65,6 +65,10 @@ one of its operations.
 * `updateDiscussion` – Update a discussion
 * `deleteDiscussion` – Delete a discussion
 * `resolveDiscussion` – Resolve or unresolve a discussion
+* `merge` – Merge (accept) a merge request
+* `rebase` – Rebase a merge request
+* `close` – Close a merge request
+* `reopen` – Reopen a merge request
 * `labels` – Add or remove labels based on `labelAction`
 
 ### Raw API
@@ -126,6 +130,9 @@ required for your chosen operation.
 | `baseSha` | Base commit SHA |
 | `headSha` | Head commit SHA |
 | `startSha` | Start commit SHA |
+| `mergeCommitMessage` | Commit message when merging |
+| `mergeStrategy` | `merge` or `squash` |
+| `skipCi` | Skip CI when rebasing |
 | `httpMethod` | Method for raw requests |
 | `endpoint` | Endpoint path |
 | `content` | JSON body payload |
