@@ -246,7 +246,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['branch'],
-						operation: ['create', 'get', 'delete', 'rename', 'protect', 'unprotect', 'merge'],
+						operation: ['create', 'get', 'getAll', 'delete', 'rename', 'protect', 'unprotect', 'merge'],
 					},
 				},
 				description: "Branch name, for example 'feature/login'",
