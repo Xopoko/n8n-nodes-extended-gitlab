@@ -7,6 +7,14 @@ import type {
 import { NodeOperationError } from 'n8n-workflow';
 import { gitlabApiRequest, gitlabApiRequestAllItems, buildProjectBase } from '../GenericFunctions';
 
+/**
+ * Handles branch-related operations in a GitLab project, such as creating, retrieving, 
+ * listing, deleting, or renaming branches.
+ *
+ * @param {IExecuteFunctions} this - The execution context, providing access to workflow utilities.
+ * @param {number} itemIndex - The index of the current item being processed.
+ * @returns {Promise<INodeExecutionData[]>} A promise that resolves to an array of node execution data.
+ */
 export async function handleBranch(
 	this: IExecuteFunctions,
 	itemIndex: number,
