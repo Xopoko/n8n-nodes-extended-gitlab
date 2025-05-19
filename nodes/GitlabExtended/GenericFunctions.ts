@@ -76,10 +76,11 @@ export async function gitlabApiRequestAllItems(
                 });
                 returnData.push.apply(returnData, responseData.body as IDataObject[]);
                 const nextPage = responseData.headers['x-next-page'];
+                // Ensure query.page is explicitly a number before performing arithmetic operations
                 if (nextPage) {
                         query.page = Number(nextPage);
                 } else {
-                        query.page++;
+                        query.page = (typeof query.page === 'number' ? query.page : 1) + 1;
                 }
         } while (responseData.headers['x-next-page']);
         return returnData;

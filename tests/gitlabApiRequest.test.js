@@ -178,3 +178,18 @@ test('gitlabApiRequestAllItems does not overwrite existing query.page', async ()
        await gitlabApiRequestAllItems.call(ctx, 'GET', '/foo', {}, { page: 2 });
        assert.strictEqual(ctx.calls.options.qs.page, 2);
 });
+
+test('gitlabApiRequestAllItems handles non-number query.page', async () => {
+       const ctx = mockContext();
+       let current = 1;
+       ctx.helpers.requestWithAuthentication = async (name, options) => {
+               ctx.calls.options = options;
+               const headers = { 'x-next-page': current < 3 ? String(current + 1) : '' };
+               const body = [{ page: current }];
+               current++;
+               return { body, headers };
+       };
+
+       const data = await gitlabApiRequestAllItems.call(ctx, 'GET', '/foo', {}, { page: 'not-a-number' });
+       assert.deepStrictEqual(data, [{ page: 1 }, { page: 2 }, { page: 3 }]);
+});
