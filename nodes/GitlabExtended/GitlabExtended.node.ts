@@ -1103,9 +1103,15 @@ displayName: 'Title',
                        } else if (resource === 'release') {
                                if (operation === 'create') {
                                        requestMethod = 'POST';
-                                       body.tag_name = this.getNodeParameter('tagName', i);
+                                       body.tag_name = this.getNodeParameter('tagName', i) as string;
+                                       if (!body.tag_name) {
+                                           throw new NodeOperationError(this.getNode(), 'tagName must not be empty', { itemIndex: i });
+                                       }
                                        body.name = this.getNodeParameter('name', i);
-                                       body.description = this.getNodeParameter('releaseDescription', i, '');
+                                       body.description = this.getNodeParameter('releaseDescription', i);
+                                       if (body.description === undefined) {
+                                           body.description = '';
+                                       }
                                        const assets = this.getNodeParameter('assets', i, '');
                                        if (assets) {
                                            try {
@@ -1113,7 +1119,7 @@ displayName: 'Title',
                                            } catch (error) {
                                                throw new NodeOperationError(
                                                    this.getNode(),
-                                                   'Invalid JSON in "assets" parameter',
+                                                   "Invalid JSON in 'assets' parameter",
                                                    { itemIndex: i },
                                                );
                                            }
@@ -1123,7 +1129,10 @@ displayName: 'Title',
                                        requestMethod = 'PUT';
                                        const tag = this.getNodeParameter('tagName', i) as string;
                                        body.name = this.getNodeParameter('name', i);
-                                       body.description = this.getNodeParameter('releaseDescription', i, '');
+                                       body.description = this.getNodeParameter('releaseDescription', i);
+                                      if (body.description === undefined) {
+                                          body.description = '';
+                                      }
                                       const assets = this.getNodeParameter('assets', i, '');
                                       if (assets) {
                                           try {
