@@ -74,7 +74,7 @@ export async function gitlabApiRequestAllItems(
 		});
 		query.page++;
 		returnData.push.apply(returnData, responseData.body as IDataObject[]);
-	} while (responseData.headers.link?.includes('next'));
+        } while (responseData.headers['x-next-page']);
 	return returnData;
 }
 
