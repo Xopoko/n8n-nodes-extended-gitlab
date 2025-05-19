@@ -1124,8 +1124,18 @@ displayName: 'Title',
                                        const tag = this.getNodeParameter('tagName', i) as string;
                                        body.name = this.getNodeParameter('name', i);
                                        body.description = this.getNodeParameter('releaseDescription', i, '');
-                                       const assets = this.getNodeParameter('assets', i, '');
-                                       if (assets) body.assets = JSON.parse(assets as string);
+                                      const assets = this.getNodeParameter('assets', i, '');
+                                      if (assets) {
+                                          try {
+                                              body.assets = JSON.parse(assets as string);
+                                          } catch (error) {
+                                              throw new NodeOperationError(
+                                                  this.getNode(),
+                                                  "Invalid JSON in 'assets' parameter",
+                                                  { itemIndex: i },
+                                              );
+                                          }
+                                      }
                                        endpoint = `${base}/releases/${encodeURIComponent(tag)}`;
                                } else if (operation === 'get') {
                                        requestMethod = 'GET';

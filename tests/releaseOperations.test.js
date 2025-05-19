@@ -38,6 +38,12 @@ test('update builds correct endpoint and body', async () => {
   assert.deepStrictEqual(ctx.calls.options.body, { name: '1.1', description: 'new' });
 });
 
+test('update throws on invalid assets', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'release', operation: 'update', tagName: 'v1.0', name: '1.1', releaseDescription: 'new', assets: '{' });
+  await assert.rejects(() => node.execute.call(ctx), /Invalid JSON in 'assets' parameter/);
+});
+
 test('get builds correct endpoint', async () => {
   const node = new GitlabExtended();
   const ctx = createContext({ resource: 'release', operation: 'get', tagName: 'v1.0' });
