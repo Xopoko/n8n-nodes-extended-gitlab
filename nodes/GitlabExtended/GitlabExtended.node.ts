@@ -938,7 +938,7 @@ displayName: 'Title',
                                         throw new NodeOperationError(
                                                 this.getNode(),
                                                 'Credentials must include either projectId or both projectOwner and projectName',
-                                                { itemIndex: i },
+                                                { itemIndex: i ?? -1 },
                                         );
                                 }
                         }
