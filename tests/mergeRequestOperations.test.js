@@ -148,3 +148,9 @@ test('postDiscussionNote builds suggestion with position', async () => {
   });
   assert.ok(ctx.calls.params.includes('positionType'));
 });
+
+test('get throws on invalid mergeRequestIid', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'mergeRequest', operation: 'get', mergeRequestIid: 0 });
+  await assert.rejects(() => node.execute.call(ctx), /mergeRequestIid must be a positive number/);
+});

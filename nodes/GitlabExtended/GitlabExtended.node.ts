@@ -9,6 +9,7 @@ import type {
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
 import { gitlabApiRequest, gitlabApiRequestAllItems, buildProjectBase } from './GenericFunctions';
+import { requirePositive } from './validators';
 import { handleBranch } from './resources/branch';
 import { branchOperations } from './operations';
 
@@ -974,13 +975,9 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/pipeline`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('pipelineId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'pipelineId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `${base}/pipelines/${id}`;
+                                        const id = this.getNodeParameter('pipelineId', i) as number;
+                                        requirePositive.call(this, id, 'pipelineId', i);
+                                        endpoint = `${base}/pipelines/${id}`;
 				} else if (operation === 'getAll') {
 					requestMethod = 'GET';
 					returnAll = this.getNodeParameter('returnAll', i);
@@ -988,42 +985,26 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/pipelines`;
 				} else if (operation === 'getJobs') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('pipelineId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'pipelineId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					returnAll = this.getNodeParameter('returnAll', i);
+                                        const id = this.getNodeParameter('pipelineId', i) as number;
+                                        requirePositive.call(this, id, 'pipelineId', i);
+                                        returnAll = this.getNodeParameter('returnAll', i);
 					if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
 					endpoint = `${base}/pipelines/${id}/jobs`;
 				} else if (operation === 'cancel' || operation === 'retry') {
 					requestMethod = 'POST';
-					const id = this.getNodeParameter('pipelineId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'pipelineId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `${base}/pipelines/${id}/${operation}`;
+                                        const id = this.getNodeParameter('pipelineId', i) as number;
+                                        requirePositive.call(this, id, 'pipelineId', i);
+                                        endpoint = `${base}/pipelines/${id}/${operation}`;
 				} else if (operation === 'delete') {
 					requestMethod = 'DELETE';
-					const id = this.getNodeParameter('pipelineId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'pipelineId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `${base}/pipelines/${id}`;
+                                        const id = this.getNodeParameter('pipelineId', i) as number;
+                                        requirePositive.call(this, id, 'pipelineId', i);
+                                        endpoint = `${base}/pipelines/${id}`;
 				} else if (operation === 'downloadArtifacts') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('pipelineId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'pipelineId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					const ref = this.getNodeParameter('pipelineRef', i) as string;
+                                        const id = this.getNodeParameter('pipelineId', i) as number;
+                                        requirePositive.call(this, id, 'pipelineId', i);
+                                        const ref = this.getNodeParameter('pipelineRef', i) as string;
 					endpoint = `${base}/pipelines/${id}/jobs/artifacts/${ref}/download`;
 				}
 			} else if (resource === 'tag') {
@@ -1114,44 +1095,28 @@ export class GitlabExtended implements INodeType {
 					endpoint = `/groups`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('groupId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'groupId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `/groups/${id}`;
+                                        const id = this.getNodeParameter('groupId', i) as number;
+                                        requirePositive.call(this, id, 'groupId', i);
+                                        endpoint = `/groups/${id}`;
 				} else if (operation === 'delete') {
 					requestMethod = 'DELETE';
-					const id = this.getNodeParameter('groupId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'groupId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `/groups/${id}`;
+                                        const id = this.getNodeParameter('groupId', i) as number;
+                                        requirePositive.call(this, id, 'groupId', i);
+                                        endpoint = `/groups/${id}`;
 				} else if (operation === 'getMembers') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('groupId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'groupId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					returnAll = this.getNodeParameter('returnAll', i);
+                                        const id = this.getNodeParameter('groupId', i) as number;
+                                        requirePositive.call(this, id, 'groupId', i);
+                                        returnAll = this.getNodeParameter('returnAll', i);
 					if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
 					endpoint = `/groups/${id}/members`;
 				}
 			} else if (resource === 'project') {
 				if (operation === 'get') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('projectId', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'projectId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `/projects/${id}`;
+                                        const id = this.getNodeParameter('projectId', i) as number;
+                                        requirePositive.call(this, id, 'projectId', i);
+                                        endpoint = `/projects/${id}`;
 				} else if (operation === 'getAll' || operation === 'search') {
 					requestMethod = 'GET';
 					returnAll = this.getNodeParameter('returnAll', i);
@@ -1199,13 +1164,9 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/issues`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-					const id = this.getNodeParameter('issueIid', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'issueIid must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `${base}/issues/${id}`;
+                                        const id = this.getNodeParameter('issueIid', i) as number;
+                                        requirePositive.call(this, id, 'issueIid', i);
+                                        endpoint = `${base}/issues/${id}`;
 				} else if (operation === 'getAll') {
 					requestMethod = 'GET';
 					returnAll = this.getNodeParameter('returnAll', i);
@@ -1213,13 +1174,9 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/issues`;
 				} else if (operation === 'update') {
 					requestMethod = 'PUT';
-					const id = this.getNodeParameter('issueIid', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'issueIid must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					body.title = this.getNodeParameter('title', i);
+                                        const id = this.getNodeParameter('issueIid', i) as number;
+                                        requirePositive.call(this, id, 'issueIid', i);
+                                        body.title = this.getNodeParameter('title', i);
 					body.description = this.getNodeParameter('description', i);
 					const labels = this.getNodeParameter('issueLabels', i, '');
 					if (labels) body.labels = labels;
@@ -1227,13 +1184,9 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/issues/${id}`;
 				} else if (operation === 'close' || operation === 'reopen') {
 					requestMethod = 'PUT';
-					const id = this.getNodeParameter('issueIid', i) as number;
-					if (id <= 0) {
-						throw new NodeOperationError(this.getNode(), 'issueIid must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					body.state_event = operation === 'close' ? 'close' : 'reopen';
+                                        const id = this.getNodeParameter('issueIid', i) as number;
+                                        requirePositive.call(this, id, 'issueIid', i);
+                                        body.state_event = operation === 'close' ? 'close' : 'reopen';
 					endpoint = `${base}/issues/${id}`;
 				}
 			} else if (resource === 'mergeRequest') {
@@ -1246,15 +1199,9 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/merge_requests`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					endpoint = `${base}/merge_requests/${iid}`;
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        endpoint = `${base}/merge_requests/${iid}`;
 				} else if (operation === 'getAll') {
 					requestMethod = 'GET';
 					returnAll = this.getNodeParameter('returnAll', i);
@@ -1262,27 +1209,15 @@ export class GitlabExtended implements INodeType {
 					endpoint = `${base}/merge_requests`;
 				} else if (operation === 'createNote') {
 					requestMethod = 'POST';
-					body.body = this.getNodeParameter('body', i);
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					endpoint = `${base}/merge_requests/${iid}/notes`;
-				} else if (operation === 'postDiscussionNote') {
-					requestMethod = 'POST';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const newDiscussion = this.getNodeParameter('startDiscussion', i, false);
+                                        body.body = this.getNodeParameter('body', i);
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        endpoint = `${base}/merge_requests/${iid}/notes`;
+                                } else if (operation === 'postDiscussionNote') {
+                                        requestMethod = 'POST';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const newDiscussion = this.getNodeParameter('startDiscussion', i, false);
 					const asSuggestion = this.getNodeParameter('asSuggestion', i, false) as boolean;
 					let note = this.getNodeParameter('body', i) as string;
 					if (asSuggestion) {
@@ -1338,182 +1273,92 @@ export class GitlabExtended implements INodeType {
 					}
 				} else if (operation === 'updateNote') {
 					requestMethod = 'PUT';
-					const discussionId = this.getNodeParameter('discussionId', i);
-					const noteId = this.getNodeParameter('noteId', i) as number;
-					if (noteId <= 0) {
-						throw new NodeOperationError(this.getNode(), 'noteId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					body.body = this.getNodeParameter('body', i);
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
+                                        const discussionId = this.getNodeParameter('discussionId', i);
+                                        const noteId = this.getNodeParameter('noteId', i) as number;
+                                        requirePositive.call(this, noteId, 'noteId', i);
+                                        body.body = this.getNodeParameter('body', i);
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
 				} else if (operation === 'getChanges') {
 					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					endpoint = `${base}/merge_requests/${iid}/changes`;
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        endpoint = `${base}/merge_requests/${iid}/changes`;
 				} else if (operation === 'getDiscussions') {
 					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					returnAll = this.getNodeParameter('returnAll', i);
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        returnAll = this.getNodeParameter('returnAll', i);
 					if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
 					endpoint = `${base}/merge_requests/${iid}/discussions`;
 				} else if (operation === 'getDiscussion') {
 					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const discussionId = this.getNodeParameter('discussionId', i);
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const discussionId = this.getNodeParameter('discussionId', i);
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
 				} else if (operation === 'updateDiscussion') {
 					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const discussionId = this.getNodeParameter('discussionId', i);
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const discussionId = this.getNodeParameter('discussionId', i);
 					body.resolved = this.getNodeParameter('resolved', i);
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
 				} else if (operation === 'deleteDiscussion') {
 					requestMethod = 'DELETE';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const discussionId = this.getNodeParameter('discussionId', i);
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const discussionId = this.getNodeParameter('discussionId', i);
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
 				} else if (operation === 'getNote') {
 					requestMethod = 'GET';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const noteId = this.getNodeParameter('noteId', i) as number;
-					if (noteId <= 0) {
-						throw new NodeOperationError(this.getNode(), 'noteId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const noteId = this.getNodeParameter('noteId', i) as number;
+                                        requirePositive.call(this, noteId, 'noteId', i);
+                                        endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
 				} else if (operation === 'deleteNote') {
 					requestMethod = 'DELETE';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const noteId = this.getNodeParameter('noteId', i) as number;
-					if (noteId <= 0) {
-						throw new NodeOperationError(this.getNode(), 'noteId must be a positive number', {
-							itemIndex: i,
-						});
-					}
-					endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const noteId = this.getNodeParameter('noteId', i) as number;
+                                        requirePositive.call(this, noteId, 'noteId', i);
+                                        endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
 				} else if (operation === 'resolveDiscussion') {
 					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const discussionId = this.getNodeParameter('discussionId', i);
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const discussionId = this.getNodeParameter('discussionId', i);
 					body.resolved = this.getNodeParameter('resolved', i);
 					endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
 				} else if (operation === 'merge') {
 					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const message = this.getNodeParameter('mergeCommitMessage', i, '');
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const message = this.getNodeParameter('mergeCommitMessage', i, '');
 					const strategy = this.getNodeParameter('mergeStrategy', i, 'merge') as string;
 					if (message) body.merge_commit_message = message;
 					if (strategy === 'squash') body.squash = true;
 					endpoint = `${base}/merge_requests/${iid}/merge`;
 				} else if (operation === 'rebase') {
 					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const skipCi = this.getNodeParameter('skipCi', i, false);
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const skipCi = this.getNodeParameter('skipCi', i, false);
 					if (skipCi) qs.skip_ci = true;
 					endpoint = `${base}/merge_requests/${iid}/rebase`;
 				} else if (operation === 'close' || operation === 'reopen') {
 					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					body.state_event = operation === 'close' ? 'close' : 'reopen';
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        body.state_event = operation === 'close' ? 'close' : 'reopen';
 					endpoint = `${base}/merge_requests/${iid}`;
 				} else if (operation === 'labels') {
 					requestMethod = 'PUT';
-					const iid = this.getNodeParameter('mergeRequestIid', i) as number;
-					if (iid <= 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'mergeRequestIid must be a positive number',
-							{ itemIndex: i },
-						);
-					}
-					const action = this.getNodeParameter('labelAction', i) as string;
+                                        const iid = this.getNodeParameter('mergeRequestIid', i) as number;
+                                        requirePositive.call(this, iid, 'mergeRequestIid', i);
+                                        const action = this.getNodeParameter('labelAction', i) as string;
 					const labels = this.getNodeParameter('labels', i);
 					if (action === 'add') {
 						body.add_labels = labels;
