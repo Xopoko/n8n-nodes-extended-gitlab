@@ -11,6 +11,13 @@ import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 /**
  * Make an API request to Gitlab
  *
+ * @param {IHookFunctions | IExecuteFunctions} this - The context of the function
+ * @param {IHttpRequestMethods} method - The HTTP method to use for the request
+ * @param {string} endpoint - The API endpoint to call
+ * @param {object} body - The request body
+ * @param {IDataObject} [query] - The query parameters
+ * @param {IDataObject} [option] - Additional options for the request
+ * @returns {Promise<any>} The response from the API
  */
 export async function gitlabApiRequest(
 	this: IHookFunctions | IExecuteFunctions,
@@ -54,6 +61,16 @@ export async function gitlabApiRequest(
 	}
 }
 
+/**
+ * Make an API request to Gitlab and retrieve all items
+ *
+ * @param {IHookFunctions | IExecuteFunctions} this - The context of the function
+ * @param {IHttpRequestMethods} method - The HTTP method to use for the request
+ * @param {string} endpoint - The API endpoint to call
+ * @param {object} [body] - The request body
+ * @param {IDataObject} [query] - The query parameters
+ * @returns {Promise<any>} The response from the API
+ */
 export async function gitlabApiRequestAllItems(
 	this: IHookFunctions | IExecuteFunctions,
 	method: IHttpRequestMethods,
@@ -75,11 +92,31 @@ export async function gitlabApiRequestAllItems(
 		query.page++;
 		returnData.push.apply(returnData, responseData.body as IDataObject[]);
         } while (responseData.headers['x-next-page']);
-	return returnData;
+        return returnData;
+}
+
+/**
+ * Build the base URL for a project
+ *
+ * @param {IDataObject} cred - The credentials object
+ * @returns {string} The base URL for the project
+ */
+export function buildProjectBase(cred: IDataObject): string {
+        return cred.projectId
+                ? `/projects/${cred.projectId}`
+                : `/projects/${encodeURIComponent(cred.projectOwner as string)}%2F${encodeURIComponent(
+                                cred.projectName as string,
+                        )}`;
 }
 
 /**
  * Get a merge request discussion by ID
+ *
+ * @param {IHookFunctions | IExecuteFunctions} this - The context of the function
+ * @param {number} mergeRequestIid - The IID of the merge request
+ * @param {string} discussionId - The ID of the discussion
+ * @param {IDataObject} [query] - The query parameters
+ * @returns {Promise<any>} The response from the API
  */
 export async function getMergeRequestDiscussion(
 	this: IHookFunctions | IExecuteFunctions,
@@ -87,12 +124,8 @@ export async function getMergeRequestDiscussion(
 	discussionId: string,
 	query: IDataObject = {},
 ): Promise<any> {
-	const credential = await this.getCredentials('gitlabExtendedApi');
-	const base = credential.projectId
-		? `/projects/${credential.projectId}`
-		: `/projects/${encodeURIComponent(credential.projectOwner as string)}%2F${encodeURIComponent(
-				credential.projectName as string,
-			)}`;
-	const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${discussionId}`;
-	return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
+        const credential = await this.getCredentials('gitlabExtendedApi');
+        const base = buildProjectBase(credential);
+        const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${discussionId}`;
+        return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
 }
