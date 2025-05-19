@@ -41,6 +41,13 @@ one of its operations.
 * `getAll` – List tags
 * `delete` – Delete a tag
 
+### Release
+* `create` – Create a release
+* `update` – Update a release
+* `get` – Get a release
+* `getAll` – List releases
+* `delete` – Delete a release
+
 ### Group
 * `create` – Create a group
 * `get` – Get a group
