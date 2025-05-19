@@ -53,3 +53,12 @@ test('delete builds correct endpoint', async () => {
   assert.strictEqual(ctx.calls.options.method, 'DELETE');
   assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/1/repository/tags/v1.0');
 });
+
+test('create with ref builds correct endpoint and body', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'tag', operation: 'create', tagName: 'v1.1', ref: 'develop', message: 'new tag' });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'POST');
+  assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/1/repository/tags');
+  assert.deepStrictEqual(ctx.calls.options.body, { tag_name: 'v1.1', ref: 'develop', message: 'new tag' });
+});
