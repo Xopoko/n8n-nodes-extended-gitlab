@@ -41,13 +41,14 @@ export class GitlabExtended implements INodeType {
 				noDataExpression: true,
 				description: "Choose the resource to work with, for example 'file' or 'pipeline'",
 				options: [
-					{ name: 'Branch', value: 'branch' },
-					{ name: 'File', value: 'file' },
-					{ name: 'Issue', value: 'issue' },
-					{ name: 'Merge Request', value: 'mergeRequest' },
-					{ name: 'Pipeline', value: 'pipeline' },
-					{ name: 'Raw API', value: 'raw' },
-				],
+                                        { name: 'Branch', value: 'branch' },
+                                        { name: 'File', value: 'file' },
+                                        { name: 'Group', value: 'group' },
+                                        { name: 'Issue', value: 'issue' },
+                                        { name: 'Merge Request', value: 'mergeRequest' },
+                                        { name: 'Pipeline', value: 'pipeline' },
+                                        { name: 'Raw API', value: 'raw' },
+                                ],
 				default: 'branch',
 			},
 			{
@@ -88,13 +89,28 @@ export class GitlabExtended implements INodeType {
                                        { name: 'Retry', value: 'retry', action: 'Retry a pipeline' },
                                ],
                                default: 'create',
-			},
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: { show: { resource: ['file'] } },
+                        },
+                        {
+                                displayName: 'Operation',
+                                name: 'operation',
+                                type: 'options',
+                                noDataExpression: true,
+                                displayOptions: { show: { resource: ['group'] } },
+                                description: 'Select how to manage groups',
+                                options: [
+                                        { name: 'Create', value: 'create', action: 'Create a group' },
+                                        { name: 'Delete', value: 'delete', action: 'Delete a group' },
+                                        { name: 'Get', value: 'get', action: 'Get a group' },
+                                        { name: 'List Members', value: 'getMembers', action: 'List group members' },
+                                ],
+                                default: 'create',
+                        },
+                        {
+                                displayName: 'Operation',
+                                name: 'operation',
+                                type: 'options',
+                                noDataExpression: true,
+                                displayOptions: { show: { resource: ['file'] } },
 				description:
 					"Select how to work with files, such as choosing 'list' to view repository files",
                                 options: [
@@ -257,8 +273,8 @@ export class GitlabExtended implements INodeType {
 				type: 'boolean',
 				displayOptions: {
 					show: {
-                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue'],
-                                               operation: ['getAll', 'list', 'getDiscussions', 'getJobs'],
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group'],
+                                               operation: ['getAll', 'list', 'getDiscussions', 'getJobs', 'getMembers'],
                                        },
                                },
 				default: false,
@@ -270,8 +286,8 @@ export class GitlabExtended implements INodeType {
 				type: 'number',
 				displayOptions: {
 					show: {
-                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue'],
-                                               operation: ['getAll', 'list', 'getDiscussions', 'getJobs'],
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group'],
+                                               operation: ['getAll', 'list', 'getDiscussions', 'getJobs', 'getMembers'],
                                                returnAll: [false],
                                        },
                                },
@@ -353,11 +369,41 @@ export class GitlabExtended implements INodeType {
                                 description: 'File content',
                                 default: '',
                         },
-			{
-				displayName: 'Title',
-				name: 'title',
-				type: 'string',
-				required: true,
+                        {
+                                displayName: 'Group ID',
+                                name: 'groupId',
+                                type: 'number',
+                                required: true,
+                                typeOptions: { minValue: 1 },
+                                displayOptions: {
+                                        show: { resource: ['group'], operation: ['get', 'delete', 'getMembers'] },
+                                },
+                                description: 'Numeric ID of the group',
+                                default: 1,
+                        },
+                        {
+                                displayName: 'Group Name',
+                                name: 'groupName',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['group'], operation: ['create'] } },
+                                description: 'Name of the new group',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Group Path',
+                                name: 'groupPath',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['group'], operation: ['create'] } },
+                                description: 'URL path of the new group',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Title',
+                                name: 'title',
+                                type: 'string',
+                                required: true,
                                 displayOptions: { show: { resource: ['issue', 'mergeRequest'], operation: ['create', 'update'] } },
 				description: "Title text, for instance 'Fix login bug'",
 				default: '',
@@ -891,7 +937,37 @@ export class GitlabExtended implements INodeType {
                                        const ref = this.getNodeParameter('pipelineRef', i) as string;
                                        endpoint = `${base}/pipelines/${id}/jobs/artifacts/${ref}/download`;
                                }
-			} else if (resource === 'file') {
+                        } else if (resource === 'group') {
+                               if (operation === 'create') {
+                                       requestMethod = 'POST';
+                                       body.name = this.getNodeParameter('groupName', i);
+                                       body.path = this.getNodeParameter('groupPath', i);
+                                       endpoint = `/groups`;
+                               } else if (operation === 'get') {
+                                       requestMethod = 'GET';
+                                       const id = this.getNodeParameter('groupId', i) as number;
+                                       if (id <= 0) {
+                                               throw new NodeOperationError(this.getNode(), 'groupId must be a positive number', { itemIndex: i });
+                                       }
+                                       endpoint = `/groups/${id}`;
+                               } else if (operation === 'delete') {
+                                       requestMethod = 'DELETE';
+                                       const id = this.getNodeParameter('groupId', i) as number;
+                                       if (id <= 0) {
+                                               throw new NodeOperationError(this.getNode(), 'groupId must be a positive number', { itemIndex: i });
+                                       }
+                                       endpoint = `/groups/${id}`;
+                               } else if (operation === 'getMembers') {
+                                       requestMethod = 'GET';
+                                       const id = this.getNodeParameter('groupId', i) as number;
+                                       if (id <= 0) {
+                                               throw new NodeOperationError(this.getNode(), 'groupId must be a positive number', { itemIndex: i });
+                                       }
+                                       returnAll = this.getNodeParameter('returnAll', i);
+                                       if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                       endpoint = `/groups/${id}/members`;
+                               }
+                        } else if (resource === 'file') {
                                 if (operation === 'get') {
                                         requestMethod = 'GET';
                                         const path = this.getNodeParameter('path', i);

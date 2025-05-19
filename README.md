@@ -35,6 +35,12 @@ one of its operations.
 * `delete` – Delete a pipeline
 * `downloadArtifacts` – Download artifacts from a pipeline
 
+### Group
+* `create` – Create a group
+* `get` – Get a group
+* `delete` – Delete a group
+* `getMembers` – List group members
+
 ### File
 * `create` – Create a file
 * `update` – Update a file
@@ -139,6 +145,9 @@ required for your chosen operation.
 | `queryParameters` | JSON query parameters |
 | `returnAll` | Return every result when listing |
 | `limit` | Maximum number of results |
+| `groupId` | Numeric group ID |
+| `groupName` | Name when creating a group |
+| `groupPath` | Path when creating a group |
 
 ## Credentials
 
