@@ -48,6 +48,7 @@ export class GitlabExtended implements INodeType {
                                         { name: 'Merge Request', value: 'mergeRequest' },
                                         { name: 'Pipeline', value: 'pipeline' },
                                         { name: 'Raw API', value: 'raw' },
+                                        { name: 'Release', value: 'release' },
                                         { name: 'Tag', value: 'tag' },
                                 ],
 				default: 'branch',
@@ -103,6 +104,22 @@ export class GitlabExtended implements INodeType {
                                        { name: 'Get', value: 'get', action: 'Get a tag' },
                                        { name: 'Get Many', value: 'getAll', action: 'List tags' },
                                        { name: 'Delete', value: 'delete', action: 'Delete a tag' },
+                               ],
+                               default: 'create',
+                       },
+                       {
+                               displayName: 'Operation',
+                               name: 'operation',
+                               type: 'options',
+                               noDataExpression: true,
+                               displayOptions: { show: { resource: ['release'] } },
+                               description: 'Select how to manage releases',
+                               options: [
+                                       { name: 'Create', value: 'create', action: 'Create a release' },
+                                       { name: 'Delete', value: 'delete', action: 'Delete a release' },
+                                       { name: 'Get', value: 'get', action: 'Get a release' },
+                                       { name: 'Get Many', value: 'getAll', action: 'List releases' },
+                                       { name: 'Update', value: 'update', action: 'Update a release' },
                                ],
                                default: 'create',
                        },
@@ -289,7 +306,7 @@ export class GitlabExtended implements INodeType {
 				type: 'boolean',
 				displayOptions: {
 					show: {
-                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group', 'tag'],
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group', 'tag', 'release'],
                                                operation: ['getAll', 'list', 'getDiscussions', 'getJobs', 'getMembers'],
                                        },
                                },
@@ -302,7 +319,7 @@ export class GitlabExtended implements INodeType {
 				type: 'number',
 				displayOptions: {
 					show: {
-                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group', 'tag'],
+                                               resource: ['branch', 'pipeline', 'file', 'mergeRequest', 'issue', 'group', 'tag', 'release'],
                                                operation: ['getAll', 'list', 'getDiscussions', 'getJobs', 'getMembers'],
                                                returnAll: [false],
                                        },
@@ -344,10 +361,49 @@ export class GitlabExtended implements INodeType {
                                 default: '',
                         },
                         {
+                                displayName: 'Tag Name',
+                                name: 'tagName',
+                                type: 'string',
+                                required: true,
+                                displayOptions: {
+                                        show: {
+                                                resource: ['release'],
+                                                operation: ['create', 'update', 'get', 'delete'],
+                                        },
+                                },
+                                description: 'Release tag name',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Name',
+                                name: 'name',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['release'], operation: ['create', 'update'] } },
+                                description: 'Release name',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Description',
+                                name: 'releaseDescription',
+                                type: 'string',
+                                displayOptions: { show: { resource: ['release'], operation: ['create', 'update'] } },
+                                description: 'Release description',
+                                default: '',
+                        },
+                        {
+                                displayName: 'Assets',
+                                name: 'assets',
+                                type: 'json',
+                                displayOptions: { show: { resource: ['release'], operation: ['create', 'update'] } },
+                                description: 'JSON with assets links',
+                                default: '',
+                        },
+                        {
                                 displayName: 'Source Branch',
                                 name: 'source',
-				type: 'string',
-				required: true,
+                                type: 'string',
+                                required: true,
 				displayOptions: { show: { resource: ['mergeRequest'], operation: ['create'] } },
 				description: "Source branch name, e.g. 'feature/api'",
 				default: '',
@@ -996,6 +1052,37 @@ export class GitlabExtended implements INodeType {
                                        requestMethod = 'DELETE';
                                        const tag = this.getNodeParameter('tagName', i) as string;
                                        endpoint = `${base}/repository/tags/${encodeURIComponent(tag)}`;
+                               }
+                       } else if (resource === 'release') {
+                               if (operation === 'create') {
+                                       requestMethod = 'POST';
+                                       body.tag_name = this.getNodeParameter('tagName', i);
+                                       body.name = this.getNodeParameter('name', i);
+                                       body.description = this.getNodeParameter('releaseDescription', i, '');
+                                       const assets = this.getNodeParameter('assets', i, '');
+                                       if (assets) body.assets = JSON.parse(assets as string);
+                                       endpoint = `${base}/releases`;
+                               } else if (operation === 'update') {
+                                       requestMethod = 'PUT';
+                                       const tag = this.getNodeParameter('tagName', i) as string;
+                                       body.name = this.getNodeParameter('name', i);
+                                       body.description = this.getNodeParameter('releaseDescription', i, '');
+                                       const assets = this.getNodeParameter('assets', i, '');
+                                       if (assets) body.assets = JSON.parse(assets as string);
+                                       endpoint = `${base}/releases/${encodeURIComponent(tag)}`;
+                               } else if (operation === 'get') {
+                                       requestMethod = 'GET';
+                                       const tag = this.getNodeParameter('tagName', i) as string;
+                                       endpoint = `${base}/releases/${encodeURIComponent(tag)}`;
+                               } else if (operation === 'getAll') {
+                                       requestMethod = 'GET';
+                                       returnAll = this.getNodeParameter('returnAll', i);
+                                       if (!returnAll) qs.per_page = this.getNodeParameter('limit', i);
+                                       endpoint = `${base}/releases`;
+                               } else if (operation === 'delete') {
+                                       requestMethod = 'DELETE';
+                                       const tag = this.getNodeParameter('tagName', i) as string;
+                                       endpoint = `${base}/releases/${encodeURIComponent(tag)}`;
                                }
                        } else if (resource === 'group') {
                                if (operation === 'create') {
