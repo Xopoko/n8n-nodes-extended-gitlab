@@ -973,7 +973,7 @@ export class GitlabExtended implements INodeType {
 			let returnAll = false;
 
 			if (resource === 'branch') {
-				return handleBranch.call(this, i) as unknown as INodeExecutionData[][];
+				return await handleBranch.call(this, i) as unknown as INodeExecutionData[][];
 			} else if (resource === 'pipeline') {
 				if (operation === 'create') {
 					requestMethod = 'POST';
