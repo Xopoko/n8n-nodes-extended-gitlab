@@ -20,6 +20,10 @@ one of its operations.
 * `get` – Get a branch
 * `getAll` – List branches
 * `delete` – Delete a branch
+* `rename` – Rename a branch
+* `protect` – Protect a branch
+* `unprotect` – Unprotect a branch
+* `merge` – Merge a branch
 
 ### Pipeline
 * `create` – Trigger a pipeline
@@ -85,6 +89,10 @@ required for your chosen operation.
 | --- | --- |
 | `branch` | Name of a branch |
 | `ref` | Source branch or commit |
+| `newBranch` | New name when renaming |
+| `targetBranch` | Target branch for merges |
+| `developersCanPush` | Allow developers to push |
+| `developersCanMerge` | Allow developers to merge |
 | `pipelineId` | Numeric pipeline ID (positive) |
 | `pipelineRef` | Branch or tag for pipelines |
 | `path` | File or directory path |
