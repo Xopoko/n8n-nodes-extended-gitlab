@@ -65,7 +65,9 @@ export async function gitlabApiRequestAllItems(
 
 	let responseData;
 
-	query.page = 1;
+	if (!query.page) {
+		query.page = 1;
+	}
 	query.per_page = 100;
 
         do {

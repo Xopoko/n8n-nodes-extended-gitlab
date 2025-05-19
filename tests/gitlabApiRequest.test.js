@@ -167,3 +167,14 @@ test('gitlabApiRequestAllItems initializes query.page to 1', async () => {
        await gitlabApiRequestAllItems.call(ctx, 'GET', '/foo', {}, {});
        assert.strictEqual(ctx.calls.options.qs.page, 1);
 });
+
+test('gitlabApiRequestAllItems does not overwrite existing query.page', async () => {
+       const ctx = mockContext();
+       ctx.helpers.requestWithAuthentication = async (name, options) => {
+               ctx.calls.options = options;
+               return { body: [], headers: {} };
+       };
+
+       await gitlabApiRequestAllItems.call(ctx, 'GET', '/foo', {}, { page: 2 });
+       assert.strictEqual(ctx.calls.options.qs.page, 2);
+});
