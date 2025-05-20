@@ -5,7 +5,12 @@ import type {
         IHttpRequestMethods,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-import { gitlabApiRequest, gitlabApiRequestAllItems, buildProjectBase } from '../GenericFunctions';
+import {
+        gitlabApiRequest,
+        gitlabApiRequestAllItems,
+        buildProjectBase,
+        assertValidProjectCredentials,
+} from '../GenericFunctions';
 import { requirePositive } from '../validators';
 
 export async function handleMergeRequest(
@@ -14,17 +19,7 @@ export async function handleMergeRequest(
 ): Promise<INodeExecutionData[]> {
         const operation = this.getNodeParameter('operation', itemIndex);
         const credential = await this.getCredentials('gitlabExtendedApi');
-
-        if (!credential.projectId) {
-                const owner = credential.projectOwner as string;
-                const name = credential.projectName as string;
-                if (!owner || !name) {
-                        throw new NodeOperationError(
-                                this.getNode(),
-                                'Credentials must include either projectId or both projectOwner and projectName',
-                        );
-                }
-        }
+        assertValidProjectCredentials.call(this, credential);
 
         const base = buildProjectBase(credential);
 

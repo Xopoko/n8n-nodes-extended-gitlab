@@ -120,6 +120,25 @@ export function buildProjectBase(cred: IDataObject): string {
 }
 
 /**
+ * Ensure credentials contain enough information to identify a project.
+ */
+export function assertValidProjectCredentials(
+        this: IHookFunctions | IExecuteFunctions,
+        cred: IDataObject,
+): void {
+        if (!cred.projectId) {
+                const owner = cred.projectOwner as string;
+                const name = cred.projectName as string;
+                if (!owner || !name) {
+                        throw new NodeOperationError(
+                                this.getNode(),
+                                'Credentials must include either projectId or both projectOwner and projectName',
+                        );
+                }
+        }
+}
+
+/**
  * Get a merge request discussion by ID
  *
  * @param {IHookFunctions | IExecuteFunctions} this - The context of the function
