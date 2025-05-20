@@ -5,6 +5,7 @@ import {
         gitlabApiRequestAllItems,
         getMergeRequestDiscussion,
 } from '../dist/nodes/GitlabExtended/GenericFunctions.js';
+import { NodeApiError } from 'n8n-workflow/dist/errors/index.js';
 import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
 
 function mockContext({
@@ -171,4 +172,29 @@ test('gitlabApiRequestAllItems follows x-next-page header', async () => {
        assert.strictEqual(calls.length, 2);
        assert.strictEqual(calls[0].options.qs.page, 1);
        assert.strictEqual(calls[1].options.qs.page, 2);
+});
+
+test('gitlabApiRequest surfaces original error message when no response body', async () => {
+       const ctx = {
+               async getCredentials(name) {
+                       if (name !== 'gitlabExtendedApi') throw new Error('Unexpected credentials name');
+                       return { server: 'https://gitlab.example.com', accessToken: 't' };
+               },
+               helpers: {
+                       async requestWithAuthentication() {
+                               const err = new Error('request failed');
+                               throw err;
+                       },
+               },
+               getNode() { return {}; },
+       };
+
+       await assert.rejects(
+               () => gitlabApiRequest.call(ctx, 'GET', '/foo', {}, undefined),
+               (err) => {
+                       assert(err instanceof NodeApiError);
+                       assert.match(err.message, /request failed/);
+                       return true;
+               },
+       );
 });
