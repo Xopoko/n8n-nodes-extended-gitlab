@@ -44,10 +44,11 @@ export async function gitlabApiRequest(
 	}
 
         const credential = await this.getCredentials('gitlabExtendedApi');
-        const host = (credential.server as string).replace(/\/$/, '');
-        if (!host) {
+        const server = credential.server as string | undefined;
+        if (!server) {
                 throw new NodeOperationError(this.getNode(), 'GitLab server URL is missing in credentials');
         }
+        const host = server.replace(/\/$/, '');
         if (!credential.accessToken) {
                 throw new NodeOperationError(this.getNode(), 'Access token is missing in GitLab credentials');
         }

@@ -32,6 +32,18 @@ test('gitlabApiRequest throws when server URL is missing', async () => {
   );
 });
 
+test('gitlabApiRequest throws when server is undefined', async () => {
+  const ctx = createContext({ accessToken: 'token' });
+  await assert.rejects(
+    () => gitlabApiRequest.call(ctx, 'GET', '/foo', {}, undefined),
+    (err) => {
+      assert(err instanceof NodeOperationError);
+      assert.match(err.message, /GitLab server URL is missing in credentials/);
+      return true;
+    },
+  );
+});
+
 test('gitlabApiRequest throws when access token is missing', async () => {
   const ctx = createContext({ server: 'https://gitlab.example.com', accessToken: '' });
   await assert.rejects(
