@@ -129,13 +129,16 @@ export function buildProjectBase(cred: IDataObject): string {
  * @returns {Promise<any>} The response from the API
  */
 export async function getMergeRequestDiscussion(
-	this: IHookFunctions | IExecuteFunctions,
-	mergeRequestIid: number,
-	discussionId: string,
-	query: IDataObject = {},
+        this: IHookFunctions | IExecuteFunctions,
+        mergeRequestIid: number,
+        discussionId: string,
+        query: IDataObject = {},
 ): Promise<any> {
+        if (mergeRequestIid <= 0) {
+                throw new NodeOperationError(this.getNode(), 'mergeRequestIid must be a positive number');
+        }
         const credential = await this.getCredentials('gitlabExtendedApi');
         const base = buildProjectBase(credential);
-        const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${discussionId}`;
+        const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${encodeURIComponent(discussionId)}`;
         return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
 }
