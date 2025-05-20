@@ -198,6 +198,21 @@ The credentials' <code>server</code> field specifies your GitLab instance host (
 
 This package requires n8n version 1.0.0 or later and is tested on Node.js 20.
 
+## Development
+
+Install dependencies with `npm install` and ensure the `n8n-workflow` peer is installed:
+
+```bash
+npm install
+npm install n8n-workflow
+```
+
+Run the tests with:
+
+```bash
+npm test
+```
+
 ## Tool usage for AI
 
 The node is marked with `usableAsTool: true`, so it can be invoked by n8n's AI
