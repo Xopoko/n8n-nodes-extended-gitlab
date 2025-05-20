@@ -288,12 +288,12 @@ test('getNote builds correct endpoint', async () => {
 
 test('updateNote builds correct endpoint and body', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'updateNote', mergeRequestIid: 19, discussionId: 'd5', noteId: 6, body: 'edit' });
+  const ctx = createContext({ resource: 'mergeRequest', operation: 'updateNote', mergeRequestIid: 19, noteId: 6, body: 'edit' });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'PUT');
   assert.strictEqual(
     ctx.calls.options.uri,
-    'https://gitlab.example.com/api/v4/projects/1/merge_requests/19/discussions/d5/notes/6'
+    'https://gitlab.example.com/api/v4/projects/1/merge_requests/19/notes/6'
   );
   assert.deepStrictEqual(ctx.calls.options.body, { body: 'edit' });
 });

@@ -111,15 +111,14 @@ export async function handleMergeRequest(
                         }
                         endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes`;
                 }
-        } else if (operation === 'updateNote') {
-                requestMethod = 'PUT';
-                const discussionId = this.getNodeParameter('discussionId', itemIndex);
-                const noteId = this.getNodeParameter('noteId', itemIndex) as number;
-                requirePositive.call(this, noteId, 'noteId', itemIndex);
-                body.body = this.getNodeParameter('body', itemIndex);
-                const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
-                requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
-                endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
+       } else if (operation === 'updateNote') {
+               requestMethod = 'PUT';
+               const noteId = this.getNodeParameter('noteId', itemIndex) as number;
+               requirePositive.call(this, noteId, 'noteId', itemIndex);
+               body.body = this.getNodeParameter('body', itemIndex);
+               const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
+               requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
+               endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
         } else if (operation === 'getChanges') {
                 requestMethod = 'GET';
                 const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
