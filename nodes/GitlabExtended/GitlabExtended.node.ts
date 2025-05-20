@@ -8,7 +8,12 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
-import { gitlabApiRequest, gitlabApiRequestAllItems, buildProjectBase } from './GenericFunctions';
+import {
+        gitlabApiRequest,
+        gitlabApiRequestAllItems,
+        buildProjectBase,
+        assertValidProjectCredentials,
+} from './GenericFunctions';
 import { requirePositive } from './validators';
 import { handleBranch } from './resources/branch';
 import { handlePipeline } from './resources/pipeline';
@@ -958,18 +963,8 @@ export class GitlabExtended implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const operation = this.getNodeParameter('operation', 0);
 		const resource = this.getNodeParameter('resource', 0);
-		const credential = await this.getCredentials('gitlabExtendedApi');
-
-		if (!credential.projectId) {
-			const owner = credential.projectOwner as string;
-			const name = credential.projectName as string;
-			if (!owner || !name) {
-				throw new NodeOperationError(
-					this.getNode(),
-					'Credentials must include either projectId or both projectOwner and projectName',
-				);
-			}
-		}
+                const credential = await this.getCredentials('gitlabExtendedApi');
+                assertValidProjectCredentials.call(this, credential);
 
 		const base = buildProjectBase(credential);
 
