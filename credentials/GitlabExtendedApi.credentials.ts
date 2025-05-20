@@ -65,10 +65,10 @@ export class GitlabExtendedApi implements ICredentialType {
 		},
 	};
 
-	test: ICredentialTestRequest = {
-		request: {
-			baseURL: '={{$credentials.server.replace(new RegExp("/$"), "") + "/api/v4" }}',
-			url: '/personal_access_tokens/self',
-		},
-	};
+        test: ICredentialTestRequest = {
+                request: {
+                        baseURL: '={{$credentials.server.replace(new RegExp("/$"), "") + "/api/v4" }}',
+                        url: '/user',
+                },
+        };
 }
