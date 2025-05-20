@@ -1,6 +1,6 @@
 # n8n-nodes-extended-gitlab
 
-This package provides an extended GitLab node for [n8n](https://n8n.io). It allows you to perform additional GitLab operations in your workflows.
+This package provides an extended GitLab node for [n8n](https://n8n.io). It expands the built-in GitLab integration with many additional API operations.
 
 ## Installation
 
@@ -9,6 +9,15 @@ Follow the [community node installation guide](https://docs.n8n.io/integrations/
 ```bash
 npm install n8n-nodes-extended-gitlab
 ```
+
+## Usage
+
+1. Install the package through **Community Nodes** in the n8n settings or run `npm install n8n-nodes-extended-gitlab` in your n8n directory.
+2. Create **Gitlab Extended API** credentials providing your server URL, personal access token and default project ID.
+3. Drop the **Gitlab Extended** node into a workflow and select your credentials.
+4. Pick a resource and operation, then fill in the required fields.
+
+For example, choose `pipeline` and `getAll` to list all pipelines in your project.
 
 ## Operations
 
