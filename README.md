@@ -89,7 +89,7 @@ one of its operations.
 - `getAll` – List merge requests
 - `createNote` – Add a note
 - `postDiscussionNote` – Reply or start a discussion
-- `updateNote` – Update a note
+- `updateNote` – Update a note by ID
 - `deleteNote` – Delete a note
 - `getNote` – Get a note
 - `getChanges` – Get merge request changes
