@@ -53,12 +53,17 @@ export async function gitlabApiRequest(
         }
         const baseUrl = `${host}/api/v4`;
 
-	try {
-		options.uri = `${baseUrl}${endpoint}`;
-		return await this.helpers.requestWithAuthentication.call(this, 'gitlabExtendedApi', options);
-	} catch (error) {
-		throw new NodeApiError(this.getNode(), error as JsonObject);
-	}
+        try {
+                options.uri = `${baseUrl}${endpoint}`;
+                return await this.helpers.requestWithAuthentication.call(this, 'gitlabExtendedApi', options);
+        } catch (error) {
+                let description;
+                const responseData = (error as JsonObject as { response?: { data?: unknown } }).response?.data;
+                if (responseData !== undefined) {
+                        description = typeof responseData === 'string' ? responseData : JSON.stringify(responseData);
+                }
+                throw new NodeApiError(this.getNode(), error as JsonObject, { description });
+        }
 }
 
 /**
