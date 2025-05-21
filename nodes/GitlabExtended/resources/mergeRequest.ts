@@ -114,10 +114,19 @@ export async function handleMergeRequest(
                const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
                requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
                endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
-        } else if (operation === 'getChanges') {
-                requestMethod = 'GET';
-                const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
-                requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
+       } else if (operation === 'updateDiscussionNote') {
+               requestMethod = 'PUT';
+               const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
+               requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
+               const discussionId = this.getNodeParameter('discussionId', itemIndex);
+               const noteId = this.getNodeParameter('noteId', itemIndex) as number;
+               requirePositive.call(this, noteId, 'noteId', itemIndex);
+               body.body = this.getNodeParameter('body', itemIndex);
+               endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
+       } else if (operation === 'getChanges') {
+               requestMethod = 'GET';
+               const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
+               requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
                 endpoint = `${base}/merge_requests/${iid}/changes`;
         } else if (operation === 'getDiscussions') {
                 requestMethod = 'GET';

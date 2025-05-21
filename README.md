@@ -99,6 +99,7 @@ one of its operations.
 - `createNote` – Add a note
 - `postDiscussionNote` – Reply or start a discussion
 - `updateNote` – Update a note by ID
+- `updateDiscussionNote` – Update a note in a discussion
 - `deleteNote` – Delete a note
 - `getNote` – Get a note
 - `getChanges` – Get merge request changes
