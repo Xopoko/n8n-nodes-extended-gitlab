@@ -1,36 +1,25 @@
 import assert from 'node:assert';
 import test from 'node:test';
 import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
+import createContext from './helpers/createContext.js';
 
-function createContext(params) {
-  const calls = {};
-  return {
-    calls,
-    getInputData() { return [{ json: {} }]; },
-    getNodeParameter(name, _index, defaultValue) {
-      if (!calls.params) calls.params = [];
-      calls.params.push(name);
-      if (Object.prototype.hasOwnProperty.call(params, name)) {
-        return params[name];
-      }
-      if (defaultValue !== undefined) return defaultValue;
-      throw new Error(`Could not get parameter ${name}`);
-    },
-    async getCredentials() {
-      return { server: 'https://gitlab.example.com', accessToken: 't', projectId: 1 };
-    },
-    helpers: {
-      async requestWithAuthentication(name, options) { calls.options = options; return {}; },
-      constructExecutionMetaData(data) { return data; },
-      returnJsonArray(data) { return [{ json: data }]; },
-    },
-    getNode() { return {}; },
+function createTrackedContext(params) {
+  const ctx = createContext(params);
+  ctx.getNodeParameter = (name, _index, defaultValue) => {
+    if (!ctx.calls.params) ctx.calls.params = [];
+    ctx.calls.params.push(name);
+    if (Object.prototype.hasOwnProperty.call(params, name)) {
+      return params[name];
+    }
+    if (defaultValue !== undefined) return defaultValue;
+    throw new Error(`Could not get parameter ${name}`);
   };
+  return ctx;
 }
 
 test('merge builds correct endpoint and body', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({
+  const ctx = createTrackedContext({
     resource: 'mergeRequest',
     operation: 'merge',
     mergeRequestIid: 10,
@@ -51,7 +40,7 @@ test('merge builds correct endpoint and body', async () => {
 
 test('rebase builds correct endpoint with skip_ci', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({
+  const ctx = createTrackedContext({
     resource: 'mergeRequest',
     operation: 'rebase',
     mergeRequestIid: 7,
@@ -68,7 +57,7 @@ test('rebase builds correct endpoint with skip_ci', async () => {
 
 test('close builds correct endpoint', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'close', mergeRequestIid: 2 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'close', mergeRequestIid: 2 });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'PUT');
   assert.strictEqual(
@@ -80,7 +69,7 @@ test('close builds correct endpoint', async () => {
 
 test('reopen builds correct endpoint', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'reopen', mergeRequestIid: 3 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'reopen', mergeRequestIid: 3 });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'PUT');
   assert.strictEqual(
@@ -92,7 +81,7 @@ test('reopen builds correct endpoint', async () => {
 
 test('postDiscussionNote works without suggestion parameters', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({
+  const ctx = createTrackedContext({
     resource: 'mergeRequest',
     operation: 'postDiscussionNote',
     mergeRequestIid: 11,
@@ -111,7 +100,7 @@ test('postDiscussionNote works without suggestion parameters', async () => {
 
 test('postDiscussionNote builds suggestion with position', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({
+  const ctx = createTrackedContext({
     resource: 'mergeRequest',
     operation: 'postDiscussionNote',
     mergeRequestIid: 12,
@@ -151,7 +140,7 @@ test('postDiscussionNote builds suggestion with position', async () => {
 
 test('get builds correct endpoint', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'get', mergeRequestIid: 1 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'get', mergeRequestIid: 1 });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'GET');
   assert.strictEqual(
@@ -162,7 +151,7 @@ test('get builds correct endpoint', async () => {
 
 test('getAll builds correct endpoint with limit', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'getAll', returnAll: false, limit: 3 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'getAll', returnAll: false, limit: 3 });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'GET');
   assert.strictEqual(
@@ -174,7 +163,7 @@ test('getAll builds correct endpoint with limit', async () => {
 
 test('getAll builds correct endpoint when returnAll true', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'getAll', returnAll: true });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'getAll', returnAll: true });
   ctx.helpers.requestWithAuthentication = async (name, options) => {
     ctx.calls.options = JSON.parse(JSON.stringify(options));
     return { body: [], headers: { 'x-next-page': '' } };
@@ -191,7 +180,7 @@ test('getAll builds correct endpoint when returnAll true', async () => {
 
 test('getChanges builds correct endpoint', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'getChanges', mergeRequestIid: 11 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'getChanges', mergeRequestIid: 11 });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'GET');
   assert.strictEqual(
@@ -202,7 +191,7 @@ test('getChanges builds correct endpoint', async () => {
 
 test('getDiscussions builds correct endpoint with limit', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'getDiscussions', mergeRequestIid: 12, returnAll: false, limit: 2 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'getDiscussions', mergeRequestIid: 12, returnAll: false, limit: 2 });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'GET');
   assert.strictEqual(
@@ -214,7 +203,7 @@ test('getDiscussions builds correct endpoint with limit', async () => {
 
 test('getDiscussions builds correct endpoint when returnAll true', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'getDiscussions', mergeRequestIid: 13, returnAll: true });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'getDiscussions', mergeRequestIid: 13, returnAll: true });
   ctx.helpers.requestWithAuthentication = async (name, options) => {
     ctx.calls.options = JSON.parse(JSON.stringify(options));
     return { body: [], headers: { 'x-next-page': '' } };
@@ -231,7 +220,7 @@ test('getDiscussions builds correct endpoint when returnAll true', async () => {
 
 test('getDiscussion builds correct endpoint', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'getDiscussion', mergeRequestIid: 14, discussionId: 'd1' });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'getDiscussion', mergeRequestIid: 14, discussionId: 'd1' });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'GET');
   assert.strictEqual(
@@ -242,7 +231,7 @@ test('getDiscussion builds correct endpoint', async () => {
 
 test('updateDiscussion builds correct endpoint and body', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'updateDiscussion', mergeRequestIid: 15, discussionId: 'd2', resolved: true });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'updateDiscussion', mergeRequestIid: 15, discussionId: 'd2', resolved: true });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'PUT');
   assert.strictEqual(
@@ -254,7 +243,7 @@ test('updateDiscussion builds correct endpoint and body', async () => {
 
 test('resolveDiscussion builds correct endpoint and body', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'resolveDiscussion', mergeRequestIid: 16, discussionId: 'd3', resolved: false });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'resolveDiscussion', mergeRequestIid: 16, discussionId: 'd3', resolved: false });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'PUT');
   assert.strictEqual(
@@ -266,7 +255,7 @@ test('resolveDiscussion builds correct endpoint and body', async () => {
 
 test('deleteDiscussion builds correct endpoint', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'deleteDiscussion', mergeRequestIid: 17, discussionId: 'd4' });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'deleteDiscussion', mergeRequestIid: 17, discussionId: 'd4' });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'DELETE');
   assert.strictEqual(
@@ -277,7 +266,7 @@ test('deleteDiscussion builds correct endpoint', async () => {
 
 test('getNote builds correct endpoint', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'getNote', mergeRequestIid: 18, noteId: 5 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'getNote', mergeRequestIid: 18, noteId: 5 });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'GET');
   assert.strictEqual(
@@ -288,7 +277,7 @@ test('getNote builds correct endpoint', async () => {
 
 test('updateNote builds correct endpoint and body', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'updateNote', mergeRequestIid: 19, noteId: 6, body: 'edit' });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'updateNote', mergeRequestIid: 19, noteId: 6, body: 'edit' });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'PUT');
   assert.strictEqual(
@@ -300,7 +289,7 @@ test('updateNote builds correct endpoint and body', async () => {
 
 test('deleteNote builds correct endpoint', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'deleteNote', mergeRequestIid: 20, noteId: 7 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'deleteNote', mergeRequestIid: 20, noteId: 7 });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'DELETE');
   assert.strictEqual(
@@ -311,7 +300,7 @@ test('deleteNote builds correct endpoint', async () => {
 
 test('labels add builds correct body', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'labels', mergeRequestIid: 21, labels: 'bug,urgent', labelAction: 'add' });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'labels', mergeRequestIid: 21, labels: 'bug,urgent', labelAction: 'add' });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'PUT');
   assert.strictEqual(
@@ -323,7 +312,7 @@ test('labels add builds correct body', async () => {
 
 test('labels remove builds correct body', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'labels', mergeRequestIid: 22, labels: 'bug,urgent', labelAction: 'remove' });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'labels', mergeRequestIid: 22, labels: 'bug,urgent', labelAction: 'remove' });
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'PUT');
   assert.strictEqual(
@@ -335,7 +324,7 @@ test('labels remove builds correct body', async () => {
 
 test('postDiscussionNote throws if discussionId missing when not starting discussion', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({
+  const ctx = createTrackedContext({
     resource: 'mergeRequest',
     operation: 'postDiscussionNote',
     mergeRequestIid: 23,
@@ -351,7 +340,7 @@ test('postDiscussionNote throws if discussionId missing when not starting discus
 
 test('postDiscussionNote throws on negative oldLine', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({
+  const ctx = createTrackedContext({
     resource: 'mergeRequest',
     operation: 'postDiscussionNote',
     mergeRequestIid: 24,
@@ -375,6 +364,6 @@ test('postDiscussionNote throws on negative oldLine', async () => {
 
 test('get throws on invalid mergeRequestIid', async () => {
   const node = new GitlabExtended();
-  const ctx = createContext({ resource: 'mergeRequest', operation: 'get', mergeRequestIid: 0 });
+  const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'get', mergeRequestIid: 0 });
   await assert.rejects(() => node.execute.call(ctx), /mergeRequestIid must be a positive number/);
 });
