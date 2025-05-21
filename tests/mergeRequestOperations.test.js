@@ -287,6 +287,25 @@ test('updateNote builds correct endpoint and body', async () => {
   assert.deepStrictEqual(ctx.calls.options.body, { body: 'edit' });
 });
 
+test('updateDiscussionNote builds correct endpoint and body', async () => {
+  const node = new GitlabExtended();
+  const ctx = createTrackedContext({
+    resource: 'mergeRequest',
+    operation: 'updateDiscussionNote',
+    mergeRequestIid: 25,
+    discussionId: 'd5',
+    noteId: 8,
+    body: 'fix',
+  });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'PUT');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/merge_requests/25/discussions/d5/notes/8'
+  );
+  assert.deepStrictEqual(ctx.calls.options.body, { body: 'fix' });
+});
+
 test('deleteNote builds correct endpoint', async () => {
   const node = new GitlabExtended();
   const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'deleteNote', mergeRequestIid: 20, noteId: 7 });
