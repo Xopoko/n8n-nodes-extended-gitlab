@@ -9,10 +9,10 @@ import type {
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
 import {
-        gitlabApiRequest,
-        gitlabApiRequestAllItems,
-        buildProjectBase,
-        assertValidProjectCredentials,
+	gitlabApiRequest,
+	gitlabApiRequestAllItems,
+	buildProjectBase,
+	assertValidProjectCredentials,
 } from './GenericFunctions';
 import { requirePositive } from './validators';
 import { handleBranch } from './resources/branch';
@@ -225,12 +225,16 @@ export class GitlabExtended implements INodeType {
 						value: 'resolveDiscussion',
 						action: 'Resolve a discussion',
 					},
-                                        { name: 'Update Discussion', value: 'updateDiscussion', action: 'Update a discussion' },
-                                        { name: 'Update Discussion Note', value: 'updateDiscussionNote', action: 'Update a discussion note' },
-                                        { name: 'Update Note', value: 'updateNote', action: 'Update a note' },
-                                ],
-                                default: 'create',
-                        },
+					{ name: 'Update Discussion', value: 'updateDiscussion', action: 'Update a discussion' },
+					{
+						name: 'Update Discussion Note',
+						value: 'updateDiscussionNote',
+						action: 'Update a discussion note',
+					},
+					{ name: 'Update Note', value: 'updateNote', action: 'Update a note' },
+				],
+				default: 'create',
+			},
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -250,32 +254,24 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['branch'],
-                                                operation: [
-                                                        'create',
-                                                        'get',
-                                                        'delete',
-                                                        'rename',
-                                                        'protect',
-                                                        'unprotect',
-                                                        'merge',
-                                                ],
-                                        },
-                                },
-                                description: "Branch name, for example 'feature/login'",
-                                default: '',
-                        },
-                        {
-                                displayName: 'Branch',
-                                name: 'branch',
-                                type: 'string',
-                                displayOptions: { show: { resource: ['branch'], operation: ['getAll'] } },
-                                description: "Branch name, for example 'feature/login'",
-                                default: '',
-                        },
-                        {
-                                displayName: 'New Branch',
-                                name: 'newBranch',
-                                type: 'string',
+						operation: ['create', 'get', 'delete', 'rename', 'protect', 'unprotect', 'merge'],
+					},
+				},
+				description: "Branch name, for example 'feature/login'",
+				default: '',
+			},
+			{
+				displayName: 'Branch',
+				name: 'branch',
+				type: 'string',
+				displayOptions: { show: { resource: ['branch'], operation: ['getAll'] } },
+				description: "Branch name, for example 'feature/login'",
+				default: '',
+			},
+			{
+				displayName: 'New Branch',
+				name: 'newBranch',
+				type: 'string',
 				required: true,
 				displayOptions: { show: { resource: ['branch'], operation: ['rename'] } },
 				description: 'New branch name',
@@ -630,24 +626,24 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-                                                operation: [
-                                                        'createNote',
-                                                        'deleteDiscussion',
-                                                        'deleteNote',
-                                                        'get',
-                                                        'getChanges',
-                                                        'getDiscussion',
-                                                        'getDiscussions',
-                                                        'getNote',
-                                                        'labels',
-                                                        'postDiscussionNote',
-                                                        'resolveDiscussion',
-                                                        'updateDiscussion',
-                                                        'updateNote',
-                                                        'updateDiscussionNote',
-                                                ],
-                                        },
-                                },
+						operation: [
+							'createNote',
+							'deleteDiscussion',
+							'deleteNote',
+							'get',
+							'getChanges',
+							'getDiscussion',
+							'getDiscussions',
+							'getNote',
+							'labels',
+							'postDiscussionNote',
+							'resolveDiscussion',
+							'updateDiscussion',
+							'updateNote',
+							'updateDiscussionNote',
+						],
+					},
+				},
 				description: 'The merge request IID (must be positive)',
 				default: 1,
 			},
@@ -689,7 +685,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-                                                operation: ['createNote', 'postDiscussionNote', 'updateNote', 'updateDiscussionNote'],
+						operation: ['createNote', 'postDiscussionNote', 'updateNote', 'updateDiscussionNote'],
 					},
 				},
 				description: "Note text, e.g. 'Looks good to me'",
@@ -720,11 +716,11 @@ export class GitlabExtended implements INodeType {
 							'deleteDiscussion',
 							'getDiscussion',
 							'postDiscussionNote',
-                                                        'resolveDiscussion',
-                                                        'updateDiscussion',
-                                                        'updateDiscussionNote',
-                                                ],
-                                        },
+							'resolveDiscussion',
+							'updateDiscussion',
+							'updateDiscussionNote',
+						],
+					},
 					hide: {
 						startDiscussion: [true],
 					},
@@ -753,10 +749,10 @@ export class GitlabExtended implements INodeType {
 				typeOptions: { minValue: 1 },
 				displayOptions: {
 					show: {
-                                                resource: ['mergeRequest'],
-                                                operation: ['deleteNote', 'getNote', 'updateNote', 'updateDiscussionNote'],
-                                        },
-                                },
+						resource: ['mergeRequest'],
+						operation: ['deleteNote', 'getNote', 'updateNote', 'updateDiscussionNote'],
+					},
+				},
 				description: 'Existing note ID (must be positive)',
 				default: 1,
 			},
@@ -973,8 +969,8 @@ export class GitlabExtended implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const operation = this.getNodeParameter('operation', 0);
 		const resource = this.getNodeParameter('resource', 0);
-                const credential = await this.getCredentials('gitlabExtendedApi');
-                assertValidProjectCredentials.call(this, credential);
+		const credential = await this.getCredentials('gitlabExtendedApi');
+		assertValidProjectCredentials.call(this, credential);
 
 		const base = buildProjectBase(credential);
 

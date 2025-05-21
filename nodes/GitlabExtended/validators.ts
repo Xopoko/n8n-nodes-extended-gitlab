@@ -25,6 +25,8 @@ export function requirePositive(
 	itemIndex: number,
 ): void {
 	if (value <= 0) {
-		throw new NodeOperationError(this.getNode(), `${field} must be a positive number`, { itemIndex });
+		throw new NodeOperationError(this.getNode(), `${field} must be a positive number`, {
+			itemIndex,
+		});
 	}
 }
