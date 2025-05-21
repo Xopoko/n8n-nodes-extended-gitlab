@@ -1,69 +1,71 @@
 import type {
-        IDataObject,
-        IExecuteFunctions,
-        INodeExecutionData,
-        IHttpRequestMethods,
+	IDataObject,
+	IExecuteFunctions,
+	INodeExecutionData,
+	IHttpRequestMethods,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import {
-        gitlabApiRequest,
-        gitlabApiRequestAllItems,
-        buildProjectBase,
-        assertValidProjectCredentials,
+	gitlabApiRequest,
+	gitlabApiRequestAllItems,
+	buildProjectBase,
+	assertValidProjectCredentials,
 } from '../GenericFunctions';
 
 export async function handleFile(
-        this: IExecuteFunctions,
-        itemIndex: number,
+	this: IExecuteFunctions,
+	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
-        const operation = this.getNodeParameter('operation', itemIndex);
-        const credential = await this.getCredentials('gitlabExtendedApi');
-        assertValidProjectCredentials.call(this, credential);
+	const operation = this.getNodeParameter('operation', itemIndex);
+	const credential = await this.getCredentials('gitlabExtendedApi');
+	assertValidProjectCredentials.call(this, credential);
 
-        const base = buildProjectBase(credential);
+	const base = buildProjectBase(credential);
 
-        let requestMethod: IHttpRequestMethods = 'GET';
-        let endpoint = '';
-        let body: IDataObject = {};
-        let qs: IDataObject = {};
-        let returnAll = false;
+	let requestMethod: IHttpRequestMethods = 'GET';
+	let endpoint = '';
+	let body: IDataObject = {};
+	let qs: IDataObject = {};
+	let returnAll = false;
 
-        if (operation === 'get') {
-                requestMethod = 'GET';
-                const path = this.getNodeParameter('path', itemIndex);
-                qs.ref = this.getNodeParameter('fileRef', itemIndex);
-                endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
-        } else if (operation === 'list') {
-                requestMethod = 'GET';
-                const path = this.getNodeParameter('path', itemIndex);
-                qs.ref = this.getNodeParameter('fileRef', itemIndex);
-                returnAll = this.getNodeParameter('returnAll', itemIndex);
-                if (!returnAll) qs.per_page = this.getNodeParameter('limit', itemIndex);
-                if (path) qs.path = path;
-                endpoint = `${base}/repository/tree`;
-        } else if (operation === 'create' || operation === 'update') {
-                requestMethod = operation === 'create' ? 'POST' : 'PUT';
-                const path = this.getNodeParameter('path', itemIndex);
-                body.branch = this.getNodeParameter('fileBranch', itemIndex);
-                body.commit_message = this.getNodeParameter('commitMessage', itemIndex);
-                body.content = this.getNodeParameter('fileContent', itemIndex);
-                endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
-        } else if (operation === 'delete') {
-                requestMethod = 'DELETE';
-                const path = this.getNodeParameter('path', itemIndex);
-                body.branch = this.getNodeParameter('fileBranch', itemIndex);
-                body.commit_message = this.getNodeParameter('commitMessage', itemIndex);
-                endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
-        } else {
-                throw new NodeOperationError(this.getNode(), `The operation "${operation}" is not supported.`, { itemIndex });
-        }
+	if (operation === 'get') {
+		requestMethod = 'GET';
+		const path = this.getNodeParameter('path', itemIndex);
+		qs.ref = this.getNodeParameter('fileRef', itemIndex);
+		endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
+	} else if (operation === 'list') {
+		requestMethod = 'GET';
+		const path = this.getNodeParameter('path', itemIndex);
+		qs.ref = this.getNodeParameter('fileRef', itemIndex);
+		returnAll = this.getNodeParameter('returnAll', itemIndex);
+		if (!returnAll) qs.per_page = this.getNodeParameter('limit', itemIndex);
+		if (path) qs.path = path;
+		endpoint = `${base}/repository/tree`;
+	} else if (operation === 'create' || operation === 'update') {
+		requestMethod = operation === 'create' ? 'POST' : 'PUT';
+		const path = this.getNodeParameter('path', itemIndex);
+		body.branch = this.getNodeParameter('fileBranch', itemIndex);
+		body.commit_message = this.getNodeParameter('commitMessage', itemIndex);
+		body.content = this.getNodeParameter('fileContent', itemIndex);
+		endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
+	} else if (operation === 'delete') {
+		requestMethod = 'DELETE';
+		const path = this.getNodeParameter('path', itemIndex);
+		body.branch = this.getNodeParameter('fileBranch', itemIndex);
+		body.commit_message = this.getNodeParameter('commitMessage', itemIndex);
+		endpoint = `${base}/repository/files/${encodeURIComponent(path as string)}`;
+	} else {
+		throw new NodeOperationError(this.getNode(), `The operation "${operation}" is not supported.`, {
+			itemIndex,
+		});
+	}
 
-        const response = returnAll
-                ? await gitlabApiRequestAllItems.call(this, requestMethod, endpoint, body, qs)
-                : await gitlabApiRequest.call(this, requestMethod, endpoint, body, qs);
+	const response = returnAll
+		? await gitlabApiRequestAllItems.call(this, requestMethod, endpoint, body, qs)
+		: await gitlabApiRequest.call(this, requestMethod, endpoint, body, qs);
 
-        return this.helpers.constructExecutionMetaData(
-                this.helpers.returnJsonArray(response as IDataObject),
-                { itemData: { item: itemIndex } },
-        );
+	return this.helpers.constructExecutionMetaData(
+		this.helpers.returnJsonArray(response as IDataObject),
+		{ itemData: { item: itemIndex } },
+	);
 }

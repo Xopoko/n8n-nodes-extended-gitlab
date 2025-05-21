@@ -43,32 +43,32 @@ export async function gitlabApiRequest(
 		delete options.qs;
 	}
 
-        const credential = await this.getCredentials('gitlabExtendedApi');
-        const server = credential.server as string | undefined;
-        if (!server) {
-                throw new NodeOperationError(this.getNode(), 'GitLab server URL is missing in credentials');
-        }
-        const host = server.replace(/\/$/, '');
-        if (!credential.accessToken) {
-                throw new NodeOperationError(this.getNode(), 'Access token is missing in GitLab credentials');
-        }
-        const baseUrl = `${host}/api/v4`;
+	const credential = await this.getCredentials('gitlabExtendedApi');
+	const server = credential.server as string | undefined;
+	if (!server) {
+		throw new NodeOperationError(this.getNode(), 'GitLab server URL is missing in credentials');
+	}
+	const host = server.replace(/\/$/, '');
+	if (!credential.accessToken) {
+		throw new NodeOperationError(this.getNode(), 'Access token is missing in GitLab credentials');
+	}
+	const baseUrl = `${host}/api/v4`;
 
-       try {
-               options.uri = `${baseUrl}${endpoint}`;
-               return await this.helpers.requestWithAuthentication.call(this, 'gitlabExtendedApi', options);
-       } catch (error) {
-               let description;
-               let message: string | undefined;
-               const responseData = (error as JsonObject as { response?: { data?: unknown } }).response?.data;
-               if (responseData !== undefined) {
-                       description = typeof responseData === 'string' ? responseData : JSON.stringify(responseData);
-                       message = description;
-               } else {
-                       message = (error as Error).message;
-               }
-               throw new NodeApiError(this.getNode(), error as JsonObject, { message, description });
-       }
+	try {
+		options.uri = `${baseUrl}${endpoint}`;
+		return await this.helpers.requestWithAuthentication.call(this, 'gitlabExtendedApi', options);
+	} catch (error) {
+		let description;
+		let message: string | undefined;
+		const responseData = (error as JsonObject as { response?: { data?: unknown } }).response?.data;
+		if (responseData !== undefined) {
+			description = typeof responseData === 'string' ? responseData : JSON.stringify(responseData);
+			message = description;
+		} else {
+			message = (error as Error).message;
+		}
+		throw new NodeApiError(this.getNode(), error as JsonObject, { message, description });
+	}
 }
 
 /**
@@ -101,8 +101,8 @@ export async function gitlabApiRequestAllItems(
 		});
 		query.page++;
 		returnData.push.apply(returnData, responseData.body as IDataObject[]);
-        } while (responseData.headers['x-next-page']);
-        return returnData;
+	} while (responseData.headers['x-next-page']);
+	return returnData;
 }
 
 /**
@@ -112,30 +112,30 @@ export async function gitlabApiRequestAllItems(
  * @returns {string} The base URL for the project
  */
 export function buildProjectBase(cred: IDataObject): string {
-        return cred.projectId
-                ? `/projects/${cred.projectId}`
-                : `/projects/${encodeURIComponent(cred.projectOwner as string)}%2F${encodeURIComponent(
-                                cred.projectName as string,
-                        )}`;
+	return cred.projectId
+		? `/projects/${cred.projectId}`
+		: `/projects/${encodeURIComponent(cred.projectOwner as string)}%2F${encodeURIComponent(
+				cred.projectName as string,
+			)}`;
 }
 
 /**
  * Ensure credentials contain enough information to identify a project.
  */
 export function assertValidProjectCredentials(
-        this: IHookFunctions | IExecuteFunctions,
-        cred: IDataObject,
+	this: IHookFunctions | IExecuteFunctions,
+	cred: IDataObject,
 ): void {
-        if (!cred.projectId) {
-                const owner = cred.projectOwner as string;
-                const name = cred.projectName as string;
-                if (!owner || !name) {
-                        throw new NodeOperationError(
-                                this.getNode(),
-                                'Credentials must include either projectId or both projectOwner and projectName',
-                        );
-                }
-        }
+	if (!cred.projectId) {
+		const owner = cred.projectOwner as string;
+		const name = cred.projectName as string;
+		if (!owner || !name) {
+			throw new NodeOperationError(
+				this.getNode(),
+				'Credentials must include either projectId or both projectOwner and projectName',
+			);
+		}
+	}
 }
 
 /**
@@ -148,16 +148,16 @@ export function assertValidProjectCredentials(
  * @returns {Promise<any>} The response from the API
  */
 export async function getMergeRequestDiscussion(
-        this: IHookFunctions | IExecuteFunctions,
-        mergeRequestIid: number,
-        discussionId: string,
-        query: IDataObject = {},
+	this: IHookFunctions | IExecuteFunctions,
+	mergeRequestIid: number,
+	discussionId: string,
+	query: IDataObject = {},
 ): Promise<any> {
-        if (mergeRequestIid <= 0) {
-                throw new NodeOperationError(this.getNode(), 'mergeRequestIid must be a positive number');
-        }
-        const credential = await this.getCredentials('gitlabExtendedApi');
-        const base = buildProjectBase(credential);
-        const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${encodeURIComponent(discussionId)}`;
-        return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
+	if (mergeRequestIid <= 0) {
+		throw new NodeOperationError(this.getNode(), 'mergeRequestIid must be a positive number');
+	}
+	const credential = await this.getCredentials('gitlabExtendedApi');
+	const base = buildProjectBase(credential);
+	const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${encodeURIComponent(discussionId)}`;
+	return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
 }
