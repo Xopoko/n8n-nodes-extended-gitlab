@@ -155,3 +155,32 @@ test('delete builds correct endpoint', async () => {
     'https://gitlab.example.com/api/v4/projects/1/repository/branches/obsolete',
   );
 });
+
+test('checkout builds correct endpoint', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({ resource: 'branch', operation: 'checkout', ref: 'main' });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'GET');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/repository/archive'
+  );
+  assert.strictEqual(ctx.calls.options.qs.sha, 'main');
+});
+
+test('applyPatch builds correct endpoint and body', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({
+    resource: 'branch',
+    operation: 'applyPatch',
+    branch: 'main',
+    patch: 'diff --git a/a b/a',
+  });
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'POST');
+  assert.strictEqual(
+    ctx.calls.options.uri,
+    'https://gitlab.example.com/api/v4/projects/1/apply_patch'
+  );
+  assert.deepStrictEqual(ctx.calls.options.body, { branch: 'main', patch: 'diff --git a/a b/a' });
+});

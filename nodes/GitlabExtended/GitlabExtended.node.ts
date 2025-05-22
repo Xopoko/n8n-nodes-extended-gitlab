@@ -286,6 +286,15 @@ export class GitlabExtended implements INodeType {
 				description: 'Target branch to merge into',
 				default: '',
 			},
+                        {
+                                displayName: 'Patch',
+                                name: 'patch',
+                                type: 'string',
+                                required: true,
+                                displayOptions: { show: { resource: ['branch'], operation: ['applyPatch'] } },
+                                description: 'Patch text to apply',
+                                default: ''
+                        },
 			{
 				displayName: 'Developers Can Push',
 				name: 'developersCanPush',
@@ -310,7 +319,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['branch', 'file', 'tag'],
-						operation: ['create', 'get', 'list'],
+						operation: ['create', 'get', 'list', 'checkout'],
 					},
 				},
 				description:
