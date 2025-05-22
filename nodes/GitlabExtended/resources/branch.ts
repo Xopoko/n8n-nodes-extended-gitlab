@@ -85,6 +85,30 @@ export async function handleBranch(
 		body.source_branch = branch;
 		body.target_branch = target;
 		endpoint = `${base}/repository/merges`;
+	} else if (operation === 'checkout') {
+		requestMethod = 'GET';
+		const ref = this.getNodeParameter('ref', itemIndex) as string;
+		requireString.call(this, ref, 'ref', itemIndex);
+		qs.sha = ref;
+		endpoint = `${base}/repository/archive`;
+	} else if (operation === 'applyPatch') {
+		requestMethod = 'POST';
+		const branch = this.getNodeParameter('branch', itemIndex) as string;
+		const patch = this.getNodeParameter('patch', itemIndex) as string;
+		requireString.call(this, branch, 'branch', itemIndex);
+		requireString.call(this, patch, 'patch', itemIndex);
+		body.branch = branch;
+		body.patch = patch;
+		endpoint = `${base}/apply_patch`;
+	} else if (operation === 'resetHard') {
+		requestMethod = 'POST';
+		const branch = this.getNodeParameter('branch', itemIndex) as string;
+		const ref = this.getNodeParameter('ref', itemIndex) as string;
+		requireString.call(this, branch, 'branch', itemIndex);
+		requireString.call(this, ref, 'ref', itemIndex);
+		body.reset_type = 'hard';
+		body.ref = ref;
+		endpoint = `${base}/repository/branches/${encodeURIComponent(branch)}/reset`;
 	} else {
 		throw new NodeOperationError(this.getNode(), `The operation "${operation}" is not supported.`, {
 			itemIndex,
