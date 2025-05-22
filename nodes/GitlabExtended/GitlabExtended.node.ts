@@ -254,7 +254,17 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['branch'],
-						operation: ['create', 'get', 'delete', 'rename', 'protect', 'unprotect', 'merge'],
+						operation: [
+							'create',
+							'get',
+							'delete',
+							'rename',
+							'protect',
+							'unprotect',
+							'merge',
+							'applyPatch',
+							'resetHard',
+						],
 					},
 				},
 				description: "Branch name, for example 'feature/login'",
@@ -287,6 +297,15 @@ export class GitlabExtended implements INodeType {
 				default: '',
 			},
 			{
+				displayName: 'Patch',
+				name: 'patch',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['branch'], operation: ['applyPatch'] } },
+				description: 'Patch text to apply',
+				default: '',
+			},
+			{
 				displayName: 'Developers Can Push',
 				name: 'developersCanPush',
 				type: 'boolean',
@@ -310,7 +329,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['branch', 'file', 'tag'],
-						operation: ['create', 'get', 'list'],
+						operation: ['create', 'get', 'list', 'checkout', 'resetHard'],
 					},
 				},
 				description:
