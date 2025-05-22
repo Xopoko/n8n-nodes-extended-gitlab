@@ -6,7 +6,7 @@ The node surfaces almost the entire GitLab REST API, enabling automation of bran
 
 ## Development Instructions
 
-- Always run `npm test` before committing changes. This command builds the project and executes the unit and lint tests.
+- Always run `npm run format:check`, `npm run lint`, and `npm test` before committing changes. `npm test` builds the project and executes the unit tests.
 - The environment does **not** have internet access after setup. Do not run commands that attempt to fetch packages such as `npm install` or any other network operations.
 - Commands for PHP or Swift are unavailable; avoid `php`, `swift build`, or their respective test commands.
 - Use a project-scoped Personal Access Token with only the scopes required for the agent's role (generally `api`).
