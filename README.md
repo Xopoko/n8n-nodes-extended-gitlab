@@ -167,10 +167,9 @@ required for your chosen operation.
 | `discussionId`       | Discussion ID                                      |
 | `resolved`           | Whether a discussion is resolved                   |
 | `noteId`             | ID of a note (positive)                            |
-| `asSuggestion`       | Format note as suggestion                          |
-| `positionType`       | `text` or `image` suggestion                       |
-| `newPath`/`oldPath`  | File paths for suggestions                         |
-| `newLine`/`oldLine`  | Line numbers for suggestions                       |
+| `positionType`       | `text` or `image` position                         |
+| `newPath`/`oldPath`  | File paths for note position                       |
+| `newLine`/`oldLine`  | Line numbers for note position                     |
 | `baseSha`            | Base commit SHA                                    |
 | `headSha`            | Head commit SHA                                    |
 | `startSha`           | Start commit SHA                                   |

@@ -57,23 +57,30 @@ export async function handleMergeRequest(
 		const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
 		requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
 		const newDiscussion = this.getNodeParameter('startDiscussion', itemIndex, false);
-		const asSuggestion = this.getNodeParameter('asSuggestion', itemIndex, false) as boolean;
-		let note = this.getNodeParameter('body', itemIndex) as string;
-		if (asSuggestion) {
-			note = `\`\`\`suggestion:-0+0\n${note}\n\`\`\``;
-		}
+		const note = this.getNodeParameter('body', itemIndex) as string;
 		body.body = note;
-		if (asSuggestion) {
-			const positionType = this.getNodeParameter('positionType', itemIndex) as string;
-			const newPath = this.getNodeParameter('newPath', itemIndex) as string;
-			const oldPath = this.getNodeParameter('oldPath', itemIndex) as string;
-			const newLine = this.getNodeParameter('newLine', itemIndex) as number;
-			const baseSha = this.getNodeParameter('baseSha', itemIndex) as string;
-			const headSha = this.getNodeParameter('headSha', itemIndex) as string;
-			const startSha = this.getNodeParameter('startSha', itemIndex) as string;
 
+		const positionType = this.getNodeParameter('positionType', itemIndex, '') as string;
+		const newPath = this.getNodeParameter('newPath', itemIndex, '') as string;
+		const oldPath = this.getNodeParameter('oldPath', itemIndex, '') as string;
+		const newLine = this.getNodeParameter('newLine', itemIndex, 1) as number;
+		const baseSha = this.getNodeParameter('baseSha', itemIndex, '') as string;
+		const headSha = this.getNodeParameter('headSha', itemIndex, '') as string;
+		const startSha = this.getNodeParameter('startSha', itemIndex, '') as string;
+		const oldLine = this.getNodeParameter('oldLine', itemIndex, 0) as number;
+
+		const hasPosition =
+			newPath !== '' && oldPath !== '' && baseSha !== '' && headSha !== '' && startSha !== '';
+
+		if (hasPosition) {
+			if (oldLine < 0) {
+				throw new NodeOperationError(
+					this.getNode(),
+					'The "oldLine" parameter must be a non-negative number.',
+				);
+			}
 			const position: IDataObject = {
-				position_type: positionType,
+				position_type: positionType || 'text',
 				new_path: newPath,
 				old_path: oldPath,
 				new_line: newLine,
@@ -81,13 +88,6 @@ export async function handleMergeRequest(
 				head_sha: headSha,
 				start_sha: startSha,
 			};
-			const oldLine = this.getNodeParameter('oldLine', itemIndex, 0) as number;
-			if (oldLine < 0) {
-				throw new NodeOperationError(
-					this.getNode(),
-					'The "oldLine" parameter must be a non-negative number.',
-				);
-			}
 			if (oldLine !== 0) {
 				position.old_line = oldLine;
 			}

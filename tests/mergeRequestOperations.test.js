@@ -79,7 +79,7 @@ test('reopen builds correct endpoint', async () => {
   assert.deepStrictEqual(ctx.calls.options.body, { state_event: 'reopen' });
 });
 
-test('postDiscussionNote works without suggestion parameters', async () => {
+test('postDiscussionNote works without position parameters', async () => {
   const node = new GitlabExtended();
   const ctx = createTrackedContext({
     resource: 'mergeRequest',
@@ -95,10 +95,9 @@ test('postDiscussionNote works without suggestion parameters', async () => {
     'https://gitlab.example.com/api/v4/projects/1/merge_requests/11/discussions'
   );
   assert.deepStrictEqual(ctx.calls.options.body, { body: 'hello' });
-  assert.ok(!ctx.calls.params.includes('positionType'));
 });
 
-test('postDiscussionNote builds suggestion with position', async () => {
+test('postDiscussionNote builds note with position', async () => {
   const node = new GitlabExtended();
   const ctx = createTrackedContext({
     resource: 'mergeRequest',
@@ -106,7 +105,6 @@ test('postDiscussionNote builds suggestion with position', async () => {
     mergeRequestIid: 12,
     body: 'change',
     startDiscussion: true,
-    asSuggestion: true,
     positionType: 'text',
     newPath: 'a.ts',
     oldPath: 'a.ts',
@@ -123,7 +121,7 @@ test('postDiscussionNote builds suggestion with position', async () => {
     'https://gitlab.example.com/api/v4/projects/1/merge_requests/12/discussions'
   );
   assert.deepStrictEqual(ctx.calls.options.body, {
-    body: '```suggestion:-0+0\nchange\n```',
+    body: 'change',
     position: {
       position_type: 'text',
       new_path: 'a.ts',
@@ -365,7 +363,6 @@ test('postDiscussionNote throws on negative oldLine', async () => {
     mergeRequestIid: 24,
     body: 'bad',
     startDiscussion: true,
-    asSuggestion: true,
     positionType: 'text',
     newPath: 'a.ts',
     oldPath: 'a.ts',
