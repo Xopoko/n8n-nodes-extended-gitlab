@@ -21,11 +21,6 @@ import { handleFile } from './resources/file';
 import { handleMergeRequest } from './resources/mergeRequest';
 import { branchOperations } from './operations';
 
-// Define asSuggestionCondition
-const asSuggestionCondition = {
-	asSuggestion: [true],
-};
-
 export class GitlabExtended implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'GitLab Extended',
@@ -757,19 +752,6 @@ export class GitlabExtended implements INodeType {
 				default: 1,
 			},
 			{
-				displayName: 'Post as Suggestion',
-				name: 'asSuggestion',
-				type: 'boolean',
-				displayOptions: {
-					show: {
-						resource: ['mergeRequest'],
-						operation: ['postDiscussionNote'],
-					},
-				},
-				description: 'Whether to format note as a suggestion',
-				default: false,
-			},
-			{
 				displayName: 'Position Type',
 				name: 'positionType',
 				type: 'options',
@@ -777,7 +759,6 @@ export class GitlabExtended implements INodeType {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['postDiscussionNote'],
-						...asSuggestionCondition,
 					},
 				},
 				options: [
@@ -790,12 +771,10 @@ export class GitlabExtended implements INodeType {
 				displayName: 'New Path',
 				name: 'newPath',
 				type: 'string',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
 					},
 				},
 				description: 'Path to the new file',
@@ -805,12 +784,10 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Old Path',
 				name: 'oldPath',
 				type: 'string',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
 					},
 				},
 				description: 'Path to the old file',
@@ -820,12 +797,10 @@ export class GitlabExtended implements INodeType {
 				displayName: 'New Line',
 				name: 'newLine',
 				type: 'number',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
 					},
 				},
 				description: 'Line number in the new file',
@@ -835,12 +810,10 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Old Line',
 				name: 'oldLine',
 				type: 'number',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
 					},
 				},
 				description: 'Line number in the old file',
@@ -850,12 +823,10 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Base SHA',
 				name: 'baseSha',
 				type: 'string',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
 					},
 				},
 				description: 'Base commit SHA',
@@ -865,12 +836,10 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Head SHA',
 				name: 'headSha',
 				type: 'string',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
 					},
 				},
 				description: 'Head commit SHA',
@@ -880,12 +849,10 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Start SHA',
 				name: 'startSha',
 				type: 'string',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['postDiscussionNote'],
-						asSuggestion: [true],
 					},
 				},
 				description: 'Start commit SHA',
