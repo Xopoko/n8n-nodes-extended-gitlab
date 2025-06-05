@@ -169,7 +169,7 @@ required for your chosen operation.
 | `noteId`             | ID of a note (positive)                            |
 | `positionType`       | `text` or `image` position                         |
 | `newPath`/`oldPath`  | File paths for note position                       |
-| `newLine`/`oldLine`  | Line numbers for note position                     |
+| `newLine`/`oldLine`  | Optional line numbers for note position           |
 | `baseSha`            | Base commit SHA                                    |
 | `headSha`            | Head commit SHA                                    |
 | `startSha`           | Start commit SHA                                   |

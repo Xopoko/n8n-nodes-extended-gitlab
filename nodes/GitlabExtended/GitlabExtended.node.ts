@@ -804,7 +804,7 @@ export class GitlabExtended implements INodeType {
 					},
 				},
 				description: 'Line number in the new file',
-				default: 1,
+				default: null,
 			},
 			{
 				displayName: 'Old Line',
@@ -817,7 +817,7 @@ export class GitlabExtended implements INodeType {
 					},
 				},
 				description: 'Line number in the old file',
-				default: 0,
+				default: null,
 			},
 			{
 				displayName: 'Base SHA',
