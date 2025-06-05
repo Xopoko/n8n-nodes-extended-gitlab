@@ -1080,6 +1080,27 @@ export class GitlabExtended implements INodeType {
 		],
 	};
 
+	constructor() {
+		this.description.properties.forEach((property) => {
+			const prop: any = property as any;
+			const required = prop.required === true;
+			const defaultValue = prop.default;
+			const hasDefault = defaultValue !== undefined && defaultValue !== '' && defaultValue !== null;
+			let desc = prop.description as string | undefined;
+			desc = desc ?? '';
+
+			if (!required) {
+				desc += desc ? ' (Optional' : 'Optional';
+				if (hasDefault) desc += `, default: ${defaultValue}`;
+				desc += ')';
+			} else if (hasDefault) {
+				desc += (desc ? ' ' : '') + `Default: ${defaultValue}`;
+			}
+
+			prop.description = desc;
+		});
+	}
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
