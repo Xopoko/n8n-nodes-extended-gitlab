@@ -160,17 +160,56 @@ test('postDiscussionNote allows omitting line numbers', async () => {
 		startSha: '333',
 	});
 	await node.execute.call(ctx);
-	assert.deepStrictEqual(ctx.calls.options.body, {
-		body: 'nolines',
-		position: {
-			position_type: 'text',
-			new_path: 'a.ts',
-			old_path: 'a.ts',
-			base_sha: '111',
-			head_sha: '222',
-			start_sha: '333',
-		},
-	});
+        assert.deepStrictEqual(ctx.calls.options.body, {
+                body: 'nolines',
+                position: {
+                        position_type: 'text',
+                        new_path: 'a.ts',
+                        old_path: 'a.ts',
+                        base_sha: '111',
+                        head_sha: '222',
+                        start_sha: '333',
+                },
+        });
+});
+
+test('postDiscussionNote includes line range for multiline note', async () => {
+        const node = new GitlabExtended();
+        const ctx = createTrackedContext({
+                resource: 'mergeRequest',
+                operation: 'postDiscussionNote',
+                mergeRequestIid: 14,
+                body: 'multi',
+                startDiscussion: true,
+                positionType: 'text',
+                newPath: 'a.ts',
+                oldPath: 'a.ts',
+                baseSha: '111',
+                headSha: '222',
+                startSha: '333',
+                lineRangeStartLineCode: 'code1',
+                lineRangeStartType: 'new',
+                lineRangeEndLineCode: 'code2',
+                lineRangeEndType: 'old',
+                lineRangeStartOldLine: 5,
+                lineRangeEndNewLine: 7,
+        });
+        await node.execute.call(ctx);
+        assert.deepStrictEqual(ctx.calls.options.body, {
+                body: 'multi',
+                position: {
+                        position_type: 'text',
+                        new_path: 'a.ts',
+                        old_path: 'a.ts',
+                        base_sha: '111',
+                        head_sha: '222',
+                        start_sha: '333',
+                        line_range: {
+                                start: { line_code: 'code1', type: 'new', old_line: 5 },
+                                end: { line_code: 'code2', type: 'old', new_line: 7 },
+                        },
+                },
+        });
 });
 
 test('get builds correct endpoint', async () => {

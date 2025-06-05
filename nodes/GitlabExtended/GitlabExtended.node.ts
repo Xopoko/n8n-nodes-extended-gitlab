@@ -831,6 +831,118 @@ export class GitlabExtended implements INodeType {
 				default: null,
 			},
 			{
+				displayName: 'Line Range Start Line Code',
+				name: 'lineRangeStartLineCode',
+				type: 'string',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				description: 'Line code for the start of a multiline note',
+				default: '',
+			},
+			{
+				displayName: 'Line Range Start Type',
+				name: 'lineRangeStartType',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				options: [
+					{ name: 'New', value: 'new' },
+					{ name: 'Old', value: 'old' },
+				],
+				description: 'Use `new` for lines added by this commit, otherwise `old`',
+				default: 'new',
+			},
+			{
+				displayName: 'Line Range Start Old Line',
+				name: 'lineRangeStartOldLine',
+				type: 'number',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				description: 'Old line number of the start line',
+				default: null,
+			},
+			{
+				displayName: 'Line Range Start New Line',
+				name: 'lineRangeStartNewLine',
+				type: 'number',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				description: 'New line number of the start line',
+				default: null,
+			},
+			{
+				displayName: 'Line Range End Line Code',
+				name: 'lineRangeEndLineCode',
+				type: 'string',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				description: 'Line code for the end of a multiline note',
+				default: '',
+			},
+			{
+				displayName: 'Line Range End Type',
+				name: 'lineRangeEndType',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				options: [
+					{ name: 'New', value: 'new' },
+					{ name: 'Old', value: 'old' },
+				],
+				description: 'Use `new` for lines added by this commit, otherwise `old`',
+				default: 'new',
+			},
+			{
+				displayName: 'Line Range End Old Line',
+				name: 'lineRangeEndOldLine',
+				type: 'number',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				description: 'Old line number of the end line',
+				default: null,
+			},
+			{
+				displayName: 'Line Range End New Line',
+				name: 'lineRangeEndNewLine',
+				type: 'number',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				description: 'New line number of the end line',
+				default: null,
+			},
+			{
 				displayName: 'Base SHA',
 				name: 'baseSha',
 				type: 'string',
