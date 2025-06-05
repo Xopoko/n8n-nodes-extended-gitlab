@@ -68,8 +68,10 @@ export async function handleBranch(
 		const branch = this.getNodeParameter('branch', itemIndex) as string;
 		requireString.call(this, branch, 'branch', itemIndex);
 		body.name = branch;
-		body.developers_can_push = this.getNodeParameter('developersCanPush', itemIndex, false);
-		body.developers_can_merge = this.getNodeParameter('developersCanMerge', itemIndex, false);
+		const canPush = this.getNodeParameter('developersCanPush', itemIndex, false) as boolean;
+		if (canPush) body.developers_can_push = true;
+		const canMerge = this.getNodeParameter('developersCanMerge', itemIndex, false) as boolean;
+		if (canMerge) body.developers_can_merge = true;
 		endpoint = `${base}/protected_branches`;
 	} else if (operation === 'unprotect') {
 		requestMethod = 'DELETE';

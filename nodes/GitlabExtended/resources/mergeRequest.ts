@@ -34,7 +34,8 @@ export async function handleMergeRequest(
 		body.source_branch = this.getNodeParameter('source', itemIndex);
 		body.target_branch = this.getNodeParameter('target', itemIndex);
 		body.title = this.getNodeParameter('title', itemIndex);
-		body.description = this.getNodeParameter('description', itemIndex);
+		const description = this.getNodeParameter('description', itemIndex, '') as string;
+		if (description) body.description = description;
 		endpoint = `${base}/merge_requests`;
 	} else if (operation === 'get') {
 		requestMethod = 'GET';
@@ -187,8 +188,9 @@ export async function handleMergeRequest(
 		requirePositive.call(this, noteId, 'noteId', itemIndex);
 		const newBody = this.getNodeParameter('body', itemIndex, '') as string;
 		if (newBody) body.body = newBody;
-		const resolved = this.getNodeParameter('resolved', itemIndex, false) as boolean;
-		body.resolved = resolved;
+		if (Object.prototype.hasOwnProperty.call(this.getNode().parameters, 'resolved')) {
+			body.resolved = this.getNodeParameter('resolved', itemIndex);
+		}
 		endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
 	} else if (operation === 'getChanges') {
 		requestMethod = 'GET';

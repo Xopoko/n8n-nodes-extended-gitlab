@@ -1158,10 +1158,8 @@ export class GitlabExtended implements INodeType {
 						});
 					}
 					body.name = this.getNodeParameter('name', i);
-					body.description = this.getNodeParameter('releaseDescription', i);
-					if (body.description === undefined) {
-						body.description = '';
-					}
+					const releaseDescription = this.getNodeParameter('releaseDescription', i, '') as string;
+					if (releaseDescription) body.description = releaseDescription;
 					const assets = this.getNodeParameter('assets', i, '');
 					if (assets) {
 						try {
@@ -1177,10 +1175,8 @@ export class GitlabExtended implements INodeType {
 					requestMethod = 'PUT';
 					const tag = this.getNodeParameter('tagName', i) as string;
 					body.name = this.getNodeParameter('name', i);
-					body.description = this.getNodeParameter('releaseDescription', i);
-					if (body.description === undefined) {
-						body.description = '';
-					}
+					const releaseDescription = this.getNodeParameter('releaseDescription', i, '') as string;
+					if (releaseDescription) body.description = releaseDescription;
 					const assets = this.getNodeParameter('assets', i, '');
 					if (assets) {
 						try {
@@ -1253,7 +1249,8 @@ export class GitlabExtended implements INodeType {
 				if (operation === 'create') {
 					requestMethod = 'POST';
 					body.title = this.getNodeParameter('title', i);
-					body.description = this.getNodeParameter('description', i);
+					const issueDescription = this.getNodeParameter('description', i, '') as string;
+					if (issueDescription) body.description = issueDescription;
 					const labels = this.getNodeParameter('issueLabels', i, '');
 					if (labels) body.labels = labels;
 					endpoint = `${base}/issues`;
@@ -1272,10 +1269,13 @@ export class GitlabExtended implements INodeType {
 					const id = this.getNodeParameter('issueIid', i) as number;
 					requirePositive.call(this, id, 'issueIid', i);
 					body.title = this.getNodeParameter('title', i);
-					body.description = this.getNodeParameter('description', i);
+					const issueDescription = this.getNodeParameter('description', i, '') as string;
+					if (issueDescription) body.description = issueDescription;
 					const labels = this.getNodeParameter('issueLabels', i, '');
 					if (labels) body.labels = labels;
-					body.state_event = this.getNodeParameter('issueState', i);
+					if (Object.prototype.hasOwnProperty.call(this.getNode().parameters, 'issueState')) {
+						body.state_event = this.getNodeParameter('issueState', i);
+					}
 					endpoint = `${base}/issues/${id}`;
 				} else if (operation === 'close' || operation === 'reopen') {
 					requestMethod = 'PUT';
