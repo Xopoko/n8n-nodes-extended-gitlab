@@ -73,7 +73,7 @@ test('create uses default values correctly', async () => {
   await node.execute.call(ctx);
   assert.strictEqual(ctx.calls.options.method, 'POST');
   assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects/1/releases');
-  assert.deepStrictEqual(ctx.calls.options.body, { tag_name: 'v1.0', name: '1.0', description: '' });
+  assert.deepStrictEqual(ctx.calls.options.body, { tag_name: 'v1.0', name: '1.0' });
 });
 
 test('create throws on invalid parameters', async () => {

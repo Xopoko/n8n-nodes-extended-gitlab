@@ -24,7 +24,7 @@ export default function createContext(params) {
       },
     },
     getNode() {
-      return {};
+      return { parameters: params };
     },
   };
 }

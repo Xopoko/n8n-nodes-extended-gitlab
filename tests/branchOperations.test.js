@@ -38,7 +38,6 @@ test('protect builds correct endpoint with flags', async () => {
   assert.deepStrictEqual(ctx.calls.options.body, {
     name: 'main',
     developers_can_push: true,
-    developers_can_merge: false,
   });
 });
 

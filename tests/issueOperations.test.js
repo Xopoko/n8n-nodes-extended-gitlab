@@ -28,6 +28,19 @@ test('update builds correct endpoint and body', async () => {
   });
 });
 
+test('update omits state_event when not set', async () => {
+  const node = new GitlabExtended();
+  const ctx = createContext({
+    resource: 'issue',
+    operation: 'update',
+    issueIid: 11,
+    title: 'x',
+    description: 'd',
+  });
+  await node.execute.call(ctx);
+  assert.deepStrictEqual(ctx.calls.options.body, { title: 'x', description: 'd' });
+});
+
 test('close builds correct endpoint', async () => {
   const node = new GitlabExtended();
   const ctx = createContext({ resource: 'issue', operation: 'close', issueIid: 3 });
