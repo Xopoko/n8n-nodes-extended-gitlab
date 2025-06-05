@@ -72,6 +72,34 @@ export async function handleMergeRequest(
 		const headSha = this.getNodeParameter('headSha', itemIndex, '') as string;
 		const startSha = this.getNodeParameter('startSha', itemIndex, '') as string;
 		const oldLine = this.getNodeParameter('oldLine', itemIndex, null) as number | null;
+		const lineRangeStartLineCode = this.getNodeParameter(
+			'lineRangeStartLineCode',
+			itemIndex,
+			'',
+		) as string;
+		const lineRangeStartType = this.getNodeParameter('lineRangeStartType', itemIndex, '') as string;
+		const lineRangeStartOldLine = this.getNodeParameter(
+			'lineRangeStartOldLine',
+			itemIndex,
+			null,
+		) as number | null;
+		const lineRangeStartNewLine = this.getNodeParameter(
+			'lineRangeStartNewLine',
+			itemIndex,
+			null,
+		) as number | null;
+		const lineRangeEndLineCode = this.getNodeParameter(
+			'lineRangeEndLineCode',
+			itemIndex,
+			'',
+		) as string;
+		const lineRangeEndType = this.getNodeParameter('lineRangeEndType', itemIndex, '') as string;
+		const lineRangeEndOldLine = this.getNodeParameter('lineRangeEndOldLine', itemIndex, null) as
+			| number
+			| null;
+		const lineRangeEndNewLine = this.getNodeParameter('lineRangeEndNewLine', itemIndex, null) as
+			| number
+			| null;
 
 		const hasPosition =
 			newPath !== '' && oldPath !== '' && baseSha !== '' && headSha !== '' && startSha !== '';
@@ -96,6 +124,36 @@ export async function handleMergeRequest(
 			}
 			if (oldLine !== null && oldLine !== 0) {
 				position.old_line = oldLine;
+			}
+			const hasLineRange =
+				lineRangeStartLineCode !== '' &&
+				lineRangeStartType !== '' &&
+				lineRangeEndLineCode !== '' &&
+				lineRangeEndType !== '';
+			if (hasLineRange) {
+				const lineRange: IDataObject = {
+					start: {
+						line_code: lineRangeStartLineCode,
+						type: lineRangeStartType,
+					} as IDataObject,
+					end: {
+						line_code: lineRangeEndLineCode,
+						type: lineRangeEndType,
+					} as IDataObject,
+				};
+				if (lineRangeStartOldLine !== null) {
+					(lineRange.start as IDataObject).old_line = lineRangeStartOldLine;
+				}
+				if (lineRangeStartNewLine !== null) {
+					(lineRange.start as IDataObject).new_line = lineRangeStartNewLine;
+				}
+				if (lineRangeEndOldLine !== null) {
+					(lineRange.end as IDataObject).old_line = lineRangeEndOldLine;
+				}
+				if (lineRangeEndNewLine !== null) {
+					(lineRange.end as IDataObject).new_line = lineRangeEndNewLine;
+				}
+				position.line_range = lineRange;
 			}
 			body.position = position;
 		}

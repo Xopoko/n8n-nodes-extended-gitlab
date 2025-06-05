@@ -170,6 +170,12 @@ required for your chosen operation.
 | `positionType`       | `text` or `image` position                         |
 | `newPath`/`oldPath`  | File paths for note position                       |
 | `newLine`/`oldLine`  | Optional line numbers for note position           |
+| `lineRangeStartLineCode` | Line code for the start line of a multiline note |
+| `lineRangeStartType` | `new` or `old` start line type |
+| `lineRangeStartOldLine`/`lineRangeStartNewLine` | Optional line numbers for the start line |
+| `lineRangeEndLineCode` | Line code for the end line of a multiline note |
+| `lineRangeEndType` | `new` or `old` end line type |
+| `lineRangeEndOldLine`/`lineRangeEndNewLine` | Optional line numbers for the end line |
 | `baseSha`            | Base commit SHA                                    |
 | `headSha`            | Head commit SHA                                    |
 | `startSha`           | Start commit SHA                                   |
