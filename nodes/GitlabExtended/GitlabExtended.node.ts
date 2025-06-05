@@ -199,6 +199,11 @@ export class GitlabExtended implements INodeType {
 					{ name: 'Create', value: 'create', action: 'Create a merge request' },
 					{ name: 'Create Note', value: 'createNote', action: 'Create a note' },
 					{ name: 'Delete Discussion', value: 'deleteDiscussion', action: 'Delete a discussion' },
+					{
+						name: 'Delete Discussion Note',
+						value: 'deleteDiscussionNote',
+						action: 'Delete a discussion note',
+					},
 					{ name: 'Delete Note', value: 'deleteNote', action: 'Delete a note' },
 					{ name: 'Get', value: 'get', action: 'Get a merge request' },
 					{ name: 'Get Changes', value: 'getChanges', action: 'Get merge request changes' },
@@ -676,7 +681,6 @@ export class GitlabExtended implements INodeType {
 				displayName: 'Body',
 				name: 'body',
 				type: 'string',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
@@ -709,6 +713,7 @@ export class GitlabExtended implements INodeType {
 						resource: ['mergeRequest'],
 						operation: [
 							'deleteDiscussion',
+							'deleteDiscussionNote',
 							'getDiscussion',
 							'postDiscussionNote',
 							'resolveDiscussion',
@@ -730,7 +735,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-						operation: ['resolveDiscussion', 'updateDiscussion'],
+						operation: ['resolveDiscussion', 'updateDiscussion', 'updateDiscussionNote'],
 					},
 				},
 				description: 'Whether the discussion should be resolved',
@@ -745,7 +750,13 @@ export class GitlabExtended implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
-						operation: ['deleteNote', 'getNote', 'updateNote', 'updateDiscussionNote'],
+						operation: [
+							'deleteNote',
+							'getNote',
+							'updateNote',
+							'updateDiscussionNote',
+							'deleteDiscussionNote',
+						],
 					},
 				},
 				description: 'Existing note ID (must be positive)',
@@ -856,6 +867,32 @@ export class GitlabExtended implements INodeType {
 					},
 				},
 				description: 'Start commit SHA',
+				default: '',
+			},
+			{
+				displayName: 'Commit ID',
+				name: 'commitId',
+				type: 'string',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				description: 'SHA referencing commit to start this thread on',
+				default: '',
+			},
+			{
+				displayName: 'Created At',
+				name: 'createdAt',
+				type: 'string',
+				displayOptions: {
+					show: {
+						resource: ['mergeRequest'],
+						operation: ['postDiscussionNote'],
+					},
+				},
+				description: 'Date time string in ISO 8601 format',
 				default: '',
 			},
 			{

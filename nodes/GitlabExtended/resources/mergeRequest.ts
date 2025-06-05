@@ -59,6 +59,10 @@ export async function handleMergeRequest(
 		const newDiscussion = this.getNodeParameter('startDiscussion', itemIndex, false);
 		const note = this.getNodeParameter('body', itemIndex) as string;
 		body.body = note;
+		const commitId = this.getNodeParameter('commitId', itemIndex, '') as string;
+		const createdAt = this.getNodeParameter('createdAt', itemIndex, '') as string;
+		if (commitId) body.commit_id = commitId;
+		if (createdAt) body.created_at = createdAt;
 
 		const positionType = this.getNodeParameter('positionType', itemIndex, '') as string;
 		const newPath = this.getNodeParameter('newPath', itemIndex, '') as string;
@@ -123,7 +127,10 @@ export async function handleMergeRequest(
 		const discussionId = this.getNodeParameter('discussionId', itemIndex);
 		const noteId = this.getNodeParameter('noteId', itemIndex) as number;
 		requirePositive.call(this, noteId, 'noteId', itemIndex);
-		body.body = this.getNodeParameter('body', itemIndex);
+		const newBody = this.getNodeParameter('body', itemIndex, '') as string;
+		if (newBody) body.body = newBody;
+		const resolved = this.getNodeParameter('resolved', itemIndex, false) as boolean;
+		body.resolved = resolved;
 		endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
 	} else if (operation === 'getChanges') {
 		requestMethod = 'GET';
@@ -170,6 +177,14 @@ export async function handleMergeRequest(
 		const noteId = this.getNodeParameter('noteId', itemIndex) as number;
 		requirePositive.call(this, noteId, 'noteId', itemIndex);
 		endpoint = `${base}/merge_requests/${iid}/notes/${noteId}`;
+	} else if (operation === 'deleteDiscussionNote') {
+		requestMethod = 'DELETE';
+		const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
+		requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
+		const discussionId = this.getNodeParameter('discussionId', itemIndex);
+		const noteId = this.getNodeParameter('noteId', itemIndex) as number;
+		requirePositive.call(this, noteId, 'noteId', itemIndex);
+		endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
 	} else if (operation === 'resolveDiscussion') {
 		requestMethod = 'PUT';
 		const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
