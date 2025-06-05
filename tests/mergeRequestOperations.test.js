@@ -136,6 +136,35 @@ test('postDiscussionNote builds note with position', async () => {
   assert.ok(ctx.calls.params.includes('positionType'));
 });
 
+test('postDiscussionNote allows omitting line numbers', async () => {
+  const node = new GitlabExtended();
+  const ctx = createTrackedContext({
+    resource: 'mergeRequest',
+    operation: 'postDiscussionNote',
+    mergeRequestIid: 13,
+    body: 'nolines',
+    startDiscussion: true,
+    positionType: 'text',
+    newPath: 'a.ts',
+    oldPath: 'a.ts',
+    baseSha: '111',
+    headSha: '222',
+    startSha: '333',
+  });
+  await node.execute.call(ctx);
+  assert.deepStrictEqual(ctx.calls.options.body, {
+    body: 'nolines',
+    position: {
+      position_type: 'text',
+      new_path: 'a.ts',
+      old_path: 'a.ts',
+      base_sha: '111',
+      head_sha: '222',
+      start_sha: '333',
+    },
+  });
+});
+
 test('get builds correct endpoint', async () => {
   const node = new GitlabExtended();
   const ctx = createTrackedContext({ resource: 'mergeRequest', operation: 'get', mergeRequestIid: 1 });

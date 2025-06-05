@@ -63,17 +63,17 @@ export async function handleMergeRequest(
 		const positionType = this.getNodeParameter('positionType', itemIndex, '') as string;
 		const newPath = this.getNodeParameter('newPath', itemIndex, '') as string;
 		const oldPath = this.getNodeParameter('oldPath', itemIndex, '') as string;
-		const newLine = this.getNodeParameter('newLine', itemIndex, 1) as number;
+		const newLine = this.getNodeParameter('newLine', itemIndex, null) as number | null;
 		const baseSha = this.getNodeParameter('baseSha', itemIndex, '') as string;
 		const headSha = this.getNodeParameter('headSha', itemIndex, '') as string;
 		const startSha = this.getNodeParameter('startSha', itemIndex, '') as string;
-		const oldLine = this.getNodeParameter('oldLine', itemIndex, 0) as number;
+		const oldLine = this.getNodeParameter('oldLine', itemIndex, null) as number | null;
 
 		const hasPosition =
 			newPath !== '' && oldPath !== '' && baseSha !== '' && headSha !== '' && startSha !== '';
 
 		if (hasPosition) {
-			if (oldLine < 0) {
+			if (oldLine !== null && oldLine < 0) {
 				throw new NodeOperationError(
 					this.getNode(),
 					'The "oldLine" parameter must be a non-negative number.',
@@ -83,12 +83,14 @@ export async function handleMergeRequest(
 				position_type: positionType || 'text',
 				new_path: newPath,
 				old_path: oldPath,
-				new_line: newLine,
 				base_sha: baseSha,
 				head_sha: headSha,
 				start_sha: startSha,
 			};
-			if (oldLine !== 0) {
+			if (newLine !== null) {
+				position.new_line = newLine;
+			}
+			if (oldLine !== null && oldLine !== 0) {
 				position.old_line = oldLine;
 			}
 			body.position = position;
