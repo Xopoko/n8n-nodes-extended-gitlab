@@ -161,3 +161,19 @@ export async function getMergeRequestDiscussion(
 	const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${encodeURIComponent(discussionId)}`;
 	return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
 }
+
+/**
+ * Add a string parameter to the request body if it has a non-empty value.
+ */
+export function addOptionalStringParam(
+	this: IHookFunctions | IExecuteFunctions,
+	body: IDataObject,
+	paramName: string,
+	bodyKey: string,
+	itemIndex: number,
+): void {
+	const value = this.getNodeParameter(paramName, itemIndex, '') as string;
+	if (value) {
+		body[bodyKey] = value;
+	}
+}

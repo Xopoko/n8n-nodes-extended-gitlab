@@ -10,6 +10,7 @@ import {
 	gitlabApiRequestAllItems,
 	buildProjectBase,
 	assertValidProjectCredentials,
+	addOptionalStringParam,
 } from '../GenericFunctions';
 import { requirePositive } from '../validators';
 
@@ -34,8 +35,7 @@ export async function handleMergeRequest(
 		body.source_branch = this.getNodeParameter('source', itemIndex);
 		body.target_branch = this.getNodeParameter('target', itemIndex);
 		body.title = this.getNodeParameter('title', itemIndex);
-		const description = this.getNodeParameter('description', itemIndex, '') as string;
-		if (description) body.description = description;
+		addOptionalStringParam.call(this, body, 'description', 'description', itemIndex);
 		endpoint = `${base}/merge_requests`;
 	} else if (operation === 'get') {
 		requestMethod = 'GET';
