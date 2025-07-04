@@ -187,9 +187,16 @@ export async function handleMergeRequest(
 		const noteId = this.getNodeParameter('noteId', itemIndex) as number;
 		requirePositive.call(this, noteId, 'noteId', itemIndex);
 		const newBody = this.getNodeParameter('body', itemIndex, '') as string;
-		if (newBody) body.body = newBody;
-		if (Object.prototype.hasOwnProperty.call(this.getNode().parameters, 'resolved')) {
-			body.resolved = this.getNodeParameter('resolved', itemIndex);
+		const resolvedChoice = this.getNodeParameter('resolved', itemIndex, 'none') as string;
+		const resolvedProvided = resolvedChoice !== 'none';
+		const resolved = resolvedChoice === 'true' ? true : resolvedChoice === 'false' ? false : null;
+		if (newBody && resolvedProvided) {
+			throw new NodeOperationError(this.getNode(), 'body and resolved are mutually exclusive');
+		}
+		if (newBody) {
+			body.body = newBody;
+		} else if (resolvedProvided) {
+			body.resolved = resolved;
 		}
 		endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}/notes/${noteId}`;
 	} else if (operation === 'getChanges') {
@@ -215,7 +222,10 @@ export async function handleMergeRequest(
 		const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
 		requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
 		const discussionId = this.getNodeParameter('discussionId', itemIndex);
-		body.resolved = this.getNodeParameter('resolved', itemIndex);
+		const resolveChoice = this.getNodeParameter('resolved', itemIndex, 'none') as string;
+		if (resolveChoice !== 'none') {
+			body.resolved = resolveChoice === 'true';
+		}
 		endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
 	} else if (operation === 'deleteDiscussion') {
 		requestMethod = 'DELETE';
@@ -250,7 +260,10 @@ export async function handleMergeRequest(
 		const iid = this.getNodeParameter('mergeRequestIid', itemIndex) as number;
 		requirePositive.call(this, iid, 'mergeRequestIid', itemIndex);
 		const discussionId = this.getNodeParameter('discussionId', itemIndex);
-		body.resolved = this.getNodeParameter('resolved', itemIndex);
+		const resolveChoice = this.getNodeParameter('resolved', itemIndex, 'none') as string;
+		if (resolveChoice !== 'none') {
+			body.resolved = resolveChoice === 'true';
+		}
 		endpoint = `${base}/merge_requests/${iid}/discussions/${discussionId}`;
 	} else if (operation === 'merge') {
 		requestMethod = 'PUT';

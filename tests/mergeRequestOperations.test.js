@@ -342,8 +342,8 @@ test('updateDiscussion builds correct endpoint and body', async () => {
 		resource: 'mergeRequest',
 		operation: 'updateDiscussion',
 		mergeRequestIid: 15,
-		discussionId: 'd2',
-		resolved: true,
+                discussionId: 'd2',
+                resolved: 'true',
 	});
 	await node.execute.call(ctx);
 	assert.strictEqual(ctx.calls.options.method, 'PUT');
@@ -360,8 +360,8 @@ test('resolveDiscussion builds correct endpoint and body', async () => {
 		resource: 'mergeRequest',
 		operation: 'resolveDiscussion',
 		mergeRequestIid: 16,
-		discussionId: 'd3',
-		resolved: false,
+                discussionId: 'd3',
+                resolved: 'false',
 	});
 	await node.execute.call(ctx);
 	assert.strictEqual(ctx.calls.options.method, 'PUT');
@@ -369,7 +369,7 @@ test('resolveDiscussion builds correct endpoint and body', async () => {
 		ctx.calls.options.uri,
 		'https://gitlab.example.com/api/v4/projects/1/merge_requests/16/discussions/d3',
 	);
-	assert.deepStrictEqual(ctx.calls.options.body, { resolved: false });
+        assert.deepStrictEqual(ctx.calls.options.body, { resolved: false });
 });
 
 test('deleteDiscussion builds correct endpoint', async () => {
@@ -442,22 +442,39 @@ test('updateDiscussionNote builds correct endpoint and body', async () => {
 });
 
 test('updateDiscussionNote can resolve note without body', async () => {
-	const node = new GitlabExtended();
-	const ctx = createTrackedContext({
-		resource: 'mergeRequest',
-		operation: 'updateDiscussionNote',
-		mergeRequestIid: 30,
-		discussionId: 'd9',
-		noteId: 14,
-		resolved: true,
-	});
-	await node.execute.call(ctx);
-	assert.strictEqual(ctx.calls.options.method, 'PUT');
-	assert.strictEqual(
-		ctx.calls.options.uri,
-		'https://gitlab.example.com/api/v4/projects/1/merge_requests/30/discussions/d9/notes/14',
-	);
-	assert.deepStrictEqual(ctx.calls.options.body, { resolved: true });
+        const node = new GitlabExtended();
+        const ctx = createTrackedContext({
+                resource: 'mergeRequest',
+                operation: 'updateDiscussionNote',
+                mergeRequestIid: 30,
+                discussionId: 'd9',
+                noteId: 14,
+                resolved: 'true',
+        });
+        await node.execute.call(ctx);
+        assert.strictEqual(ctx.calls.options.method, 'PUT');
+        assert.strictEqual(
+                ctx.calls.options.uri,
+                'https://gitlab.example.com/api/v4/projects/1/merge_requests/30/discussions/d9/notes/14',
+        );
+        assert.deepStrictEqual(ctx.calls.options.body, { resolved: true });
+});
+
+test('updateDiscussionNote throws when body and resolved provided', async () => {
+        const node = new GitlabExtended();
+        const ctx = createTrackedContext({
+                resource: 'mergeRequest',
+                operation: 'updateDiscussionNote',
+                mergeRequestIid: 31,
+                discussionId: 'd10',
+                noteId: 15,
+                body: 'x',
+                resolved: 'true',
+        });
+        await assert.rejects(
+                () => node.execute.call(ctx),
+                /body and resolved are mutually exclusive/,
+        );
 });
 
 test('deleteNote builds correct endpoint', async () => {

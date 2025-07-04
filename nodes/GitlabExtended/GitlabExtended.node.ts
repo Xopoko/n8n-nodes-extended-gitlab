@@ -732,15 +732,20 @@ export class GitlabExtended implements INodeType {
 			{
 				displayName: 'Resolved',
 				name: 'resolved',
-				type: 'boolean',
+				type: 'options',
 				displayOptions: {
 					show: {
 						resource: ['mergeRequest'],
 						operation: ['resolveDiscussion', 'updateDiscussion', 'updateDiscussionNote'],
 					},
 				},
+				options: [
+					{ name: 'Do Not Change', value: 'none' },
+					{ name: 'Resolve', value: 'true' },
+					{ name: 'Unresolve', value: 'false' },
+				],
 				description: 'Whether the discussion should be resolved',
-				default: true,
+				default: 'none',
 			},
 			{
 				displayName: 'Note ID',
