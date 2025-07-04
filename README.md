@@ -188,6 +188,9 @@ required for your chosen operation.
 | `queryParameters`    | JSON query parameters                              |
 | `returnAll`          | Return every result when listing                   |
 | `limit`              | Maximum number of results                          |
+
+Optional parameters set to `null` are omitted from requests. Use this to avoid
+sending the `resolved` flag when updating a note body with `updateDiscussionNote`.
 | `groupId`            | Numeric group ID                                   |
 | `groupName`          | Name when creating a group                         |
 | `groupPath`          | Path when creating a group                         |
