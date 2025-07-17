@@ -70,6 +70,7 @@ one of its operations.
 
 ### Project
 
+- `create` – Create a project
 - `get` – Get a project
 - `getAll` – List projects
 - `search` – Search projects
@@ -194,7 +195,11 @@ sending the `resolved` flag when updating a note body with `updateDiscussionNote
 | `groupId`            | Numeric group ID                                   |
 | `groupName`          | Name when creating a group                         |
 | `groupPath`          | Path when creating a group                         |
+| `parentId`           | Parent group ID when creating a subgroup          |
 | `projectId`          | Numeric project ID                                 |
+| `projectName`        | Name when creating a project                       |
+| `projectPath`        | Path when creating a project                       |
+| `namespaceId`        | Namespace for the new project                      |
 | `searchTerm`         | Term to search projects                            |
 
 ## Credentials

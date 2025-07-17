@@ -200,6 +200,7 @@ export class GitlabExtended implements INodeType {
 				displayOptions: { show: { resource: ['project'] } },
 				description: 'Select how to manage projects',
 				options: [
+					{ name: 'Create', value: 'create', action: 'Create a project' },
 					{ name: 'Get', value: 'get', action: 'Get a project' },
 					{ name: 'Get Many', value: 'getAll', action: 'List projects' },
 					{ name: 'Search', value: 'search', action: 'Search projects' },
@@ -600,6 +601,15 @@ export class GitlabExtended implements INodeType {
 				default: '',
 			},
 			{
+				displayName: 'Parent ID',
+				name: 'parentId',
+				type: 'number',
+				typeOptions: { minValue: 1 },
+				displayOptions: { show: { resource: ['group'], operation: ['create'] } },
+				description: 'Numeric ID of the parent group',
+				default: 0,
+			},
+			{
 				displayName: 'Project ID',
 				name: 'projectId',
 				type: 'number',
@@ -617,6 +627,33 @@ export class GitlabExtended implements INodeType {
 				displayOptions: { show: { resource: ['project'], operation: ['search'] } },
 				description: 'Term to search for',
 				default: '',
+			},
+			{
+				displayName: 'Project Name',
+				name: 'projectName',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['project'], operation: ['create'] } },
+				description: 'Name of the new project',
+				default: '',
+			},
+			{
+				displayName: 'Project Path',
+				name: 'projectPath',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['project'], operation: ['create'] } },
+				description: 'URL path of the new project',
+				default: '',
+			},
+			{
+				displayName: 'Namespace ID',
+				name: 'namespaceId',
+				type: 'number',
+				typeOptions: { minValue: 1 },
+				displayOptions: { show: { resource: ['project'], operation: ['create'] } },
+				description: 'ID of the namespace for the new project',
+				default: 0,
 			},
 			{
 				displayName: 'Title',
@@ -1266,6 +1303,8 @@ export class GitlabExtended implements INodeType {
 					requestMethod = 'POST';
 					body.name = this.getNodeParameter('groupName', i);
 					body.path = this.getNodeParameter('groupPath', i);
+					const parent = this.getNodeParameter('parentId', i, 0) as number;
+					if (parent) body.parent_id = parent;
 					endpoint = `/groups`;
 				} else if (operation === 'get') {
 					requestMethod = 'GET';
@@ -1286,7 +1325,14 @@ export class GitlabExtended implements INodeType {
 					endpoint = `/groups/${id}/members`;
 				}
 			} else if (resource === 'project') {
-				if (operation === 'get') {
+				if (operation === 'create') {
+					requestMethod = 'POST';
+					body.name = this.getNodeParameter('projectName', i);
+					body.path = this.getNodeParameter('projectPath', i);
+					const ns = this.getNodeParameter('namespaceId', i, 0) as number;
+					if (ns) body.namespace_id = ns;
+					endpoint = '/projects';
+				} else if (operation === 'get') {
 					requestMethod = 'GET';
 					const id = this.getNodeParameter('projectId', i) as number;
 					requirePositive.call(this, id, 'projectId', i);
