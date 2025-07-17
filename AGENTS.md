@@ -42,7 +42,7 @@ These roles are suggestions. Agents can be customized for other workflows such a
 ## Integration Steps (Summary)
 
 1. Install this package in n8n (through Community Nodes or `npm install` beforehand).
-2. Configure **Gitlab Extended API** credentials with your GitLab server URL and personal access token.
+2. Configure **Gitlab Extended API** credentials with your GitLab server URL and personal access token, or choose "Custom" authentication in the node to enter these details per workflow.
 3. Add an **AI Agent** node in n8n, choose an OpenAI Chat model, and attach the **GitLab Extended** tool with the credentials.
 4. Provide a clear prompt describing the task. The agent will then plan tool actions and call GitLab accordingly.
 
