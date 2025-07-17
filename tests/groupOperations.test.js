@@ -19,6 +19,20 @@ test('create builds correct endpoint and body', async () => {
   assert.deepStrictEqual(ctx.calls.options.body, { name: 'Dev', path: 'dev' });
 });
 
+test('create with parentId builds correct body', async () => {
+  const node = new GitlabExtended();
+  const params = { resource: 'group', operation: 'create', groupName: 'Sub', groupPath: 'sub', parentId: 3 };
+  const ctx = createContext(params);
+  ctx.helpers.requestWithAuthentication = async (name, options) => {
+    ctx.calls.name = name;
+    ctx.calls.options = options;
+    return {};
+  };
+  await node.execute.call(ctx);
+  assert.strictEqual(ctx.calls.options.method, 'POST');
+  assert.deepStrictEqual(ctx.calls.options.body, { name: 'Sub', path: 'sub', parent_id: 3 });
+});
+
 test('get builds correct endpoint', async () => {
   const node = new GitlabExtended();
   const params = { resource: 'group', operation: 'get', groupId: 5 };

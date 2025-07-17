@@ -26,17 +26,32 @@ test('getAll builds correct endpoint with limit', async () => {
 });
 
 test('search builds correct endpoint with query', async () => {
-	const node = new GitlabExtended();
-	const ctx = createContext({
-		resource: 'project',
-		operation: 'search',
-		searchTerm: 'test',
-		returnAll: false,
-		limit: 2,
-	});
-	await node.execute.call(ctx);
-	assert.strictEqual(ctx.calls.options.method, 'GET');
-	assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects');
-	assert.strictEqual(ctx.calls.options.qs.per_page, 2);
-	assert.strictEqual(ctx.calls.options.qs.search, 'test');
+        const node = new GitlabExtended();
+        const ctx = createContext({
+                resource: 'project',
+                operation: 'search',
+                searchTerm: 'test',
+                returnAll: false,
+                limit: 2,
+        });
+        await node.execute.call(ctx);
+        assert.strictEqual(ctx.calls.options.method, 'GET');
+        assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects');
+        assert.strictEqual(ctx.calls.options.qs.per_page, 2);
+        assert.strictEqual(ctx.calls.options.qs.search, 'test');
+});
+
+test('create builds correct endpoint and body', async () => {
+        const node = new GitlabExtended();
+        const ctx = createContext({
+                resource: 'project',
+                operation: 'create',
+                projectName: 'New',
+                projectPath: 'new',
+                namespaceId: 4,
+        });
+        await node.execute.call(ctx);
+        assert.strictEqual(ctx.calls.options.method, 'POST');
+        assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/projects');
+        assert.deepStrictEqual(ctx.calls.options.body, { name: 'New', path: 'new', namespace_id: 4 });
 });
