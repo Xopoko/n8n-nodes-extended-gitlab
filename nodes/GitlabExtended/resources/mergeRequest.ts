@@ -11,6 +11,7 @@ import {
 	buildProjectBase,
 	assertValidProjectCredentials,
 	addOptionalStringParam,
+	getAuthData,
 } from '../GenericFunctions';
 import { requirePositive } from '../validators';
 
@@ -19,7 +20,7 @@ export async function handleMergeRequest(
 	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
 	const operation = this.getNodeParameter('operation', itemIndex);
-	const credential = await this.getCredentials('gitlabExtendedApi');
+	const credential = await getAuthData.call(this);
 	assertValidProjectCredentials.call(this, credential);
 
 	const base = buildProjectBase(credential);

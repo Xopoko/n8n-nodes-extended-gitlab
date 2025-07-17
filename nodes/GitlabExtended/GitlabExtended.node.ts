@@ -14,6 +14,7 @@ import {
 	buildProjectBase,
 	assertValidProjectCredentials,
 	addOptionalStringParam,
+	getAuthData,
 } from './GenericFunctions';
 import { requirePositive } from './validators';
 import { handleBranch } from './resources/branch';
@@ -38,10 +39,62 @@ export class GitlabExtended implements INodeType {
 		credentials: [
 			{
 				name: 'gitlabExtendedApi',
-				required: true,
+				required: false,
 			},
 		],
 		properties: [
+			{
+				displayName: 'Authentication',
+				name: 'authentication',
+				type: 'options',
+				options: [
+					{ name: 'Credential', value: 'credential' },
+					{ name: 'Custom', value: 'custom' },
+				],
+				default: 'credential',
+				description: 'Where the GitLab credentials come from',
+			},
+			{
+				displayName: 'Gitlab Server',
+				name: 'authServer',
+				type: 'string',
+				default: 'https://gitlab.com',
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Base URL of your GitLab instance, for example "https://gitlab.com"',
+			},
+			{
+				displayName: 'Access Token',
+				name: 'authAccessToken',
+				type: 'string',
+				typeOptions: { password: true },
+				default: '',
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Personal access token with API permissions',
+			},
+			{
+				displayName: 'Project Owner',
+				name: 'authProjectOwner',
+				type: 'string',
+				default: '',
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Namespace or owner of the project. Ignored if "Project ID" is set.',
+			},
+			{
+				displayName: 'Project Name',
+				name: 'authProjectName',
+				type: 'string',
+				default: '',
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Project slug or name. Ignored if "Project ID" is set.',
+			},
+			{
+				displayName: 'Project ID',
+				name: 'authProjectId',
+				type: 'number',
+				default: 0,
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Numeric project ID. Takes precedence over owner and name if provided.',
+			},
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -1112,7 +1165,7 @@ export class GitlabExtended implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const operation = this.getNodeParameter('operation', 0);
 		const resource = this.getNodeParameter('resource', 0);
-		const credential = await this.getCredentials('gitlabExtendedApi');
+		const credential = await getAuthData.call(this);
 		assertValidProjectCredentials.call(this, credential);
 
 		const base = buildProjectBase(credential);

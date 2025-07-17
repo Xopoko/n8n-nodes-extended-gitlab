@@ -1,18 +1,23 @@
 export default function createContext(params) {
   const calls = {};
+  const fullParams = { authentication: 'credential', ...params };
   return {
     calls,
     getInputData() {
       return [{ json: {} }];
     },
     getNodeParameter(name) {
-      return params[name];
+      return fullParams[name];
     },
     async getCredentials() {
       return { server: 'https://gitlab.example.com', accessToken: 't', projectId: 1 };
     },
     helpers: {
       async requestWithAuthentication(name, options) {
+        calls.options = options;
+        return {};
+      },
+      async request(options) {
         calls.options = options;
         return {};
       },
@@ -24,7 +29,7 @@ export default function createContext(params) {
       },
     },
     getNode() {
-      return { parameters: params };
+      return { parameters: fullParams };
     },
   };
 }

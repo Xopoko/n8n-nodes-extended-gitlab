@@ -9,35 +9,49 @@ import { NodeApiError } from 'n8n-workflow/dist/errors/index.js';
 import { GitlabExtended } from '../dist/nodes/GitlabExtended/GitlabExtended.node.js';
 
 function mockContext({
-	server = 'https://gitlab.example.com/',
-	projectId = 0,
-	projectOwner = 'owner',
-	projectName = 'repo',
+        server = 'https://gitlab.example.com/',
+        projectId = 0,
+        projectOwner = 'owner',
+        projectName = 'repo',
+        authentication = 'credential',
 } = {}) {
-	const calls = {};
-	return {
-		calls,
-		getNodeParameter() {
-			throw new Error('Unexpected parameter');
-		},
-		async getCredentials(name) {
-			calls.credentials = name;
-			if (name === 'gitlabExtendedApi') {
-				return { accessToken: 'mockToken', server, projectId, projectOwner, projectName };
-			}
-			throw new Error('Unexpected credentials name: ' + name);
-		},
-		helpers: {
-			async requestWithAuthentication(name, options) {
-				calls.name = name;
-				calls.options = options;
-				return { ok: true };
-			},
-		},
-		getNode() {
-			return {};
-		},
-	};
+        const calls = {};
+        return {
+                calls,
+                getNodeParameter(name) {
+                        const params = {
+                                authentication,
+                                authServer: server,
+                                authAccessToken: 'mockToken',
+                                authProjectId: projectId,
+                                authProjectOwner: projectOwner,
+                                authProjectName: projectName,
+                        };
+                        return params[name];
+                },
+                async getCredentials(name) {
+                        calls.credentials = name;
+                        if (name === 'gitlabExtendedApi') {
+                                return { accessToken: 'mockToken', server, projectId, projectOwner, projectName };
+                        }
+                        throw new Error('Unexpected credentials name: ' + name);
+                },
+                helpers: {
+                        async requestWithAuthentication(name, options) {
+                                calls.name = name;
+                                calls.options = options;
+                                return { ok: true };
+                        },
+                        async request(options) {
+                                calls.name = 'custom';
+                                calls.options = options;
+                                return { ok: true };
+                        },
+                },
+                getNode() {
+                        return {};
+                },
+        };
 }
 
 function createNodeContext(params, cred = {}) {
@@ -151,7 +165,8 @@ test('gitlabApiRequestAllItems follows x-next-page header', async () => {
        const calls = [];
        const ctx = {
                calls,
-               getNodeParameter() {
+               getNodeParameter(name) {
+                       if (name === 'authentication') return 'credential';
                        throw new Error('Unexpected parameter');
                },
                async getCredentials(name) {
@@ -186,6 +201,10 @@ test('gitlabApiRequest surfaces original error message when no response body', a
                                throw err;
                        },
                },
+               getNodeParameter(name) {
+                        if (name === 'authentication') return 'credential';
+                        throw new Error('Unexpected parameter');
+               },
                getNode() { return {}; },
        };
 
@@ -197,4 +216,13 @@ test('gitlabApiRequest surfaces original error message when no response body', a
                        return true;
                },
        );
+});
+
+test('gitlabApiRequest uses custom credentials when selected', async () => {
+        const ctx = mockContext({ authentication: 'custom', projectId: 1 });
+        const result = await gitlabApiRequest.call(ctx, 'GET', '/foo', {}, undefined);
+        assert.strictEqual(ctx.calls.name, 'custom');
+        assert.strictEqual(ctx.calls.options.uri, 'https://gitlab.example.com/api/v4/foo');
+        assert.strictEqual(ctx.calls.options.headers['Private-Token'], 'mockToken');
+        assert.deepStrictEqual(result, { ok: true });
 });

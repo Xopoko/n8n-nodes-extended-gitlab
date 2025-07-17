@@ -10,6 +10,7 @@ import {
 	gitlabApiRequestAllItems,
 	buildProjectBase,
 	assertValidProjectCredentials,
+	getAuthData,
 } from '../GenericFunctions';
 import { requirePositive } from '../validators';
 
@@ -18,7 +19,7 @@ export async function handlePipeline(
 	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
 	const operation = this.getNodeParameter('operation', itemIndex);
-	const credential = await this.getCredentials('gitlabExtendedApi');
+	const credential = await getAuthData.call(this);
 	assertValidProjectCredentials.call(this, credential);
 
 	const base = buildProjectBase(credential);

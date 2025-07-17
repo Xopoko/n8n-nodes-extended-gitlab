@@ -8,6 +8,20 @@ import type {
 } from 'n8n-workflow';
 import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
+export async function getAuthData(this: IHookFunctions | IExecuteFunctions): Promise<IDataObject> {
+	const mode = this.getNodeParameter('authentication', 0, 'credential') as string;
+	if (mode === 'custom') {
+		return {
+			server: this.getNodeParameter('authServer', 0) as string,
+			accessToken: this.getNodeParameter('authAccessToken', 0) as string,
+			projectOwner: this.getNodeParameter('authProjectOwner', 0) as string,
+			projectName: this.getNodeParameter('authProjectName', 0) as string,
+			projectId: this.getNodeParameter('authProjectId', 0) as number,
+		};
+	}
+	return this.getCredentials('gitlabExtendedApi');
+}
+
 /**
  * Make an API request to Gitlab
  *
@@ -43,7 +57,7 @@ export async function gitlabApiRequest(
 		delete options.qs;
 	}
 
-	const credential = await this.getCredentials('gitlabExtendedApi');
+	const credential = await getAuthData.call(this);
 	const server = credential.server as string | undefined;
 	if (!server) {
 		throw new NodeOperationError(this.getNode(), 'GitLab server URL is missing in credentials');
@@ -56,6 +70,10 @@ export async function gitlabApiRequest(
 
 	try {
 		options.uri = `${baseUrl}${endpoint}`;
+		if (this.getNodeParameter('authentication', 0, 'credential') === 'custom') {
+			options.headers = { ...options.headers, 'Private-Token': credential.accessToken as string };
+			return await this.helpers.request(options);
+		}
 		return await this.helpers.requestWithAuthentication.call(this, 'gitlabExtendedApi', options);
 	} catch (error) {
 		let description;
@@ -156,7 +174,7 @@ export async function getMergeRequestDiscussion(
 	if (mergeRequestIid <= 0) {
 		throw new NodeOperationError(this.getNode(), 'mergeRequestIid must be a positive number');
 	}
-	const credential = await this.getCredentials('gitlabExtendedApi');
+	const credential = await getAuthData.call(this);
 	const base = buildProjectBase(credential);
 	const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${encodeURIComponent(discussionId)}`;
 	return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
