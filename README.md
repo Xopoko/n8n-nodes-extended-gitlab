@@ -13,8 +13,8 @@ npm install n8n-nodes-extended-gitlab
 ## Usage
 
 1. Install the package through **Community Nodes** in the n8n settings or run `npm install n8n-nodes-extended-gitlab` in your n8n directory.
-2. Create **Gitlab Extended API** credentials providing your server URL, personal access token and default project ID.
-3. Drop the **Gitlab Extended** node into a workflow and select your credentials.
+2. Optionally create **Gitlab Extended API** credentials with your server URL, personal access token and default project ID.
+3. Drop the **Gitlab Extended** node into a workflow and either select your credentials or enable **Use Custom Credentials** to enter them directly in the node.
 4. Pick a resource and operation, then fill in the required fields.
 
 For example, choose `pipeline` and `getAll` to list all pipelines in your project.
@@ -199,7 +199,7 @@ sending the `resolved` flag when updating a note body with `updateDiscussionNote
 
 ## Credentials
 
-Authentication is handled exclusively via the <code>Gitlab Extended API</code> credentials. Create these credentials in n8n to store your GitLab server, access token and default project details in one place.
+Authentication can use the <code>Gitlab Extended API</code> credentials or the parameters entered directly in the node when <strong>Use Custom Credentials</strong> is enabled. Credentials allow you to store your GitLab server, access token and default project details in one place.
 
 The credentials' <code>server</code> field specifies your GitLab instance host (e.g. <code>https://gitlab.your-company.com</code>). Requests automatically use the <code>/api/v4</code> path.
 

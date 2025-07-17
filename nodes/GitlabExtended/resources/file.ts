@@ -10,6 +10,7 @@ import {
 	gitlabApiRequestAllItems,
 	buildProjectBase,
 	assertValidProjectCredentials,
+	getCredentialData,
 } from '../GenericFunctions';
 
 export async function handleFile(
@@ -17,7 +18,7 @@ export async function handleFile(
 	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
 	const operation = this.getNodeParameter('operation', itemIndex);
-	const credential = await this.getCredentials('gitlabExtendedApi');
+	const credential = await getCredentialData.call(this);
 	assertValidProjectCredentials.call(this, credential);
 
 	const base = buildProjectBase(credential);

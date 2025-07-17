@@ -13,6 +13,7 @@ import {
 	gitlabApiRequestAllItems,
 	buildProjectBase,
 	assertValidProjectCredentials,
+	getCredentialData,
 	addOptionalStringParam,
 } from './GenericFunctions';
 import { requirePositive } from './validators';
@@ -38,10 +39,62 @@ export class GitlabExtended implements INodeType {
 		credentials: [
 			{
 				name: 'gitlabExtendedApi',
-				required: true,
+				required: false,
 			},
 		],
 		properties: [
+			{
+				displayName: 'Use Custom Credentials',
+				name: 'useCustomCredentials',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to specify the GitLab server and token directly in this node',
+			},
+			{
+				displayName: 'Custom Credentials',
+				name: 'customCredentials',
+				type: 'collection',
+				displayOptions: { show: { useCustomCredentials: [true] } },
+				default: {},
+				options: [
+					{
+						displayName: 'Access Token',
+						name: 'accessToken',
+						type: 'string',
+						typeOptions: { password: true },
+						default: '',
+						description: 'Personal access token',
+					},
+					{
+						displayName: 'Gitlab Server',
+						name: 'server',
+						type: 'string',
+						default: 'https://gitlab.com',
+						description: 'Base URL of your GitLab instance',
+					},
+					{
+						displayName: 'Project ID',
+						name: 'projectId',
+						type: 'number',
+						default: 0,
+						description: 'Numeric project ID',
+					},
+					{
+						displayName: 'Project Name',
+						name: 'projectName',
+						type: 'string',
+						default: '',
+						description: 'Project slug or name',
+					},
+					{
+						displayName: 'Project Owner',
+						name: 'projectOwner',
+						type: 'string',
+						default: '',
+						description: 'Namespace or owner of the project',
+					},
+				],
+			},
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -1112,7 +1165,7 @@ export class GitlabExtended implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const operation = this.getNodeParameter('operation', 0);
 		const resource = this.getNodeParameter('resource', 0);
-		const credential = await this.getCredentials('gitlabExtendedApi');
+		const credential = await getCredentialData.call(this);
 		assertValidProjectCredentials.call(this, credential);
 
 		const base = buildProjectBase(credential);
