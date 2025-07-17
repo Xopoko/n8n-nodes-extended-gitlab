@@ -17,9 +17,10 @@ function mockContext({
 	const calls = {};
 	return {
 		calls,
-		getNodeParameter() {
-			throw new Error('Unexpected parameter');
-		},
+               getNodeParameter(name, _idx, fallback) {
+                        if (name === 'authentication') return 'credential';
+                        return fallback;
+               },
 		async getCredentials(name) {
 			calls.credentials = name;
 			if (name === 'gitlabExtendedApi') {
@@ -47,8 +48,10 @@ function createNodeContext(params, cred = {}) {
                getInputData() {
                        return [{ json: {} }];
                },
-               getNodeParameter(name) {
-                       return params[name];
+               getNodeParameter(name, _idx, fallback) {
+                       return Object.prototype.hasOwnProperty.call(params, name)
+                               ? params[name]
+                               : fallback;
                },
                async getCredentials() {
                        return {
@@ -151,8 +154,9 @@ test('gitlabApiRequestAllItems follows x-next-page header', async () => {
        const calls = [];
        const ctx = {
                calls,
-               getNodeParameter() {
-                       throw new Error('Unexpected parameter');
+               getNodeParameter(name, _i, fallback) {
+                       if (name === 'authentication') return 'credential';
+                       return fallback;
                },
                async getCredentials(name) {
                        if (name !== 'gitlabExtendedApi') throw new Error('Unexpected credentials name');
@@ -176,6 +180,10 @@ test('gitlabApiRequestAllItems follows x-next-page header', async () => {
 
 test('gitlabApiRequest surfaces original error message when no response body', async () => {
        const ctx = {
+               getNodeParameter(name, _i, fallback) {
+                       if (name === 'authentication') return 'credential';
+                       return fallback;
+               },
                async getCredentials(name) {
                        if (name !== 'gitlabExtendedApi') throw new Error('Unexpected credentials name');
                        return { server: 'https://gitlab.example.com', accessToken: 't' };
@@ -197,4 +205,29 @@ test('gitlabApiRequest surfaces original error message when no response body', a
                        return true;
                },
        );
+});
+
+test('gitlabApiRequest uses custom credentials when selected', async () => {
+       const params = {
+               authentication: 'custom',
+               server: 'https://custom.example.com',
+               accessToken: 'abc',
+               projectId: 99,
+       };
+       const ctx = {
+               calls: {},
+               getNodeParameter(name) { return params[name]; },
+               async getCredentials() { throw new Error('should not use credentials'); },
+               helpers: {
+                       async requestWithAuthentication(name, options) {
+                               ctx.calls.name = name;
+                               ctx.calls.options = options;
+                               return { ok: true };
+                       },
+               },
+               getNode() { return {}; },
+       };
+
+       await gitlabApiRequest.call(ctx, 'GET', '/projects', {}, undefined, {}, 0);
+       assert.strictEqual(ctx.calls.options.uri, 'https://custom.example.com/api/v4/projects');
 });

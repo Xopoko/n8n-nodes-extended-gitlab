@@ -5,8 +5,10 @@ export default function createContext(params) {
     getInputData() {
       return [{ json: {} }];
     },
-    getNodeParameter(name) {
-      return params[name];
+    getNodeParameter(name, _index, fallback) {
+      return Object.prototype.hasOwnProperty.call(params, name)
+        ? params[name]
+        : fallback;
     },
     async getCredentials() {
       return { server: 'https://gitlab.example.com', accessToken: 't', projectId: 1 };
