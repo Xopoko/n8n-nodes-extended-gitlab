@@ -3,10 +3,28 @@ import type {
 	IHookFunctions,
 	IDataObject,
 	JsonObject,
-	IHttpRequestMethods,
-	IRequestOptions,
+        IHttpRequestMethods,
+        IRequestOptions,
+        IHttpRequestOptions,
 } from 'n8n-workflow';
 import { NodeApiError, NodeOperationError } from 'n8n-workflow';
+
+export async function resolveCredentials(
+	this: IHookFunctions | IExecuteFunctions,
+	itemIndex: number,
+): Promise<IDataObject> {
+	const useCustom = this.getNodeParameter('useCustom', itemIndex, false) as boolean;
+	if (useCustom) {
+		return {
+			server: this.getNodeParameter('server', itemIndex),
+			accessToken: this.getNodeParameter('accessToken', itemIndex),
+			projectOwner: this.getNodeParameter('projectOwner', itemIndex, ''),
+			projectName: this.getNodeParameter('projectName', itemIndex, ''),
+			projectId: this.getNodeParameter('projectId', itemIndex, 0),
+		} as IDataObject;
+	}
+	return this.getCredentials('gitlabExtendedApi');
+}
 
 /**
  * Make an API request to Gitlab
@@ -26,6 +44,7 @@ export async function gitlabApiRequest(
 	body: object,
 	query?: IDataObject,
 	option: IDataObject = {},
+	itemIndex = 0,
 ): Promise<any> {
 	const options: IRequestOptions = {
 		method,
@@ -43,7 +62,7 @@ export async function gitlabApiRequest(
 		delete options.qs;
 	}
 
-	const credential = await this.getCredentials('gitlabExtendedApi');
+	const credential = await resolveCredentials.call(this, itemIndex);
 	const server = credential.server as string | undefined;
 	if (!server) {
 		throw new NodeOperationError(this.getNode(), 'GitLab server URL is missing in credentials');
@@ -55,7 +74,13 @@ export async function gitlabApiRequest(
 	const baseUrl = `${host}/api/v4`;
 
 	try {
-		options.uri = `${baseUrl}${endpoint}`;
+                options.uri = `${baseUrl}${endpoint}`;
+                if (this.getNodeParameter('useCustom', itemIndex, false)) {
+                        (options.headers as IDataObject)['Private-Token'] = credential.accessToken as string;
+                        const requestOptions = { ...options, url: options.uri as string } as IHttpRequestOptions;
+                        delete (requestOptions as IRequestOptions).uri;
+                        return await this.helpers.httpRequest.call(this, requestOptions);
+                }
 		return await this.helpers.requestWithAuthentication.call(this, 'gitlabExtendedApi', options);
 	} catch (error) {
 		let description;
@@ -87,6 +112,7 @@ export async function gitlabApiRequestAllItems(
 	endpoint: string,
 	body: any = {},
 	query: IDataObject = {},
+	itemIndex = 0,
 ): Promise<any> {
 	const returnData: IDataObject[] = [];
 
@@ -96,9 +122,17 @@ export async function gitlabApiRequestAllItems(
 	query.page = 1;
 
 	do {
-		responseData = await gitlabApiRequest.call(this, method, endpoint, body as IDataObject, query, {
-			resolveWithFullResponse: true,
-		});
+		responseData = await gitlabApiRequest.call(
+			this,
+			method,
+			endpoint,
+			body as IDataObject,
+			query,
+			{
+				resolveWithFullResponse: true,
+			},
+			itemIndex,
+		);
 		query.page++;
 		returnData.push.apply(returnData, responseData.body as IDataObject[]);
 	} while (responseData.headers['x-next-page']);
@@ -152,14 +186,15 @@ export async function getMergeRequestDiscussion(
 	mergeRequestIid: number,
 	discussionId: string,
 	query: IDataObject = {},
+	itemIndex = 0,
 ): Promise<any> {
 	if (mergeRequestIid <= 0) {
 		throw new NodeOperationError(this.getNode(), 'mergeRequestIid must be a positive number');
 	}
-	const credential = await this.getCredentials('gitlabExtendedApi');
+	const credential = await resolveCredentials.call(this, itemIndex);
 	const base = buildProjectBase(credential);
 	const endpoint = `${base}/merge_requests/${mergeRequestIid}/discussions/${encodeURIComponent(discussionId)}`;
-	return gitlabApiRequest.call(this, 'GET', endpoint, {}, query);
+	return gitlabApiRequest.call(this, 'GET', endpoint, {}, query, {}, itemIndex);
 }
 
 /**

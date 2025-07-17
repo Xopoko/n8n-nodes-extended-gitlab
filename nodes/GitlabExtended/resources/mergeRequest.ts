@@ -10,6 +10,7 @@ import {
 	gitlabApiRequestAllItems,
 	buildProjectBase,
 	assertValidProjectCredentials,
+	resolveCredentials,
 	addOptionalStringParam,
 } from '../GenericFunctions';
 import { requirePositive } from '../validators';
@@ -19,7 +20,7 @@ export async function handleMergeRequest(
 	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
 	const operation = this.getNodeParameter('operation', itemIndex);
-	const credential = await this.getCredentials('gitlabExtendedApi');
+	const credential = await resolveCredentials.call(this, itemIndex);
 	assertValidProjectCredentials.call(this, credential);
 
 	const base = buildProjectBase(credential);
@@ -306,8 +307,8 @@ export async function handleMergeRequest(
 	}
 
 	const response = returnAll
-		? await gitlabApiRequestAllItems.call(this, requestMethod, endpoint, body, qs)
-		: await gitlabApiRequest.call(this, requestMethod, endpoint, body, qs);
+		? await gitlabApiRequestAllItems.call(this, requestMethod, endpoint, body, qs, itemIndex)
+		: await gitlabApiRequest.call(this, requestMethod, endpoint, body, qs, {}, itemIndex);
 
 	return this.helpers.constructExecutionMetaData(
 		this.helpers.returnJsonArray(response as IDataObject),
