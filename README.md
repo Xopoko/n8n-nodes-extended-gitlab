@@ -199,9 +199,9 @@ sending the `resolved` flag when updating a note body with `updateDiscussionNote
 
 ## Credentials
 
-Authentication is handled exclusively via the <code>Gitlab Extended API</code> credentials. Create these credentials in n8n to store your GitLab server, access token and default project details in one place.
+Authentication can use the saved <code>Gitlab Extended API</code> credentials or custom values entered directly in the node. When selecting <strong>Custom</strong> authentication you provide the server URL, token and project details on the node itself.
 
-The credentials' <code>server</code> field specifies your GitLab instance host (e.g. <code>https://gitlab.your-company.com</code>). Requests automatically use the <code>/api/v4</code> path.
+The credentials' or custom <code>server</code> field specifies your GitLab instance host (e.g. <code>https://gitlab.your-company.com</code>). Requests automatically use the <code>/api/v4</code> path.
 
 ## Compatibility
 

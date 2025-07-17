@@ -14,6 +14,7 @@ import {
 	buildProjectBase,
 	assertValidProjectCredentials,
 	addOptionalStringParam,
+	resolveCredential,
 } from './GenericFunctions';
 import { requirePositive } from './validators';
 import { handleBranch } from './resources/branch';
@@ -38,10 +39,62 @@ export class GitlabExtended implements INodeType {
 		credentials: [
 			{
 				name: 'gitlabExtendedApi',
-				required: true,
+				required: false,
 			},
 		],
 		properties: [
+			{
+				displayName: 'Authentication',
+				name: 'authentication',
+				type: 'options',
+				options: [
+					{ name: 'Credential', value: 'credential' },
+					{ name: 'Custom', value: 'custom' },
+				],
+				default: 'credential',
+				description: 'Select whether to use saved credentials or custom fields for this node',
+			},
+			{
+				displayName: 'GitLab Server',
+				name: 'server',
+				type: 'string',
+				default: 'https://gitlab.com',
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Base URL of your GitLab instance, for example "https://gitlab.com"',
+			},
+			{
+				displayName: 'Access Token',
+				name: 'accessToken',
+				type: 'string',
+				typeOptions: { password: true },
+				default: '',
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Personal access token with API permissions',
+			},
+			{
+				displayName: 'Project Owner',
+				name: 'projectOwner',
+				type: 'string',
+				default: '',
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Namespace or owner of the project. Ignored if "Project ID" is set.',
+			},
+			{
+				displayName: 'Project Name',
+				name: 'projectName',
+				type: 'string',
+				default: '',
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Project slug or name. Ignored if "Project ID" is set.',
+			},
+			{
+				displayName: 'Project ID',
+				name: 'projectId',
+				type: 'number',
+				default: 0,
+				displayOptions: { show: { authentication: ['custom'] } },
+				description: 'Numeric project ID. Takes precedence over owner and name if provided.',
+			},
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -1112,12 +1165,14 @@ export class GitlabExtended implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const operation = this.getNodeParameter('operation', 0);
 		const resource = this.getNodeParameter('resource', 0);
-		const credential = await this.getCredentials('gitlabExtendedApi');
-		assertValidProjectCredentials.call(this, credential);
-
-		const base = buildProjectBase(credential);
+		const authCheck = await resolveCredential.call(this, 0);
+		assertValidProjectCredentials.call(this, authCheck);
 
 		for (let i = 0; i < items.length; i++) {
+			const credential = await resolveCredential.call(this, i);
+			assertValidProjectCredentials.call(this, credential);
+			const base = buildProjectBase(credential);
+
 			let requestMethod: IHttpRequestMethods = 'GET';
 			let endpoint = '';
 			let body: IDataObject = {};
@@ -1304,8 +1359,8 @@ export class GitlabExtended implements INodeType {
 			}
 
 			const response = returnAll
-				? await gitlabApiRequestAllItems.call(this, requestMethod, endpoint, body, qs)
-				: await gitlabApiRequest.call(this, requestMethod, endpoint, body, qs);
+				? await gitlabApiRequestAllItems.call(this, requestMethod, endpoint, body, qs, i)
+				: await gitlabApiRequest.call(this, requestMethod, endpoint, body, qs, {}, i);
 
 			const executionData = this.helpers.constructExecutionMetaData(
 				this.helpers.returnJsonArray(response as IDataObject),
